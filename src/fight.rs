@@ -74,6 +74,8 @@ pub struct Creature {
     pub vampirism: bool,
     /// R2: the creature's element (enemies; `None` for the slime and element-less kinds).
     pub element: Option<Liquid>,
+    /// Statuses that never take on it, besides its element's (`[[enemies]] status_immune`).
+    pub status_immune: Vec<String>,
     pub traits: Vec<Trait>,
     /// Its own sight range (enemies); the fight's `vision` when `None`.
     pub vision: Option<i32>,
@@ -413,6 +415,7 @@ impl<'a> Fight<'a> {
             personality: Personality::Aggressive,
             vampirism: false,
             element: None,
+            status_immune: Vec::new(),
             traits: Vec::new(),
             vision: None,
             hunter: false,
@@ -2113,12 +2116,13 @@ fn apply_liquid(d: &Design, target: &mut Creature, liquid: Liquid, from: Source,
     let pulses = d.rules.retaliation_pulses;
     let own = d.liquid(liquid).pulses;
     let element = target.element;
+    let own_immune = target.status_immune.clone();
     let has = |table: &BTreeMap<String, Vec<Liquid>>, kind: StatusKind| {
         element.is_some_and(|e| table.get(kind.name()).is_some_and(|l| l.contains(&e)))
     };
     let mut add = |kind: StatusKind, duration| {
-        // R2 immunity by the target's element: the strike hurt, the status does not take.
-        if has(&d.elements.status_immune, kind) {
+        // R2 immunity by the target's element or its own: the strike hurt, the status does not.
+        if has(&d.elements.status_immune, kind) || own_immune.iter().any(|n| n == kind.name()) {
             return;
         }
         let duration = if from == Source::Retaliation && pulses > 0 {
@@ -2262,6 +2266,7 @@ fn enemy_creature(d: &Design, kind: &str, cell: Cell) -> Creature {
         personality: e.personality,
         vampirism: e.traits.contains(&Trait::Vampirism),
         element: d.elements.of_enemy(e),
+        status_immune: e.status_immune.clone(),
         traits: e.traits.clone(),
         vision: e.vision,
         hunter: false,

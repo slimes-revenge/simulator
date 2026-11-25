@@ -238,7 +238,8 @@ Agreed design rules (balance `sim-reactions-spec.md`, `bestiary-numbers.md`); no
     `miss_self_damage` (1) HP, counted `elem_miss`;
   - same element: no bite.
 - **Status immunity** (`status_immune`): a status does not take on enemies of the listed
-  elements; the hit still hurts. `status_double`: it takes twice (two copies) instead.
+  elements; the hit still hurts. An enemy's own `status_immune` list adds to its element's (the
+  weeping ghost: Instability). `status_double`: it takes twice (two copies) instead.
 - **Ambrosia** heals a Living target (`elements.living` = Alkali) by 1 instead of hurting it.
 - **Strike rows of the new liquids** (balance `liquids.md`, final list): Vitriol — Corroding
   (at least 1 armor per pulse; the strike strips none); Alkali — Instability for its `pulses`

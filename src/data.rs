@@ -333,6 +333,9 @@ pub struct EnemyData {
     pub vision: Option<i32>,
     /// R2: its element; derived from the corpse when absent (`Elements::of_enemy`).
     pub element: Option<Liquid>,
+    /// Statuses (by name) that never take on it, on top of `elements.status_immune`.
+    #[serde(default)]
+    pub status_immune: Vec<String>,
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -551,6 +554,7 @@ impl Design {
             .status_immune
             .keys()
             .chain(el.status_double.keys())
+            .chain(design.enemies.iter().flat_map(|e| &e.status_immune))
             .find(|k| !known.contains(&k.as_str()))
         {
             return Err(format!(

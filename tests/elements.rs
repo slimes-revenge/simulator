@@ -214,3 +214,18 @@ fn careful_policies_pour_away_what_would_react_and_strafe_does_not() {
     let (won, _, reactions) = play("strafe");
     assert!(won && reactions >= 1);
 }
+
+#[test]
+fn an_enemy_can_be_immune_on_its_own() {
+    // A Lava Mushroom takes Instability from Oil, unless it lists it as its own immunity.
+    let mut d = design(Liquid::Lava);
+    let (log, _, _) = round(&d, with_edge(&[Liquid::Oil]), Policy::Newcomer, 0);
+    assert!(strike(&log).contains("Instability"), "{log:?}");
+    d.enemies
+        .iter_mut()
+        .find(|e| e.name == "Mushroom")
+        .unwrap()
+        .status_immune = vec!["Instability".into()];
+    let (log, _, _) = round(&d, with_edge(&[Liquid::Oil]), Policy::Newcomer, 0);
+    assert!(!strike(&log).contains("Instability"), "{log:?}");
+}
