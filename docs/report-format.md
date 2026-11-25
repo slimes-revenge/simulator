@@ -203,8 +203,8 @@ run   E          strafe   Lava                     min90               -        
 | `body_out` | Average body at the exit, after drinking, over the seeds that reached it (in `run` mode: the next level's entry body); `-` when none did |
 | `stops` | As in `[map-level-ends]` |
 
-`[ladder-summary]` has one row per mode × `[ladder]` threshold × full branch (one no other row
-continues), in threshold order, then branch.
+`[ladder-summary]` has one row per mode × `[ladder]` threshold × leaf row (one that is no other
+row's parent), in threshold order, then branch.
 
 | Column | Meaning |
 | --- | --- |

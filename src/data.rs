@@ -410,34 +410,39 @@ impl Design {
                 }
             }
         }
-        let rows: Vec<(&Level, &LadderPlace)> = design
-            .levels
-            .iter()
-            .filter_map(|l| l.ladder.as_ref().map(|p| (l, p)))
-            .collect();
+        let rows = crate::ladder::rows(&design);
         for (i, &(level, p)) in rows.iter().enumerate() {
-            let same = |q: &LadderPlace, other: &Level| {
-                q.difficulty == p.difficulty && other.policy == level.policy
+            let same = |&(l, q): &(&Level, &LadderPlace)| {
+                q.difficulty == p.difficulty && l.policy == level.policy
+            };
+            let lowest = rows
+                .iter()
+                .filter(|r| same(r))
+                .all(|r| r.1.level >= p.level);
+            // A branch grows by at most one choice per level and never drops one.
+            let grows = |parent: &str| {
+                p.branch == parent
+                    || (p.continues(parent)
+                        && !p.branch[parent.len()..]
+                            .trim_start_matches('-')
+                            .contains('-'))
             };
             let problem = if level.map.is_none() {
                 Some("ladder needs a map level".to_string())
             } else if !["E", "N", "H"].contains(&p.difficulty.as_str()) || p.level == 0 {
                 Some("ladder.difficulty must be E, N or H and ladder.level >= 1".into())
-            } else if p.branch.split('-').any(|c| c.is_empty()) && !p.branch.is_empty() {
+            } else if !p.branch.is_empty() && p.branch.split('-').any(|c| c.is_empty()) {
                 Some(format!("ladder.branch {:?} has an empty choice", p.branch))
             } else if rows[..i]
                 .iter()
-                .any(|&(l, q)| same(q, l) && q.level == p.level && q.branch == p.branch)
+                .any(|r| same(r) && r.1.level == p.level && r.1.branch == p.branch)
             {
                 Some("two rows share level, difficulty, policy and branch".into())
-            } else if p.level > 1
-                && rows.iter().any(|&(l, q)| same(q, l) && q.level < p.level)
-                && !rows
-                    .iter()
-                    .any(|&(l, q)| same(q, l) && q.level == p.level - 1 && p.continues(&q.branch))
+            } else if !lowest
+                && crate::ladder::parent(&rows, i).is_none_or(|j| !grows(&rows[j].1.branch))
             {
                 Some(format!(
-                    "no level {} row this branch continues",
+                    "the level {} row this continues must have the same branch or one choice fewer",
                     p.level - 1
                 ))
             } else {
@@ -448,9 +453,12 @@ impl Design {
             }
         }
         for t in &design.ladder.thresholds {
-            if t.min.is_some() == t.max.is_some() {
+            if t.min.is_some() == t.max.is_some()
+                || !["E", "N", "H"].contains(&t.difficulty.as_str())
+                || !["strafe", "lure", "kite"].contains(&t.policy.as_str())
+            {
                 return Err(format!(
-                    "ladder.thresholds {} {}: give exactly one of min, max",
+                    "ladder.thresholds {} {}: difficulty E, N or H, a map policy, exactly one of min, max",
                     t.difficulty, t.policy
                 ));
             }

@@ -5,7 +5,6 @@
 use crate::data::{Design, LadderPlace, Level, Liquid, Threshold};
 use crate::map::{self, MapLevelResult};
 use rayon::prelude::*;
-use std::collections::BTreeMap;
 
 /// Per seed: the body that left a level's exit, `None` for a seed that died.
 type Bodies = Vec<Option<Vec<Liquid>>>;
@@ -37,7 +36,7 @@ pub struct SummaryRow {
     pub cause: Option<String>,
 }
 
-fn rows(d: &Design) -> Vec<(&Level, &LadderPlace)> {
+pub(crate) fn rows(d: &Design) -> Vec<(&Level, &LadderPlace)> {
     d.levels
         .iter()
         .filter_map(|l| l.ladder.as_ref().map(|p| (l, p)))
@@ -49,7 +48,7 @@ fn same_ladder(a: (&Level, &LadderPlace), b: (&Level, &LadderPlace)) -> bool {
 }
 
 /// The row at the previous level that `i` continues: the longest branch it extends.
-fn parent(rows: &[(&Level, &LadderPlace)], i: usize) -> Option<usize> {
+pub(crate) fn parent(rows: &[(&Level, &LadderPlace)], i: usize) -> Option<usize> {
     let (_, p) = rows[i];
     (0..rows.len())
         .filter(|&j| same_ladder(rows[i], rows[j]) && rows[j].1.level + 1 == p.level)
@@ -132,67 +131,53 @@ pub fn run(d: &Design) -> (Vec<LadderRow>, Vec<SummaryRow>) {
     (out, summary)
 }
 
-/// For each mode, threshold and full branch (one no other row continues): the climb.
+/// For each mode and threshold, one row per leaf (a ladder row no other row continues as its
+/// parent): the climb along its parent chain.
 fn summarize(
     rows: &[(&Level, &LadderPlace)],
     out: &[LadderRow],
     thresholds: &[Threshold],
 ) -> Vec<SummaryRow> {
+    let is_parent: Vec<bool> = (0..rows.len())
+        .map(|j| (0..rows.len()).any(|i| parent(rows, i) == Some(j)))
+        .collect();
     let mut summary = Vec::new();
     for mode in MODES {
+        let result = |i: usize| {
+            let (l, p) = rows[i];
+            &out.iter()
+                .find(|r| r.mode == mode && &r.place == p && r.policy == l.policy)
+                .expect("every row is played in every mode")
+                .result
+        };
         for t in thresholds {
-            let mine: Vec<&LadderRow> = out
-                .iter()
-                .filter(|r| r.mode == mode && r.place.difficulty == t.difficulty)
-                .filter(|r| r.policy == t.policy)
+            let mut leaves: Vec<usize> = (0..rows.len())
+                .filter(|&i| !is_parent[i])
+                .filter(|&i| rows[i].1.difficulty == t.difficulty && rows[i].0.policy == t.policy)
                 .collect();
-            let mut leaves: Vec<&str> = mine
-                .iter()
-                .map(|r| r.place.branch.as_str())
-                .filter(|&b| {
-                    !rows.iter().any(|&(l, p)| {
-                        p.difficulty == t.difficulty
-                            && l.policy == t.policy
-                            && p.branch != b
-                            && p.continues(b)
-                    })
-                })
-                .collect();
-            leaves.sort();
-            leaves.dedup();
+            leaves.sort_by_key(|&i| (rows[i].1.branch.clone(), rows[i].1.level));
             for leaf in leaves {
-                let tip = LadderPlace {
-                    level: 0,
-                    difficulty: t.difficulty.clone(),
-                    branch: leaf.into(),
-                };
-                // Per level, the row of the longest branch this leaf continues.
-                let mut chain: BTreeMap<u32, &LadderRow> = BTreeMap::new();
-                for r in mine.iter().filter(|r| tip.continues(&r.place.branch)) {
-                    let k = r.place.level;
-                    if chain
-                        .get(&k)
-                        .is_none_or(|c| c.place.branch.len() < r.place.branch.len())
-                    {
-                        chain.insert(k, r);
-                    }
+                let mut chain = vec![leaf];
+                while let Some(j) = parent(rows, *chain.last().expect("not empty")) {
+                    chain.push(j);
                 }
-                let fail = chain.values().find(|r| !t.meets(r.result.end));
+                chain.reverse();
+                let fail = chain.iter().copied().find(|&i| !t.meets(result(i).end));
                 let furthest = chain
-                    .values()
-                    .take_while(|r| t.meets(r.result.end))
+                    .iter()
+                    .take_while(|&&i| t.meets(result(i).end))
                     .last()
-                    .map(|r| r.place.level);
+                    .map(|&i| rows[i].1.level);
                 summary.push(SummaryRow {
                     mode,
                     difficulty: t.difficulty.clone(),
                     policy: t.policy.clone(),
-                    branch: leaf.into(),
+                    branch: rows[leaf].1.branch.clone(),
                     rule: t.rule(),
                     furthest,
-                    first_fail: fail.map(|r| r.place.level),
-                    cause: fail.and_then(|r| {
-                        r.result
+                    first_fail: fail.map(|i| rows[i].1.level),
+                    cause: fail.and_then(|i| {
+                        result(i)
                             .stops
                             .iter()
                             .max_by(|a, b| a.1.cmp(b.1).then(b.0.cmp(a.0)))

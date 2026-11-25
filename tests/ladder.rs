@@ -153,7 +153,7 @@ fn ladder_rows_are_checked() {
         "",
     );
     let err = design(&(l1.clone() + &orphan)).unwrap_err();
-    assert!(err.contains("no level 1 row"), "{err}");
+    assert!(err.contains("one choice fewer"), "{err}");
     let twin = row(
         "c",
         2,
@@ -172,4 +172,51 @@ fn ladder_rows_are_checked() {
     assert!(design(&bad).is_err());
     let river = row("e", 2, "[\"Water\"]", "", ", river = 2");
     assert!(design(&river).unwrap_err().contains("river_liquids"));
+    // A branch may not skip a city: level 4 Lava-Mercury would come from level 3 "".
+    let r = |id: &str, k: u32, b: &str| {
+        row(
+            id,
+            2,
+            "[\"Water\"]",
+            &format!("ladder = {{ level = {k}, difficulty = \"E\", branch = \"{b}\" }}"),
+            "",
+        )
+    };
+    let skip = r("a", 1, "")
+        + &r("b", 2, "Lava")
+        + &r("c", 2, "")
+        + &r("d", 3, "")
+        + &r("e", 4, "Lava-Mercury");
+    assert!(design(&skip).unwrap_err().contains("one choice fewer"));
+    let text = std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/data/design.toml"))
+        .unwrap()
+        .replacen(
+            "{ difficulty = \"E\", policy = \"strafe\"",
+            "{ difficulty = \"e\", policy = \"strafe\"",
+            1,
+        );
+    assert!(Design::parse(&text).unwrap_err().contains("thresholds"));
+}
+
+#[test]
+fn the_summary_follows_the_parent_chain_of_each_leaf() {
+    // L1 "" -> L2 "" -> L3 "", and L1 "" -> L2 "Lava" (a leaf at level 2).
+    let r = |id: &str, k: u32, b: &str| {
+        row(
+            id,
+            2,
+            "[\"Water\"]",
+            &format!("ladder = {{ level = {k}, difficulty = \"E\", branch = \"{b}\" }}"),
+            "",
+        )
+    };
+    let d =
+        design(&(r("a", 1, "") + &r("b", 2, "") + &r("c", 2, "Lava") + &r("e", 3, ""))).unwrap();
+    let (_, summary) = ladder::run(&d);
+    let mine: Vec<_> = summary
+        .iter()
+        .filter(|s| s.mode == "run" && s.rule == "min90")
+        .map(|s| (s.branch.as_str(), s.furthest))
+        .collect();
+    assert_eq!(mine, vec![("", Some(3)), ("Lava", Some(2))]);
 }

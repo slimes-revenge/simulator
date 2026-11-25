@@ -20,7 +20,8 @@ Rows of one difficulty and policy form a tree. A row **continues** a branch when
 that branch, or extends it by more choices (`Lava-Mercury` continues `Lava` and the empty
 branch). A row's **parent** is the row one level lower, same difficulty and policy, with the
 longest branch it continues. Every row above the lowest level of its difficulty × policy needs
-a parent (checked in `Design::parse`). The row carries everything its branch changes: the
+a parent whose branch is the same or has exactly one choice fewer: a branch grows by at most
+one city per level and never drops one (checked in `Design::parse`). The row carries everything its branch changes: the
 start body, river liquids, the enemies (carriers of a chosen liquid are their own
 `[[enemies]]` rows).
 
@@ -36,11 +37,17 @@ level.
 - **`run`** — the lowest level starts from its `start`. Each higher row starts each seed with
   the body that seed had at its parent row's exit, after drinking the river. A seed that died
   stops there; `end` counts it as failed on every later level. Only the body carries over:
-  statuses and dominance restart.
+  statuses and dominance restart. A body larger than the row's `capacity` keeps its centre
+  units and loses the rest from the edge.
 
 ## Summary
 
-For each mode, threshold and full branch (a branch no other row continues): the chain of rows
-the branch continues, by level. `furthest_level` is the last level of the unbroken streak of
-passing levels from the lowest one. `first_fail_level` is the level that broke it, and `cause`
-is its most frequent stop.
+For each mode and threshold, one row per leaf: a ladder row of that difficulty and policy that
+is no other row's parent. Its chain is the leaf and its parents down to the lowest level — the
+same rows a `run` plays. `furthest_level` is the last level of the unbroken streak of passing
+levels from the lowest one. `first_fail_level` is the level that broke it, and `cause` is its
+most frequent stop. A leaf below the top level (a branch that ends early) shows its own last
+level as `furthest_level` when all its levels pass.
+
+Thresholds must name E, N or H and a map policy (`strafe`, `lure`, `kite`); one with no ladder
+rows gives no summary rows.
