@@ -148,12 +148,37 @@ the seeds that reached the stage, with 2 decimals; `net` carries a sign.
 | `wasted` | Average total wasted units per seed |
 | `stops` | Where runs ended, `stage<k>:<cause>=seeds`, by count descending; `-` when all finished |
 
+### `[map-levels]` and `[map-level-ends]`
+
+These appear only when the design file has map levels. The rules are in [map-levels.md](map-levels.md).
+
+```
+[map-levels]
+level          policy     end rooms  rounds fights engaged0 engaged1 engaged2 engaged3+ net_per_fight
+map-vision3    strafe       0  1.76   10.22   1.72     0.00    81.40    18.60      0.00         -5.81
+
+[map-level-ends]
+level          end    min worst  stops
+map-vision3      0   0.00     0  room1:melee:Mushroom=8 room1:melee:Mandragora=7 ...
+```
+
+| Column | Meaning |
+| --- | --- |
+| `end` | Percent of seeds that reached the exit |
+| `rooms` | Average number of rooms entered |
+| `rounds`, `fights` | Average rounds and episodes per run |
+| `engaged0` … `engaged3+` | Percent of all episodes whose most aggroed enemies adjacent at once was 0, 1, 2, 3 or more |
+| `net_per_fight` | Episode `net` summed over all runs / episodes, signed; `-` without episodes |
+| `min`, `worst` | Average and worst smallest body (start and after each episode) |
+| `stops` | Where runs ended without the exit: `room<k>:<cause>=seeds`, by count descending |
+
 ### CLI for experiments
 
 ```bash
 cargo run --release -- --design my.toml --no-json --out-txt -     # text to stdout
 cargo run --release -- --only-builds lava,water --only-enemies Mushroom,Bat --out-txt my.txt
 cargo run --release -- --trace lava mushroom-1 0 1   # turn-by-turn log: build encounter seed ap
+cargo run --release -- --trace-map map-vision3 0     # a map level's map and log: level seed
 ```
 
 A filter naming an unknown build id or enemy name fails with exit code 2 and lists the valid

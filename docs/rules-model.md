@@ -7,7 +7,8 @@ truth for how the game behaves today; the simulator mirrors it by hand. Numbers 
 
 ## Board and movement
 
-- `rules.board_width` × `rules.board_height` grass, no walls, no puddles in v1.
+- Matrix fights: `rules.board_width` × `rules.board_height` grass, no walls, no puddles. Map
+  levels have walls that block movement and sight ([map-levels.md](map-levels.md)).
 - 8 directions, one cell per step. Occupied cells block; dead enemies leave the board (their
   corpse does not occupy the cell).
 - Pathing (`src/path.rs`) stands in for `GridPath` (A* Pathfinding Project): octile costs

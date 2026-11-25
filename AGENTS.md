@@ -20,11 +20,13 @@ src/fight.rs         # one fight: creatures, statuses, strikes, enemy AI, turn o
 src/path.rs          # 8-direction pathing (stands in for the game's A* GridPath)
 src/rng.rs           # seeded SplitMix64
 src/report.rs        # builds, encounters, the matrix, JSON report
-src/level.rs         # level economy: body carried through fights and fountains
+src/level.rs         # stage levels: body carried through fights and fountains
+src/map.rs           # map levels: generated rooms, walls, the strafe walk, episodes
 src/text.rs          # plain-text report (design-guard.txt)
 src/main.rs          # CLI (USAGE): --design, --out, --no-json, --out-txt, --only-*, --trace
 reports/             # design-guard.txt committed; CI fails when it is stale
-tests/fights.rs      # determinism, hand-checked fights, coverage, contract
+tests/fights.rs      # determinism, hand-checked fights, coverage, contract, stage levels
+tests/maps.rs        # map generation, sight, the strafe walk, episodes
 docs/                # rules-model.md, report-format.md (index: docs/README.md)
 .github/workflows/   # ci.yml: fmt, clippy, test, run; publish to the `latest` release on dev
 .claude/rules/       # agent rules

@@ -10,7 +10,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 const USAGE: &str = "usage: simulator [--design PATH] [--out PATH] [--no-json] [--out-txt PATH|-]
                  [--only-builds ID,ID] [--only-enemies NAME,NAME]
-                 [--trace BUILD ENCOUNTER SEED AP]";
+                 [--trace BUILD ENCOUNTER SEED AP] [--trace-map LEVEL SEED]";
 
 fn main() -> ExitCode {
     let mut design: Option<String> = None;
@@ -20,6 +20,7 @@ fn main() -> ExitCode {
     let mut only_builds: Option<Vec<String>> = None;
     let mut only_enemies: Option<Vec<String>> = None;
     let mut trace: Option<Vec<String>> = None;
+    let mut trace_map: Option<(String, String)> = None;
     let args: Vec<String> = std::env::args().skip(1).collect();
     let mut i = 0;
     while i < args.len() {
@@ -56,6 +57,10 @@ fn main() -> ExitCode {
             {
                 trace = Some(args[i + 1..i + 5].to_vec());
                 5
+            }
+            ("--trace-map", Some(level)) if args.len() >= i + 3 => {
+                trace_map = Some((level, args[i + 2].clone()));
+                3
             }
             _ => {
                 eprintln!("{USAGE}");
@@ -107,6 +112,32 @@ fn main() -> ExitCode {
         .cloned()
         .collect();
 
+    if let Some((id, seed)) = trace_map {
+        let level = d.levels.iter().find(|l| l.id == id && l.map.is_some());
+        let (Some(level), Ok(seed)) = (level, seed.parse::<u64>()) else {
+            eprintln!("--trace-map needs a map level id and a seed");
+            return ExitCode::from(2);
+        };
+        let spec = level.map.as_ref().expect("a map level");
+        let mut ld = d.clone();
+        ld.slime.capacity = level.capacity;
+        let body = level
+            .start
+            .clone()
+            .unwrap_or_else(|| vec![simulator::data::Liquid::Water; level.capacity]);
+        print!(
+            "{}",
+            simulator::map::ascii(&simulator::map::generate(spec, seed))
+        );
+        for line in simulator::map::fight(&ld, level, spec, &body, seed)
+            .run_traced()
+            .1
+        {
+            println!("{line}");
+        }
+        return ExitCode::SUCCESS;
+    }
+
     if let Some(t) = trace {
         let build = all_builds.iter().find(|b| b.id == t[0]);
         let encounter = all_encounters.iter().find(|e| e.id == t[1]);
@@ -142,9 +173,16 @@ fn main() -> ExitCode {
     let levels: Vec<simulator::level::LevelResult> = d
         .levels
         .iter()
+        .filter(|l| l.map.is_none())
         .map(|l| simulator::level::run(&d, l))
         .collect();
-    let txt = simulator::text::render(&text, design.as_deref(), &reports, &levels)
+    let maps: Vec<simulator::map::MapLevelResult> = d
+        .levels
+        .iter()
+        .filter(|l| l.map.is_some())
+        .map(|l| simulator::map::run(&d, l))
+        .collect();
+    let txt = simulator::text::render(&text, design.as_deref(), &reports, &levels, &maps)
         .expect("the design file parsed above");
     if out_txt == "-" {
         print!("{txt}");

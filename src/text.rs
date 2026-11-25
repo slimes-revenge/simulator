@@ -2,6 +2,7 @@
 //! session: no timestamps, stable order, fixed columns, so two versions compare with `diff`.
 
 use crate::level::LevelResult;
+use crate::map::MapLevelResult;
 use crate::report::Report;
 use std::fmt::Write;
 
@@ -12,6 +13,7 @@ pub fn render(
     design_file: Option<&str>,
     reports: &[Report],
     levels: &[LevelResult],
+    maps: &[MapLevelResult],
 ) -> Result<String, String> {
     let design: toml::Table = toml::from_str(design_toml).map_err(|e| e.to_string())?;
     let mut out = String::from("# Slime's Revenge design guard — plain-text report, format 2\n");
@@ -70,6 +72,9 @@ pub fn render(
     render_damage(reports, &mut out);
     if !levels.is_empty() {
         render_levels(levels, &mut out);
+    }
+    if !maps.is_empty() {
+        render_maps(maps, &mut out);
     }
     Ok(out)
 }
@@ -130,17 +135,7 @@ fn render_levels(levels: &[LevelResult], out: &mut String) {
         "level", "end", "min", "worst", "wasted"
     );
     for l in levels {
-        let mut stops: Vec<(&String, &u64)> = l.stops.iter().collect();
-        stops.sort_by(|a, b| b.1.cmp(a.1).then(a.0.cmp(b.0)));
-        let stops = if stops.is_empty() {
-            "-".to_string()
-        } else {
-            stops
-                .iter()
-                .map(|(k, v)| format!("{k}={v}"))
-                .collect::<Vec<_>>()
-                .join(" ")
-        };
+        let stops = stops_field(&l.stops);
         let _ = writeln!(
             out,
             "{:<14} {:>3.0} {:>6.2} {:>5} {:>6.2}  {stops}",
@@ -269,5 +264,74 @@ fn render_damage(reports: &[Report], out: &mut String) {
                 by(&c.status_dmg_by)
             );
         }
+    }
+}
+
+fn stops_field(stops: &std::collections::BTreeMap<String, u64>) -> String {
+    let mut stops: Vec<(&String, &u64)> = stops.iter().collect();
+    stops.sort_by(|a, b| b.1.cmp(a.1).then(a.0.cmp(b.0)));
+    if stops.is_empty() {
+        return "-".into();
+    }
+    stops
+        .iter()
+        .map(|(k, v)| format!("{k}={v}"))
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+fn render_maps(maps: &[MapLevelResult], out: &mut String) {
+    *out += "\n[map-levels]\n";
+    let _ = writeln!(
+        out,
+        "{:<14} {:<10} {:>3} {:>5} {:>7} {:>6} {:>8} {:>8} {:>8} {:>9} {:>13}",
+        "level",
+        "policy",
+        "end",
+        "rooms",
+        "rounds",
+        "fights",
+        "engaged0",
+        "engaged1",
+        "engaged2",
+        "engaged3+",
+        "net_per_fight"
+    );
+    for m in maps {
+        let net = m
+            .net_per_fight
+            .map_or("-".to_string(), |v| format!("{v:+.2}"));
+        let _ = writeln!(
+            out,
+            "{:<14} {:<10} {:>3.0} {:>5.2} {:>7.2} {:>6.2} {:>8.2} {:>8.2} {:>8.2} {:>9.2} {:>13}",
+            m.id,
+            m.policy,
+            m.end,
+            m.rooms,
+            m.rounds,
+            m.fights,
+            m.engaged[0],
+            m.engaged[1],
+            m.engaged[2],
+            m.engaged[3],
+            net
+        );
+    }
+    *out += "\n[map-level-ends]\n";
+    let _ = writeln!(
+        out,
+        "{:<14} {:>3} {:>6} {:>5}  stops",
+        "level", "end", "min", "worst"
+    );
+    for m in maps {
+        let _ = writeln!(
+            out,
+            "{:<14} {:>3.0} {:>6.2} {:>5}  {}",
+            m.id,
+            m.end,
+            m.min_body,
+            m.worst_body,
+            stops_field(&m.stops)
+        );
     }
 }
