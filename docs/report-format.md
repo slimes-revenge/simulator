@@ -73,7 +73,7 @@ Balance slices, agreed with the balance session. One line per cell, with the sam
 and order as `[cells]`: `ap policy build encounter`. All values are averages over all seeds,
 with 2 decimals. A breakdown is written `Name:2.00,Name:1.00`, or `-` when empty. Liquids
 follow their fixed order (Water, Oil, Poison, Acid, Blood, Lava, Mercury); statuses are
-alphabetical. A column appears only once its mechanic exists: no columns that are always zero.
+alphabetical. A column appears only once its mechanic exists in the model, so no column is a placeholder for a mechanic that is not built yet. Some columns can still be zero everywhere in today's data, for example `status` while no enemy applies statuses to the slime.
 
 ```
 [economy]
@@ -237,7 +237,7 @@ Cell fields:
 | `avgUnitsBitten` | number | Units lost to enemy bites, over all fights |
 | `avgUnitsStatus` | number | Units lost to the slime's own status pulses, over all fights |
 | `avgEnemiesKilled` | number | Enemies killed, over all fights |
-| `avgUnitsGrown`, `spentBy`, `bittenBy`, `statusLostBy` | number, objects | The `[economy]` slice (objects: name → average) |
+| `avgUnitsGrown`, `avgNet`, `spentBy`, `bittenBy`, `statusLostBy` | numbers, objects | The `[economy]` slice (objects: name → average) |
 | `avgStrikeDmg`, `avgStatusDmg`, `avgRetaliationDmg`, `statusDmgBy`, `avgOverkill`, `avgDoomedStrikes`, `dmgPerUnit` | numbers, object, number or null | The `[damage]` slice |
 | `cause` | string or null | The most common cause of a loss; `null` when every fight was won |
 | `causes` | object | Every loss cause → number of fights it ended (`{}` when all were won) |

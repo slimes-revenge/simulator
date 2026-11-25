@@ -915,6 +915,7 @@ fn pending_status_damage(d: &Design, c: &Creature) -> i32 {
     let mut armor = c.armor;
     let mut total = 0;
     for s in &c.statuses {
+        // Forever statuses never pulse damage in the model (only Regeneration, on the slime).
         let pulses = s.remaining.max(0);
         match s.kind {
             StatusKind::Burning => {

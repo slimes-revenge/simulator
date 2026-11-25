@@ -216,8 +216,6 @@ fn render_economy(reports: &[Report], out: &mut String) {
     );
     for r in reports {
         for c in &r.cells {
-            let net =
-                c.avg_units_grown - c.avg_units_spent - c.avg_units_bitten - c.avg_units_status;
             let _ = writeln!(
                 out,
                 "{} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>+7.2}  spent={} bitten={} status={}",
@@ -226,7 +224,7 @@ fn render_economy(reports: &[Report], out: &mut String) {
                 c.avg_units_bitten,
                 c.avg_units_status,
                 c.avg_units_grown,
-                net + 0.0,
+                c.avg_net,
                 by(&c.spent_by),
                 by(&c.bitten_by),
                 by(&c.status_lost_by)

@@ -575,3 +575,24 @@ fn overkill_counts_damage_beyond_the_hp_left() {
     let r = f.run();
     assert_eq!((r.tally.strike_dmg, r.tally.overkill), (5, 1));
 }
+
+#[test]
+fn overkill_counts_a_status_pulse_beyond_the_hp_left() {
+    // Lava then Oil: Burning on a Flammable Mushroom, 3 HP left. At 1 HP its Burning pulse means
+    // 2 (×2 Flammable) and takes 1: overkill 1. The slime keeps one Water and only waits.
+    let d = design();
+    let mut f = Fight::new(
+        &d,
+        0,
+        1,
+        vec![Liquid::Lava, Liquid::Oil, Liquid::Water],
+        (1, 5),
+        &[("Mushroom", (2, 5))],
+    );
+    f.slime_strike(0, Liquid::Lava);
+    f.slime_strike(0, Liquid::Oil);
+    f.enemies[0].hit_points = 1;
+    let r = f.run();
+    assert!(r.won);
+    assert_eq!((r.tally.status_dmg, r.tally.overkill), (1, 1));
+}

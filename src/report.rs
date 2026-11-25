@@ -48,6 +48,8 @@ pub struct CellResult {
     pub causes: BTreeMap<String, u64>,
     // The [economy] and [damage] slices: averages over all seeds.
     pub avg_units_grown: f64,
+    /// grown − spent − bitten − status, from integer sums (not from the rounded averages).
+    pub avg_net: f64,
     pub spent_by: BTreeMap<Liquid, f64>,
     pub bitten_by: BTreeMap<Liquid, f64>,
     pub status_lost_by: BTreeMap<String, f64>,
@@ -214,6 +216,9 @@ fn summarize(b: &Build, e: &Encounter, results: &[FightResult]) -> CellResult {
         cause,
         causes,
         avg_units_grown: avg(|r| r.units_grown as f64),
+        avg_net: avg(|r| {
+            r.units_grown as f64 - (r.units_spent + r.units_bitten + r.units_status) as f64
+        }) + 0.0,
         spent_by: avg_map(results, |r| &r.tally.spent_by),
         bitten_by: avg_map(results, |r| &r.tally.bitten_by),
         status_lost_by: named(avg_map(results, |r| &r.tally.status_lost_by)),
