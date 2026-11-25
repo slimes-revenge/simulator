@@ -1,0 +1,143 @@
+# Design numbers for the simulator: every tunable value lives here, never in code.
+# Source of truth today is the game code (slimes-revenge/SlimesRevenge, Assets/Scripts/Runtime);
+# the comment on each block names the C# constant or field it mirrors.
+
+[rules]
+board_width = 10          # RunConfig: 10x10 grass
+board_height = 10
+vision_range = 5          # Creature.visionRange (Chebyshev, no walls)
+dominance_percent = 80    # Volume.DominantPercent
+pursuit_memory_turns = 3  # Creature.PursuitMemoryTurns
+max_rounds = 200          # simulator only: a fight that lasts longer is a loss with cause "timeout"
+
+[slime]
+capacity = 10             # Volume.Capacity
+speed = 1                 # Creature.speed default
+# Slime.FillStarting, in volume order: strikes take the first unit of a kind,
+# hits pop the last unit.
+start = ["Water", "Water", "Oil", "Poison", "Acid", "Lava"]
+
+[statuses]
+# OverTime.DefaultDuration for every timed status.
+wet = 3
+burning = 3
+poisoned = 3
+corroding = 3
+instability = 3
+flammable = 3
+burning_pulse = 1          # Burning.PulsePower (before Flammable)
+poisoned_pulse = 1         # Poisoned.PulsePower
+corroding_pulse = 1        # Corroding.PulsePower (when no armor is left)
+flammable_multiplier = 2   # Flammable.DamageMultiplier, per Flammable status
+instability_speed = -1     # Instability.SpeedModifier
+vampirism_heal = 2         # Vampirism.HealAmount
+regeneration_growth = 1    # Regeneration: +1 Blood per pulse
+
+# Liquids in this order also break ties when the face-tank slime picks the liquid it has most of.
+# power = Substance.Power, corrosion = Substance.Corrosion. What each liquid applies is a rule
+# (src/model.rs), not a number.
+[[liquids]]
+name = "Water"
+power = 1
+corrosion = 0
+
+[[liquids]]
+name = "Oil"
+power = 1
+corrosion = 0
+
+[[liquids]]
+name = "Poison"
+power = 1
+corrosion = 0
+
+[[liquids]]
+name = "Acid"
+power = 1
+corrosion = 1
+
+[[liquids]]
+name = "Blood"
+power = 1
+corrosion = 0
+
+[[liquids]]
+name = "Lava"
+power = 1
+corrosion = 0
+
+[[liquids]]
+name = "Mercury"
+power = 1
+corrosion = 0
+
+# The live roster (CreatureCatalog.Opponents). melee_power = Combat.Attack bare hit (1).
+[[enemies]]
+name = "Bat"
+hit_points = 3
+armor = 0
+speed = 1
+melee_power = 1
+volume = ["Blood", "Blood"]
+personality = "Passive"
+traits = ["Vampirism"]
+
+[[enemies]]
+name = "Mushroom"
+hit_points = 5
+armor = 0
+speed = 1
+melee_power = 1
+volume = ["Water"]
+personality = "Aggressive"
+traits = []
+
+[[enemies]]
+name = "Undine"
+hit_points = 5
+armor = 0
+speed = 1
+melee_power = 1
+volume = ["Water"]
+personality = "Aggressive"
+traits = []
+
+[[enemies]]
+name = "Cactus"
+hit_points = 5
+armor = 0
+speed = 1
+melee_power = 1
+volume = ["Water"]
+personality = "Aggressive"
+traits = []
+
+[[enemies]]
+name = "Mandragora"
+hit_points = 5
+armor = 0
+speed = 1
+melee_power = 1
+volume = ["Water"]
+personality = "Aggressive"
+traits = []
+
+[[enemies]]
+name = "Eye"
+hit_points = 5
+armor = 0
+speed = 1
+melee_power = 1
+volume = ["Water"]
+personality = "Aggressive"
+traits = []
+
+# The build x encounter matrix.
+[matrix]
+seeds = 50                    # seeds 0..seeds-1 per cell
+action_points = [1, 2]        # 1 = the game today, 2 = the design (turn-structure.md)
+pure_build_units = 10         # one pure build per liquid
+enemy_counts = [1, 2, 3]
+slime_cell = [1, 5]
+enemy_column_offset = 5       # enemies stand in the column slime_cell.x + offset
+enemy_rows = [5, 4, 6]        # the n-th enemy stands on this row

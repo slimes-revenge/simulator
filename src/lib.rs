@@ -1,0 +1,8 @@
+//! Slime's Revenge design guard: plays fights by the design rules many times and reports
+//! which slime builds win against which encounters.
+
+pub mod data;
+pub mod fight;
+pub mod path;
+pub mod report;
+pub mod rng;

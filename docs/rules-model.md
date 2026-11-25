@@ -1,0 +1,109 @@
+# Rules model
+
+How the simulator plays a fight, and how that maps to the game code
+(`slimes-revenge/SlimesRevenge`, `Assets/Scripts/Runtime`). The game code is the source of
+truth for how the game behaves today; the simulator mirrors it by hand. Numbers live in
+`data/design.toml`, rules in `src/fight.rs`.
+
+## Board and movement
+
+- `rules.board_width` × `rules.board_height` grass, no walls, no puddles in v1.
+- 8 directions, one cell per step. Occupied cells block; dead enemies leave the board (their
+  corpse does not occupy the cell).
+- Pathing (`src/path.rs`) stands in for `GridPath` (A* Pathfinding Project): octile costs
+  (straight 10, diagonal 14); among goal cells the route with the fewest cells wins, then the
+  cheaper, then the goal with the smaller (x, y). The game breaks ties between equal routes
+  by A*'s internals, so a creature may pick a different but equally short cell.
+- `Creature.Speed` = base (at least 1) + `statuses.instability_speed` per Instability, never
+  below 0. A creature at speed 0 can still attack but does not chase or wander.
+
+## Turn order (`GameSession.Resolve`, `TurnManager`)
+
+1. Before the first round the slime's statuses pulse once (`TurnManager.Bind`).
+2. Each round: the slime acts `actionsPerRound` times (every action costs one).
+3. Each living enemy in placement order: its statuses pulse (it may die and skip its turn),
+   then it chooses one intent and carries it out. The fight is lost the moment the slime dies.
+4. The slime's statuses pulse.
+5. The fight is won when every enemy is dead (checked after each slime action and after the
+   enemies' turns); after `rules.max_rounds` rounds it ends as a `timeout` loss.
+
+## Volume, strikes, damage
+
+- The slime's volume is its life (`Volume.Capacity` = `slime.capacity`); it is alive while it
+  has a unit. It cannot spend its last unit (`Volume.CanSpend`).
+- A strike (`Combat.Attack`) removes the first unit of the chosen liquid, strips `corrosion`
+  armor, deals `power` (Lava: multiplied by the target's Flammable, below) through the
+  remaining armor as flat reduction, then — if the target lives — applies the liquid's effect
+  and the target becomes aggroed.
+- Enemy melee is a bare hit of `melee_power`. It pops units from the **end** of the slime's
+  volume (the "tip"): the starting mix loses Lava, then Acid, Poison, Oil, Water.
+- Retaliation: when the slime has a dominant liquid before the hit and survives it, the
+  attacker receives that liquid's effect.
+- Dominance: one liquid with at least `rules.dominance_percent` of the volume.
+  Water: blocks and removes Burning. Oil: the slime is Flammable. Blood: Regeneration
+  (`statuses.regeneration_growth` Blood per pulse up to capacity, queued first, removed when
+  dominance changes). Mercury: Invisible — an enemy that is not aggroed cannot see, chase or
+  bite the slime.
+
+## Liquid effects (`Substance.Apply`, on strike and retaliation)
+
+| Liquid | Effect |
+| --- | --- |
+| Water | Wet (`statuses.wet`) |
+| Oil | Instability (`statuses.instability`) and Flammable (`statuses.flammable`) |
+| Poison | Poisoned: `statuses.poisoned_pulse` HP per pulse |
+| Acid | Corroding: strips `corrosion` armor per pulse, else `statuses.corroding_pulse` HP |
+| Lava | Burning: `statuses.burning_pulse` HP per pulse × Flammable |
+| Blood | Nothing; a Vampirism creature heals `statuses.vampirism_heal` |
+| Mercury | Nothing |
+
+## Statuses (`StatusQueue`)
+
+- FIFO queue, each status pulses once at the start of its owner's turn, then loses one turn;
+  it expires at 0. Damage over time ignores armor.
+- **Statuses stack.** `StatusQueue.Add` does not merge kinds: three Lava strikes are three
+  Burnings, each pulsing. Each Flammable doubles again (two Oil strikes: ×4).
+- Wet cancels Burning and Corroding, Burning cancels Wet: the existing status is removed and the
+  incoming one is not added.
+- Vampirism (innate): heals on receiving Blood and when its bite pops a Blood unit off the slime
+  (even the last one).
+
+## Enemy AI (`CreaturePolicyGraphs`, `CreatureHunt`, `CreatureMoves`)
+
+- Sees the slime within Chebyshev `rules.vision_range` unless Mercury hides it.
+- **Aggressive:** adjacent → Attack; aggroed or sees → Chase; else wander or idle (coin flip).
+- **Passive:** wander or idle until hit, then Aggressive for good.
+- **Cowardly:** aggroed and adjacent → Attack; else drop aggro, Flee if it sees the slime.
+- Chase walks `speed` cells toward a free cell next to the slime (or its last seen cell for
+  `rules.pursuit_memory_turns` turns). Wander steps to a random free neighbour.
+- Mob ↔ mob fear and hate (`Fears*`, `Hates*`) are not modelled: only retired animals have them.
+
+## Face-tank policy (`src/fight.rs`, `slime_act`)
+
+Target the nearest living enemy (Chebyshev, ties to the earlier one). Adjacent: strike with the
+liquid it holds most of (ties go to the earlier liquid in `[[liquids]]`), or wait when only one
+unit is left. Otherwise step one cell along the path toward it. With 2 actions the policy strikes
+twice even when the enemy is already doomed by damage over time: it spends body it did not
+need to.
+
+## Where the docs and the code disagree
+
+Found while building the model (game `dev` at 44018ffe, 2026-11-25). The simulator follows the code.
+
+1. `docs/creatures.md` lists Rat, Cat, Dog, Scorpion and not the live roster: in code
+   `CreatureCatalog.IsRetired` retires those four, and the live enemies are Bat plus Mushroom,
+   Undine, Cactus, Mandragora, Eye (5 HP, 0 armor, speed 1, 1 Water, no traits).
+2. `docs/behavior.md` names only Dog as Aggressive; the five placeholders are Aggressive by the
+   `Creature.Personality` default, which no doc mentions.
+3. Status stacking: the docs describe Burning, Poisoned, Corroding as one 3-turn effect and
+   Flammable as ×2; in code every strike adds another copy (`StatusQueue.Add` never merges),
+   so damage over time stacks and Flammable multiplies (×4, ×8).
+4. Mercury: `substances.md` says its dominance makes the slime Invisible, but no doc says what
+   that does in a fight: non-aggroed enemies cannot see, chase or bite it (`IsDetectedBy`), so
+   a pure Mercury slime always gets the first strike.
+5. Blood vs Vampirism: a Blood strike deals 1 then heals the bat 2 (`Combat.ResolveHit` →
+   `Substance.Apply` → `Vampirism`), and a Blood-dominant slime's Retaliation heals it too.
+   A bat cannot be killed with Blood; no doc states this consequence.
+6. `status-effects.md` and `strike-vs-puddle.md` have no row for Mercury; `substances.md` does.
+7. `design-guard.md` and `turn-structure.md` describe A* paths; the A* graph has octile costs
+   and its own tie-breaking, which the docs do not specify (see Board and movement).
