@@ -61,4 +61,5 @@ Base branch `dev`; pull requests squash-merge into it.
 - **Determinism:** randomness goes only through `Rng`; never iterate a `HashMap` where order
   matters for the outcome.
 - The `latest` tag and release are moved by CI on every push to `dev`; do not create other
-  releases by hand.
+  releases by hand. If a merge's push run never started (a GitHub outage), run the workflow
+  by hand on `dev`: `gh workflow run ci --ref dev`.
