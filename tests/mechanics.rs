@@ -288,7 +288,7 @@ fn only_the_hunters_own_bite_counts_as_its_kill() {
     let r = map::run(&d, &d.levels[0]);
     assert!(r.end < 100.0, "the Mushroom kills some slimes");
     assert_eq!(r.hunter.unwrap()[2], 0.0);
-    // A hunter that bites for 99 and meets the slime alone does kill it.
+    // Alone with a hunter that bites for 99: every lost run is its kill, every won one killed it.
     let mut d = map_design(", hunter = { kind = \"Eye\", enter_round = 1 }");
     d.enemies
         .iter_mut()
@@ -296,7 +296,9 @@ fn only_the_hunters_own_bite_counts_as_its_kill() {
         .unwrap()
         .melee_power = 99;
     let r = map::run(&d, &d.levels[0]);
-    assert_eq!(r.hunter.unwrap()[2], 100.0, "{r:?}");
+    let [killed, alive, slime] = r.hunter.unwrap();
+    assert!(slime > 0.0, "{r:?}");
+    assert_eq!((killed, alive, slime), (r.end, 0.0, 100.0 - r.end), "{r:?}");
 }
 
 #[test]
