@@ -1,0 +1,9 @@
+/target
+/design-guard.json
+.DS_Store
+.idea/
+# Session files (see .claude/rules/documentation.md)
+/docs/now.md
+/docs/plan.md
+/docs/questions.md
+/docs/missing.md
