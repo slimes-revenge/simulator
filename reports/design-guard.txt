@@ -86,6 +86,42 @@ matrix.enemy_counts = 1 2 3
 matrix.slime_cell = 1 5
 matrix.enemy_column_offset = 5
 matrix.enemy_rows = 5 4 6
+levels.sample-ap1.capacity = 10
+levels.sample-ap1.action_points = 1
+levels.sample-ap1.policy = face-tank
+levels.sample-ap1.stages.1.kind = fight
+levels.sample-ap1.stages.1.enemy = Mushroom
+levels.sample-ap1.stages.1.enemies = 1
+levels.sample-ap1.stages.2.kind = fight
+levels.sample-ap1.stages.2.enemy = Bat
+levels.sample-ap1.stages.2.enemies = 1
+levels.sample-ap1.stages.3.kind = fountain
+levels.sample-ap1.stages.3.liquid = Water
+levels.sample-ap1.stages.3.units = 3
+levels.sample-ap1.stages.4.kind = fight
+levels.sample-ap1.stages.4.enemy = Mushroom
+levels.sample-ap1.stages.4.enemies = 1
+levels.sample-ap1.stages.5.kind = fight
+levels.sample-ap1.stages.5.enemy = Eye
+levels.sample-ap1.stages.5.enemies = 2
+levels.sample-ap2.capacity = 10
+levels.sample-ap2.action_points = 2
+levels.sample-ap2.policy = face-tank
+levels.sample-ap2.stages.1.kind = fight
+levels.sample-ap2.stages.1.enemy = Mushroom
+levels.sample-ap2.stages.1.enemies = 1
+levels.sample-ap2.stages.2.kind = fight
+levels.sample-ap2.stages.2.enemy = Bat
+levels.sample-ap2.stages.2.enemies = 1
+levels.sample-ap2.stages.3.kind = fountain
+levels.sample-ap2.stages.3.liquid = Water
+levels.sample-ap2.stages.3.units = 3
+levels.sample-ap2.stages.4.kind = fight
+levels.sample-ap2.stages.4.enemy = Mushroom
+levels.sample-ap2.stages.4.enemies = 1
+levels.sample-ap2.stages.5.kind = fight
+levels.sample-ap2.stages.5.enemy = Eye
+levels.sample-ap2.stages.5.enemies = 2
 
 [cells]
 ap policy     build      encounter        win  rounds killed   left  spent bitten status  cause
@@ -377,3 +413,21 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 2  face-tank  mercury    eye-1            100    4.72   1.00   3.00   5.00   2.00   0.00  -
 2  face-tank  mercury    eye-2              0    6.34   0.90   0.00   6.30   3.70   0.00  melee:Eye=50
 2  face-tank  mercury    eye-3              0    5.84   0.88   0.00   6.30   3.70   0.00  melee:Eye=50
+
+[levels]
+level          stage kind     detail         reached win before  spent bitten status  grown  eaten  drunk wasted  after     net
+sample-ap1         1 fight    mushroom-1         100 100  10.00   5.00   4.00   0.00   0.00   1.00   0.00   0.00   2.00   -8.00
+sample-ap1         2 fight    bat-1              100   0   2.00   1.00   1.00   0.00   0.00   0.00   0.00   0.00   0.00   -2.00
+sample-ap1         3 fountain Water x3             0   -   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   +0.00
+sample-ap1         4 fight    mushroom-1           0   -   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   +0.00
+sample-ap1         5 fight    eye-2                0   -   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   +0.00
+sample-ap2         1 fight    mushroom-1         100 100  10.00   5.00   2.00   0.00   0.00   1.00   0.00   0.00   4.00   -6.00
+sample-ap2         2 fight    bat-1              100   0   4.00   2.00   2.00   0.00   0.00   0.00   0.00   0.00   0.00   -4.00
+sample-ap2         3 fountain Water x3             0   -   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   +0.00
+sample-ap2         4 fight    mushroom-1           0   -   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   +0.00
+sample-ap2         5 fight    eye-2                0   -   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   +0.00
+
+[level-ends]
+level          end    min worst wasted  stops
+sample-ap1       0   2.00     2   0.00  stage2:melee:Bat=50
+sample-ap2       0   4.00     4   0.00  stage2:melee:Bat=50

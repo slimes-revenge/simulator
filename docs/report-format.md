@@ -38,8 +38,9 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
   JSON carry the commit.
 - **`[design]`:** every value of the design file the run used, one `key = value` per line, in
   file order. An empty list prints as `key = ` with nothing after it.
-  - Tables flatten to dotted keys. Arrays of tables are keyed by their `name`
-    (`liquids.Lava.power`, `enemies.Bat.hit_points`). Lists are joined by spaces.
+  - Tables flatten to dotted keys. Arrays of tables are keyed by their `name`, else their `id`,
+    else their 1-based position (`liquids.Lava.power`, `levels.sample-ap1.stages.3.units`).
+    Lists are joined by spaces.
   - When `--design` was given, the first line is `design.file = <path as given>`.
 - **`[cells]`:** one header line, then one line per cell.
   - Sorted by `ap` (ascending), `policy`, then build in design order (`start`, then
@@ -65,6 +66,47 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 
 All averages are over every seed and printed with exactly 2 decimals. Body ledger: `spent + bitten
 + status + left` = the build's units, plus whatever Blood Regeneration grew.
+
+### `[levels]` and `[level-ends]`
+
+These appear only when the design file has `[[levels]]`. The rules are in [level-economy.md](level-economy.md).
+
+```
+[levels]
+level          stage kind     detail         reached win before  spent bitten status  grown  eaten  drunk wasted  after     net
+sample-ap2         1 fight    mushroom-1         100 100  10.00   5.00   2.00   0.00   0.00   1.00   0.00   0.00   4.00   -6.00
+sample-ap2         3 fountain Water x3             0   -   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   +0.00
+
+[level-ends]
+level          end    min worst wasted  stops
+sample-ap2       0   4.00     4   0.00  stage2:melee:Bat=50
+```
+
+`[levels]` has one line per stage, levels in file order and stages in order. Averages are over
+the seeds that reached the stage, with 2 decimals; `net` carries a sign.
+
+| Column | Meaning |
+| --- | --- |
+| `level`, `stage` | Level id, 1-based stage number |
+| `kind`, `detail` | `fight` with `<enemy>-<count>`, or `fountain` with `<Liquid> x<units>` |
+| `reached` | Percent of seeds that started this stage |
+| `win` | Percent of those that won the fight; `-` for a fountain or a stage nobody reached |
+| `before`, `after` | Body at the stage start and end (after eating or drinking; 0 after a death, what was left after a timeout) |
+| `spent`, `bitten`, `status` | Units lost to strikes, bites, the slime's own status pulses |
+| `grown` | Blood grown by Regeneration during the fight |
+| `eaten`, `drunk` | Units gained from corpses and from the fountain |
+| `wasted` | Corpse or fountain units that did not fit into capacity |
+| `net` | `eaten + drunk + grown − spent − bitten − status`, ignoring capacity |
+
+`[level-ends]` has one line per level:
+
+| Column | Meaning |
+| --- | --- |
+| `end` | Percent of seeds that finished every stage |
+| `min` | Average over seeds of the smallest body between stages (start included, losses excluded) |
+| `worst` | The smallest body between stages in any seed |
+| `wasted` | Average total wasted units per seed |
+| `stops` | Where runs ended, `stage<k>:<cause>=seeds`, by count descending; `-` when all finished |
 
 ### CLI for experiments
 

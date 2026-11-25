@@ -41,6 +41,9 @@ cargo test
 - **Action points:** 1 per round (the game today) and 2 (the design).
 - **Seeds:** 50 per cell; the same seed gives the same fight.
 
+- **Levels:** `[[levels]]` in the design file run stage by stage (fights, then eating the
+  corpses, and fountains) and report the body budget: [`docs/level-economy.md`](docs/level-economy.md).
+
 ## Published report
 
 CI publishes the reports of every push to `dev` as assets of the rolling `latest` release:

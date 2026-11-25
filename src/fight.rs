@@ -99,6 +99,8 @@ pub struct FightResult {
     pub units_bitten: usize,
     /// Units the slime lost to its own status pulses.
     pub units_status: usize,
+    /// Blood units the slime grew by Regeneration.
+    pub units_grown: usize,
     pub enemies_killed: usize,
     /// Why the slime lost: `melee:<Enemy>`, `status:<Status>` or `timeout`. `None` on a win.
     pub cause: Option<String>,
@@ -114,6 +116,7 @@ pub struct Fight<'a> {
     units_spent: usize,
     units_bitten: usize,
     units_status: usize,
+    units_grown: usize,
     /// What last took a unit off the slime.
     last_harm: Option<String>,
     /// Turn-by-turn log lines, kept only for `--trace`.
@@ -184,6 +187,7 @@ impl<'a> Fight<'a> {
             units_spent: 0,
             units_bitten: 0,
             units_status: 0,
+            units_grown: 0,
             last_harm: None,
             trace: None,
         };
@@ -197,6 +201,12 @@ impl<'a> Fight<'a> {
     /// (`GameSession.Resolve`). `TurnManager.Bind` pulses the slime once before its first action.
     pub fn run(self) -> FightResult {
         self.play().0
+    }
+
+    /// Plays the fight and returns the slime's body at the end as well (level runs).
+    pub fn run_with_volume(mut self) -> (FightResult, Vec<Liquid>) {
+        let result = self.rounds();
+        (result, self.slime.volume)
     }
 
     /// Plays the fight and returns a turn-by-turn log as well (`--trace`).
@@ -304,6 +314,7 @@ impl<'a> Fight<'a> {
             units_spent: self.units_spent,
             units_bitten: self.units_bitten,
             units_status: self.units_status,
+            units_grown: self.units_grown,
             enemies_killed: self.enemies.iter().filter(|e| !e.alive()).count(),
             cause: if won { None } else { self.last_harm.clone() },
         }
@@ -733,6 +744,9 @@ impl<'a> Fight<'a> {
                     }
                 }
                 StatusKind::Wet | StatusKind::Instability | StatusKind::Flammable => {}
+            }
+            if owner.is_slime && owner.volume.len() > before {
+                self.units_grown += owner.volume.len() - before;
             }
             if owner.is_slime && owner.volume.len() < before {
                 self.units_status += before - owner.volume.len();

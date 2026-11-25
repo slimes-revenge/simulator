@@ -20,6 +20,7 @@ src/fight.rs         # one fight: creatures, statuses, strikes, enemy AI, turn o
 src/path.rs          # 8-direction pathing (stands in for the game's A* GridPath)
 src/rng.rs           # seeded SplitMix64
 src/report.rs        # builds, encounters, the matrix, JSON report
+src/level.rs         # level economy: body carried through fights and fountains
 src/text.rs          # plain-text report (design-guard.txt)
 src/main.rs          # CLI (USAGE): --design, --out, --no-json, --out-txt, --only-*, --trace
 reports/             # design-guard.txt committed; CI fails when it is stale

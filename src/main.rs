@@ -139,7 +139,12 @@ fn main() -> ExitCode {
             )
         })
         .collect();
-    let txt = simulator::text::render(&text, design.as_deref(), &reports)
+    let levels: Vec<simulator::level::LevelResult> = d
+        .levels
+        .iter()
+        .map(|l| simulator::level::run(&d, l))
+        .collect();
+    let txt = simulator::text::render(&text, design.as_deref(), &reports, &levels)
         .expect("the design file parsed above");
     if out_txt == "-" {
         print!("{txt}");
