@@ -29,21 +29,22 @@ enemies.Bat.traits = Vampirism
 matrix.enemy_rows = 5 4 6
 
 [cells]
-ap policy     build    encounter     win  rounds killed  left spent bitten status  cause
-1  face-tank  lava     mushroom-1    100    4.00   1.00  7.00  2.00   1.00   0.00  -
-1  face-tank  start    bat-3           0  176.82   0.88  0.88  2.92   2.20   0.00  timeout=44 melee:Bat=6
+ap policy     build      encounter        win  rounds killed   left  spent bitten status  cause
+1  face-tank  lava       mushroom-1       100    4.00   1.00   7.00   2.00   1.00   0.00  -
+1  face-tank  start      bat-3              0  176.82   0.88   0.88   2.92   2.20   0.00  timeout=44 melee:Bat=6
 ```
 
 - **Header line:** format version. No time, commit or seed list. The release notes and the
   JSON carry the commit.
 - **`[design]`:** every value of the design file the run used, one `key = value` per line, in
-  file order.
+  file order. An empty list prints as `key = ` with nothing after it.
   - Tables flatten to dotted keys. Arrays of tables are keyed by their `name`
     (`liquids.Lava.power`, `enemies.Bat.hit_points`). Lists are joined by spaces.
   - When `--design` was given, the first line is `design.file = <path as given>`.
 - **`[cells]`:** one header line, then one line per cell.
-  - Sorted by `ap`, `policy`, then build (`start`, then `[[liquids]]` order), then encounter
-    (roster order, then count).
+  - Sorted by `ap` (ascending), `policy`, then build in design order (`start`, then
+    `[[liquids]]` order), then encounter in design order (roster order, then count). Build and
+    encounter order are not alphabetical.
   - Fixed-width columns, separated by spaces.
   - When difficulty levels arrive, a `difficulty` column goes between `policy` and `build`,
     and that raises the format number.
@@ -73,7 +74,8 @@ cargo run --release -- --only-builds lava,water --only-enemies Mushroom,Bat --ou
 cargo run --release -- --trace lava mushroom-1 0 1   # turn-by-turn log: build encounter seed ap
 ```
 
-`--trace` prints one fight's turn-by-turn log (actions, damage, statuses, volume) and no report.
+A filter naming an unknown build id or enemy name fails with exit code 2 and lists the valid
+ones. `--trace` prints one fight's turn-by-turn log (actions, damage, statuses, volume) and no report.
 The log is for checking hand calculations, not a format to diff.
 
 ## `design-guard.json`

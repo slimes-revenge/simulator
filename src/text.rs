@@ -21,7 +21,7 @@ pub fn render(
     out += "\n[cells]\n";
     let _ = writeln!(
         out,
-        "{:<2} {:<10} {:<8} {:<13} {:>3} {:>7} {:>6} {:>5} {:>5} {:>6} {:>6}  cause",
+        "{:<2} {:<10} {:<10} {:<16} {:>3} {:>7} {:>6} {:>6} {:>6} {:>6} {:>6}  cause",
         "ap",
         "policy",
         "build",
@@ -49,7 +49,7 @@ pub fn render(
             };
             let _ = writeln!(
                 out,
-                "{:<2} {:<10} {:<8} {:<13} {:>3} {:>7.2} {:>6.2} {:>5.2} {:>5.2} {:>6.2} {:>6.2}  {cause}",
+                "{:<2} {:<10} {:<10} {:<16} {:>3} {:>7.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2}  {cause}",
                 r.actions_per_round,
                 r.policy,
                 c.build,
@@ -81,7 +81,7 @@ fn flatten(prefix: &str, value: &toml::Value, out: &mut String) {
                 flatten(&key, v, out);
             }
         }
-        toml::Value::Array(items) if items.iter().all(|i| i.is_table()) => {
+        toml::Value::Array(items) if !items.is_empty() && items.iter().all(|i| i.is_table()) => {
             for item in items {
                 let name = item.get("name").and_then(|n| n.as_str()).unwrap_or("?");
                 let mut rest = item.as_table().cloned().unwrap_or_default();

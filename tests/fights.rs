@@ -291,6 +291,7 @@ fn text_report_is_stable_and_has_no_run_details() {
     );
     assert!(!a.contains("design.file"));
     assert!(a.contains("\nliquids.Lava.power = 1\n"));
+    assert!(a.contains("\nenemies.Mushroom.traits = \n"));
     assert!(a.contains("\nmatrix.enemy_rows = 5 4 6\n"));
     assert!(a.contains("\nslime.start = Water Water Oil Poison Acid Lava\n"));
     let with_file = text::render(&toml, Some("x.toml"), &reports("t", "c")).unwrap();
@@ -303,11 +304,14 @@ fn text_report_is_stable_and_has_no_run_details() {
         cells[0].split_whitespace().take(4).collect::<Vec<_>>(),
         ["1", "face-tank", "start", "bat-1"]
     );
-    assert!(
+    assert_eq!(
         cells
             .last()
             .unwrap()
-            .starts_with("2  face-tank  mercury  eye-3")
+            .split_whitespace()
+            .take(4)
+            .collect::<Vec<_>>(),
+        ["2", "face-tank", "mercury", "eye-3"]
     );
     // Fixed columns: the cause starts under the header's "cause" in every line.
     let cause_at = header.find("cause").unwrap();
@@ -317,7 +321,11 @@ fn text_report_is_stable_and_has_no_run_details() {
     }
     let lava = cells
         .iter()
-        .find(|l| l.starts_with("1  face-tank  lava     mushroom-1 "))
+        .find(|l| {
+            l.split_whitespace()
+                .take(4)
+                .eq(["1", "face-tank", "lava", "mushroom-1"])
+        })
         .unwrap();
     assert_eq!(
         lava.split_whitespace().skip(4).collect::<Vec<_>>(),

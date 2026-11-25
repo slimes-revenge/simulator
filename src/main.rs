@@ -14,7 +14,8 @@ const USAGE: &str = "usage: simulator [--design PATH] [--out PATH] [--no-json] [
 
 fn main() -> ExitCode {
     let mut design: Option<String> = None;
-    let mut out = Some(PathBuf::from("design-guard.json"));
+    let mut out = PathBuf::from("design-guard.json");
+    let mut no_json = false;
     let mut out_txt = String::from("design-guard.txt");
     let mut only_builds: Option<Vec<String>> = None;
     let mut only_enemies: Option<Vec<String>> = None;
@@ -30,11 +31,11 @@ fn main() -> ExitCode {
                 2
             }
             ("--out", Some(v)) => {
-                out = Some(v.into());
+                out = v.into();
                 2
             }
             ("--no-json", _) => {
-                out = None;
+                no_json = true;
                 1
             }
             ("--out-txt", Some(v)) => {
@@ -49,7 +50,10 @@ fn main() -> ExitCode {
                 only_enemies = Some(list(v));
                 2
             }
-            ("--trace", _) if args.len() >= i + 5 => {
+            ("--trace", _)
+                if args.len() >= i + 5
+                    && !args[i + 1..i + 5].iter().any(|a| a.starts_with("--")) =>
+            {
                 trace = Some(args[i + 1..i + 5].to_vec());
                 5
             }
@@ -75,22 +79,37 @@ fn main() -> ExitCode {
             return ExitCode::FAILURE;
         }
     };
-    let builds: Vec<report::Build> = report::builds(&d)
-        .into_iter()
+    let all_builds = report::builds(&d);
+    let all_encounters = report::encounters(&d);
+    let build_ids: Vec<String> = all_builds.iter().map(|b| b.id.clone()).collect();
+    let enemy_names: Vec<String> = d.enemies.iter().map(|e| e.name.clone()).collect();
+    for (given, valid, flag) in [
+        (&only_builds, &build_ids, "--only-builds"),
+        (&only_enemies, &enemy_names, "--only-enemies"),
+    ] {
+        if let Some(bad) = given.iter().flatten().find(|g| !valid.contains(g)) {
+            eprintln!("{flag}: unknown {bad:?}; valid: {}", valid.join(","));
+            return ExitCode::from(2);
+        }
+    }
+    let builds: Vec<report::Build> = all_builds
+        .iter()
         .filter(|b| only_builds.as_ref().is_none_or(|ids| ids.contains(&b.id)))
+        .cloned()
         .collect();
-    let encounters: Vec<report::Encounter> = report::encounters(&d)
-        .into_iter()
+    let encounters: Vec<report::Encounter> = all_encounters
+        .iter()
         .filter(|e| {
             only_enemies
                 .as_ref()
                 .is_none_or(|names| names.contains(&e.enemy))
         })
+        .cloned()
         .collect();
 
     if let Some(t) = trace {
-        let build = builds.iter().find(|b| b.id == t[0]);
-        let encounter = encounters.iter().find(|e| e.id == t[1]);
+        let build = all_builds.iter().find(|b| b.id == t[0]);
+        let encounter = all_encounters.iter().find(|e| e.id == t[1]);
         let (Some(b), Some(e), Ok(seed), Ok(ap)) = (build, encounter, t[2].parse(), t[3].parse())
         else {
             eprintln!("--trace needs a build id, an encounter id, a seed and an action count");
@@ -104,9 +123,10 @@ fn main() -> ExitCode {
 
     let generated = utc_now();
     let commit = commit();
-    let reports: Vec<report::Report> = d
-        .matrix
-        .action_points
+    let mut action_points = d.matrix.action_points.clone();
+    action_points.sort();
+    action_points.dedup();
+    let reports: Vec<report::Report> = action_points
         .iter()
         .map(|&ap| {
             report::run(
@@ -127,7 +147,7 @@ fn main() -> ExitCode {
         eprintln!("cannot write {out_txt}: {e}");
         return ExitCode::FAILURE;
     }
-    if let Some(out) = out {
+    if !no_json {
         let json = serde_json::to_string_pretty(&reports).expect("reports serialize") + "\n";
         if let Err(e) = std::fs::write(&out, json) {
             eprintln!("cannot write {}: {e}", out.display());
