@@ -198,3 +198,41 @@ fn the_pus_policy_never_drinks_itself_out_of_its_bad_affinity() {
     let pus = state.body.len() - water;
     assert!(pus * 100 >= state.body.len() * 60, "{:?}", state.body);
 }
+
+#[test]
+fn before_level_9_the_pus_policy_never_spends_pus_on_the_living() {
+    // A Living Mushroom per room; Pus is a bad affinity; no `pus_infects`. (Once the affinity
+    // is gone the policy is `kite`, which may strike.)
+    let text =
+        std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/data/design.toml")).unwrap();
+    let mut text = text[..text.find("[[levels]]").unwrap()].to_string();
+    text += "[[levels]]\nid = \"l\"\ncapacity = 10\nstart = [\"Water\", \"Water\", \"Pus\", \"Pus\", \
+             \"Pus\", \"Pus\", \"Pus\", \"Pus\", \"Pus\", \"Pus\"]\naction_points = 2\npolicy = \"pus\"\n\
+             map = { rooms = 2, room_side = [5, 6], enemies_per_room = [1, 1], \
+             enemy_kinds = [\"Mushroom\"], corridor = 2, vision = 3 }\n";
+    let d = Design::parse(&text).unwrap();
+    let level = &d.levels[0];
+    let mut stepped = false;
+    for seed in 0..20 {
+        let log = map::fight(
+            &d,
+            level,
+            level.map.as_ref().unwrap(),
+            &map::start_body(level),
+            seed,
+        )
+        .run_traced()
+        .1;
+        // While the last round ended with Pus dominant, no strike and no Pus spit.
+        let mut pus = true;
+        for l in &log {
+            if l.starts_with("end of round") {
+                pus = l.contains("dominant Some(Pus)");
+            }
+            let hits = l.starts_with("Slime spits Pus") || l.starts_with("Slime strikes");
+            assert!(!(pus && hits), "seed {seed}: {l} with the affinity held");
+        }
+        stepped |= log.iter().any(|l| l.contains("behind its puddles"));
+    }
+    assert!(stepped, "it steps back from the Living at least once");
+}

@@ -45,7 +45,8 @@ level.
 After a level listed as a stop's `after` (4, 8, 12, 16), the body each seed carries goes
 through the stop before the next level: each reset turns its `from` units into `to` (or drops
 them when `to` is absent), edge-most first, at most `max_percent` of the body's units; then the
-empty cells up to the next row's capacity fill with Water. No unit is ever pushed out, so Pus
+empty cells up to the next row's capacity fill with Water at the centre (the carried units move
+toward the edge, the edge unit stays the edge). No unit is ever pushed out, so Pus
 held as a bad affinity stays (balance `sim-3d-spec.md` D4).
 
 ## Summary

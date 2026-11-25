@@ -288,13 +288,19 @@ Agreed design rules; not in the game.
   (strike or spit) only on levels with `pus_infects = true`.
 - **`pus` policy** (D5): `kite` until Pus is a bad affinity (matrix: always `kite`). Then on
   maps:
-  1. a Living enemy next to it: strike it on `pus_infects` levels (or with the last drop),
-     else stand in the puddles; other neighbours: `kite`;
-  2. in a fight: hold among the puddles (the Living come through them);
-  3. calm and not full, and no hunter in: gather its Pus puddles (stand on one: 1 unit per
-     action; or step onto a neighbouring one), else wait for a burp;
-  4. otherwise walk on like `kite`; it drinks a drip or the river only while Pus stays a bad
+  1. a non-Living neighbour, or any time once the hunter is in (Hard): `kite`, which never
+     strikes the Living with Pus before `pus_infects` levels;
+  2. a Living enemy next to it: strike it on `pus_infects` levels (or with the last drop);
+     else step back out of its reach (so it comes again across the puddles the burps laid),
+     or stand when it cannot;
+  3. a Living enemy coming: hold among the puddles;
+  4. calm and not full: gather its Pus puddles (stand on one: 1 unit per action; or step onto
+     a neighbouring one), else wait for a burp — so it reaches the exit full;
+  5. otherwise walk on like `kite`; it drinks a drip or the river only while Pus stays a bad
      affinity, and at the exit it leaves the rest of the river once a drink would end it.
+- Infected lasts `infected_pulses` pulses; the last one ends before that turn's bite, so it
+  weakens 2 bites. A Dash bite on arrival lands before the puddle infects (the step-in follows
+  the whole move); a fast walk infects only on the cell it ends on.
 - **Dross:** dead cargo a stop leaves (no power, no effect, a cell).
 
 ## Where the docs and the code disagree

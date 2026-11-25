@@ -1271,6 +1271,8 @@ impl<'a> Fight<'a> {
                     && e.melee_power > 0
                     && chebyshev(e.cell, self.slime.cell) == 1
                     && !self.gives_up(i)
+                    // `pus` never wastes Pus on the Living before `pus_infects` levels.
+                    && !(self.policy == Policy::Pus && !self.pus_infects && self.living(i))
             })
             .min_by_key(|(i, e)| (e.hit_points, *i))
             .map(|(i, _)| i)
@@ -1779,29 +1781,41 @@ impl<'a> Fight<'a> {
     ///   and gather 1 unit per action, or step onto a neighbouring one), else wait for a burp.
     /// - Otherwise walk on like `kite`.
     fn pus_act(&mut self) -> bool {
-        let living = self.d.elements.living;
-        let adjacent = (0..self.enemies.len()).find(|&i| {
-            let e = &self.enemies[i];
-            self.engaging(e) && chebyshev(e.cell, self.slime.cell) == 1 && !self.gives_up(i)
-        });
-        if let Some(i) = adjacent {
-            if self.enemies[i].element.is_none() || self.enemies[i].element != living {
-                return false;
-            }
+        let hunted = self.map.as_ref().is_some_and(|m| m.hunter_at.is_some());
+        let near = |f: &Fight, i: usize| {
+            let e = &f.enemies[i];
+            f.engaging(e) && chebyshev(e.cell, f.slime.cell) == 1 && !f.gives_up(i)
+        };
+        let adjacent: Vec<usize> = (0..self.enemies.len()).filter(|&i| near(self, i)).collect();
+        // A non-Living neighbour (or the hunter, on Hard): `kite`, which never strikes the
+        // Living with Pus before `pus_infects` levels (`kite_adjacent`).
+        if hunted || adjacent.iter().any(|&i| !self.living(i)) {
+            return false;
+        }
+        if let Some(&i) = adjacent.first() {
             if self.pus_infects || self.slime.volume.len() == 1 {
                 self.strike_or_wait(i);
+            } else if let Some(to) = self.kite_step() {
+                // Step back so it has to come again, across the puddles the burps laid.
+                let from = self.slime.cell;
+                if self.move_slime(to) {
+                    self.note(|_| format!("Slime steps back {from:?}->{to:?} behind its puddles"));
+                }
             } else {
                 self.note(|_| "Slime stands in its puddles".into());
             }
             return true;
         }
-        let fight = (0..self.enemies.len())
-            .any(|i| self.engaging(&self.enemies[i]) && !self.gives_up(i) && self.can_reach(i));
+        let fight = (0..self.enemies.len()).any(|i| {
+            self.living(i)
+                && self.engaging(&self.enemies[i])
+                && !self.gives_up(i)
+                && self.can_reach(i)
+        });
         if fight {
             self.note(|_| "Slime holds among its puddles".into());
             return true;
         }
-        let hunted = self.map.as_ref().is_some_and(|m| m.hunter_at.is_some());
         if self.slime.volume.len() >= self.d.slime.capacity || hunted {
             return false;
         }
@@ -1836,6 +1850,12 @@ impl<'a> Fight<'a> {
             self.note(|_| "Slime waits to burp".into());
         }
         room
+    }
+
+    /// Enemy `i` is Living (`elements.living`).
+    fn living(&self, i: usize) -> bool {
+        let e = self.enemies[i].element;
+        e.is_some() && e == self.d.elements.living
     }
 
     /// D3: the slime holds Pus as a bad affinity (a share of the body now, like every
