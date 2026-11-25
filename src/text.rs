@@ -66,6 +66,8 @@ pub fn render(
             );
         }
     }
+    render_economy(reports, &mut out);
+    render_damage(reports, &mut out);
     if !levels.is_empty() {
         render_levels(levels, &mut out);
     }
@@ -184,5 +186,88 @@ fn scalar(v: &toml::Value) -> String {
     match v {
         toml::Value::String(s) => s.clone(),
         other => other.to_string(),
+    }
+}
+
+/// `Water:2.00,Lava:1.00`, or `-` when empty. Keys come in the map's order.
+fn by<K: std::fmt::Debug>(map: &std::collections::BTreeMap<K, f64>) -> String {
+    if map.is_empty() {
+        return "-".into();
+    }
+    map.iter()
+        .map(|(k, v)| format!("{}:{v:.2}", format!("{k:?}").trim_matches('"')))
+        .collect::<Vec<_>>()
+        .join(",")
+}
+
+fn key(r: &Report, c: &crate::report::CellResult) -> String {
+    format!(
+        "{:<2} {:<10} {:<10} {:<16}",
+        r.actions_per_round, r.policy, c.build, c.encounter
+    )
+}
+
+fn render_economy(reports: &[Report], out: &mut String) {
+    *out += "\n[economy]\n";
+    let _ = writeln!(
+        out,
+        "{:<2} {:<10} {:<10} {:<16} {:>6} {:>6} {:>6} {:>6} {:>7}  by",
+        "ap", "policy", "build", "encounter", "spent", "bitten", "status", "grown", "net"
+    );
+    for r in reports {
+        for c in &r.cells {
+            let net =
+                c.avg_units_grown - c.avg_units_spent - c.avg_units_bitten - c.avg_units_status;
+            let _ = writeln!(
+                out,
+                "{} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>+7.2}  spent={} bitten={} status={}",
+                key(r, c),
+                c.avg_units_spent,
+                c.avg_units_bitten,
+                c.avg_units_status,
+                c.avg_units_grown,
+                net + 0.0,
+                by(&c.spent_by),
+                by(&c.bitten_by),
+                by(&c.status_lost_by)
+            );
+        }
+    }
+}
+
+fn render_damage(reports: &[Report], out: &mut String) {
+    *out += "\n[damage]\n";
+    let _ = writeln!(
+        out,
+        "{:<2} {:<10} {:<10} {:<16} {:>6} {:>6} {:>6} {:>8} {:>6} {:>8}  status_by",
+        "ap",
+        "policy",
+        "build",
+        "encounter",
+        "strike",
+        "status",
+        "retal",
+        "overkill",
+        "doomed",
+        "per_unit"
+    );
+    for r in reports {
+        for c in &r.cells {
+            let per_unit = c
+                .dmg_per_unit
+                .map_or("-".to_string(), |v| format!("{v:.2}"));
+            let _ = writeln!(
+                out,
+                "{} {:>6.2} {:>6.2} {:>6.2} {:>8.2} {:>6.2} {:>8}  {}",
+                key(r, c),
+                c.avg_strike_dmg,
+                c.avg_status_dmg,
+                c.avg_retaliation_dmg,
+                c.avg_overkill,
+                c.avg_doomed_strikes,
+                per_unit,
+                by(&c.status_dmg_by)
+            );
+        }
     }
 }

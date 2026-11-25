@@ -6,6 +6,7 @@
 use crate::data::{Design, Liquid, Personality, Trait};
 use crate::path::{self, Cell, chebyshev};
 use crate::rng::Rng;
+use std::collections::BTreeMap;
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum StatusKind {
@@ -21,9 +22,33 @@ pub enum StatusKind {
     Regeneration,
 }
 
+impl StatusKind {
+    pub fn name(self) -> &'static str {
+        match self {
+            StatusKind::Wet => "Wet",
+            StatusKind::Burning => "Burning",
+            StatusKind::Poisoned => "Poisoned",
+            StatusKind::Corroding { .. } => "Corroding",
+            StatusKind::Instability => "Instability",
+            StatusKind::Flammable => "Flammable",
+            StatusKind::Regeneration => "Regeneration",
+        }
+    }
+}
+
+/// Where a status came from, for the damage slice.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Source {
+    Strike,
+    Retaliation,
+    /// The slime's own dominance (Regeneration).
+    Body,
+}
+
 #[derive(Clone, Copy, Debug)]
 pub struct Status {
     pub kind: StatusKind,
+    pub source: Source,
     /// Pulses left; `FOREVER` never expires (`StatusEffect.Forever`).
     pub remaining: i32,
     id: u32,
@@ -89,7 +114,30 @@ enum Intent {
     Idle,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+/// Per-fight breakdown for the [economy] and [damage] slices.
+#[derive(Clone, Debug, PartialEq, Default)]
+pub struct Tally {
+    /// Units spent on strikes, by liquid.
+    pub spent_by: BTreeMap<Liquid, usize>,
+    /// Units popped by bites, by liquid.
+    pub bitten_by: BTreeMap<Liquid, usize>,
+    /// Slime units lost to its own status pulses, by status.
+    pub status_lost_by: BTreeMap<&'static str, usize>,
+    /// Enemy HP removed by strikes.
+    pub strike_dmg: usize,
+    /// Enemy HP removed by pulses of statuses the slime's strikes applied.
+    pub status_dmg: usize,
+    /// Enemy HP removed by pulses of statuses Retaliation applied.
+    pub retaliation_dmg: usize,
+    /// Enemy HP removed by status pulses (any source), by status.
+    pub status_dmg_by: BTreeMap<&'static str, usize>,
+    /// Damage beyond the HP the target had at that moment, any source.
+    pub overkill: usize,
+    /// Strikes on an enemy its queued status pulses alone would already kill.
+    pub doomed_strikes: usize,
+}
+
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct FightResult {
     pub won: bool,
     pub rounds: u32,
@@ -104,6 +152,7 @@ pub struct FightResult {
     pub enemies_killed: usize,
     /// Why the slime lost: `melee:<Enemy>`, `status:<Status>` or `timeout`. `None` on a win.
     pub cause: Option<String>,
+    pub tally: Tally,
 }
 
 pub struct Fight<'a> {
@@ -117,6 +166,7 @@ pub struct Fight<'a> {
     units_bitten: usize,
     units_status: usize,
     units_grown: usize,
+    tally: Tally,
     /// What last took a unit off the slime.
     last_harm: Option<String>,
     /// Turn-by-turn log lines, kept only for `--trace`.
@@ -188,6 +238,7 @@ impl<'a> Fight<'a> {
             units_bitten: 0,
             units_status: 0,
             units_grown: 0,
+            tally: Tally::default(),
             last_harm: None,
             trace: None,
         };
@@ -315,6 +366,7 @@ impl<'a> Fight<'a> {
             units_bitten: self.units_bitten,
             units_status: self.units_status,
             units_grown: self.units_grown,
+            tally: self.tally.clone(),
             enemies_killed: self.enemies.iter().filter(|e| !e.alive()).count(),
             cause: if won { None } else { self.last_harm.clone() },
         }
@@ -433,19 +485,27 @@ impl<'a> Fight<'a> {
         };
         self.slime.volume.remove(at);
         self.units_spent += 1;
+        *self.tally.spent_by.entry(liquid).or_insert(0) += 1;
         refresh_dominance(d, &mut self.slime, &mut self.next_status_id);
 
         let stats = d.liquid(liquid);
         let enemy = &mut self.enemies[target];
+        if pending_status_damage(d, enemy) >= enemy.hit_points {
+            self.tally.doomed_strikes += 1;
+        }
         enemy.armor = (enemy.armor - stats.corrosion).max(0);
         let power = if liquid == Liquid::Lava {
             modify_incoming_harm(d, enemy, stats.power)
         } else {
             stats.power
         };
+        let hp = enemy.hit_points;
         damage(d, enemy, power, true, &mut self.next_status_id);
+        let applied = (hp - enemy.hit_points) as usize;
+        self.tally.strike_dmg += applied;
+        self.tally.overkill += (power - enemy.armor.min(power)) as usize - applied;
         if enemy.alive() {
-            apply_liquid(d, enemy, liquid, &mut self.next_status_id);
+            apply_liquid(d, enemy, liquid, Source::Strike, &mut self.next_status_id);
         }
         enemy.aggroed = true;
     }
@@ -550,16 +610,25 @@ impl<'a> Fight<'a> {
         // Retaliation is captured before the hit: the hit may end dominance.
         let retort = self.slime.dominant;
         let power = self.enemies[i].melee_power;
-        let before = self.slime.volume.len();
+        let before = self.slime.volume.clone();
         let tip = damage(d, &mut self.slime, power, true, &mut self.next_status_id);
-        self.units_bitten += before - self.slime.volume.len();
+        self.units_bitten += before.len() - self.slime.volume.len();
+        for &unit in &before[self.slime.volume.len()..] {
+            *self.tally.bitten_by.entry(unit).or_insert(0) += 1;
+        }
         if tip.is_some() {
             self.last_harm = Some(format!("melee:{}", self.enemies[i].name));
         }
         let enemy = &mut self.enemies[i];
         if self.slime.alive() {
             if let Some(liquid) = retort {
-                apply_liquid(d, enemy, liquid, &mut self.next_status_id);
+                apply_liquid(
+                    d,
+                    enemy,
+                    liquid,
+                    Source::Retaliation,
+                    &mut self.next_status_id,
+                );
             }
             enemy.aggroed = true;
             enemy.pursuit = Some(self.slime.cell);
@@ -721,19 +790,23 @@ impl<'a> Fight<'a> {
             let status = owner.statuses[at];
             pulsed.push(status.id);
             let (before, hp) = (owner.volume.len(), owner.hit_points);
+            // HP (or units) this pulse means to take, before it meets what the owner has left.
+            let mut harm = 0;
             match status.kind {
                 StatusKind::Burning => {
-                    let amount = modify_incoming_harm(d, owner, d.statuses.burning_pulse);
-                    damage(d, owner, amount, false, ids);
+                    harm = modify_incoming_harm(d, owner, d.statuses.burning_pulse);
+                    damage(d, owner, harm, false, ids);
                 }
                 StatusKind::Poisoned => {
-                    damage(d, owner, d.statuses.poisoned_pulse, false, ids);
+                    harm = d.statuses.poisoned_pulse;
+                    damage(d, owner, harm, false, ids);
                 }
                 StatusKind::Corroding { corrosion } => {
                     if owner.armor > 0 {
                         owner.armor = (owner.armor - corrosion).max(0);
                     } else {
-                        damage(d, owner, d.statuses.corroding_pulse, false, ids);
+                        harm = d.statuses.corroding_pulse;
+                        damage(d, owner, harm, false, ids);
                     }
                 }
                 StatusKind::Regeneration => {
@@ -749,8 +822,24 @@ impl<'a> Fight<'a> {
                 self.units_grown += owner.volume.len() - before;
             }
             if owner.is_slime && owner.volume.len() < before {
-                self.units_status += before - owner.volume.len();
-                self.last_harm = Some(format!("status:{:?}", status.kind));
+                let lost = before - owner.volume.len();
+                self.units_status += lost;
+                *self
+                    .tally
+                    .status_lost_by
+                    .entry(status.kind.name())
+                    .or_insert(0) += lost;
+                self.last_harm = Some(format!("status:{}", status.kind.name()));
+            }
+            if !owner.is_slime && harm > 0 {
+                let applied = (hp - owner.hit_points) as usize;
+                let t = &mut self.tally;
+                match status.source {
+                    Source::Retaliation => t.retaliation_dmg += applied,
+                    Source::Strike | Source::Body => t.status_dmg += applied,
+                }
+                *t.status_dmg_by.entry(status.kind.name()).or_insert(0) += applied;
+                t.overkill += harm as usize - applied;
             }
             if let Some(log) = log.as_mut() {
                 log.push(format!(
@@ -820,6 +909,33 @@ fn heal(c: &mut Creature, amount: i32) {
     }
 }
 
+/// HP the queued statuses of `c` would take if they all pulsed out as they stand now: Flammable
+/// as it is now, Corroding stripping armor first, no heals.
+fn pending_status_damage(d: &Design, c: &Creature) -> i32 {
+    let mut armor = c.armor;
+    let mut total = 0;
+    for s in &c.statuses {
+        let pulses = s.remaining.max(0);
+        match s.kind {
+            StatusKind::Burning => {
+                total += pulses * modify_incoming_harm(d, c, d.statuses.burning_pulse);
+            }
+            StatusKind::Poisoned => total += pulses * d.statuses.poisoned_pulse,
+            StatusKind::Corroding { corrosion } => {
+                for _ in 0..pulses {
+                    if armor > 0 {
+                        armor = (armor - corrosion).max(0);
+                    } else {
+                        total += d.statuses.corroding_pulse;
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+    total
+}
+
 /// `Creature.ModifyIncomingHarm`: ×multiplier per Flammable in the queue, then the Oil
 /// dominance's Forever Flammable unless a Flammable is already queued.
 fn modify_incoming_harm(d: &Design, c: &Creature, mut amount: i32) -> i32 {
@@ -841,25 +957,21 @@ fn modify_incoming_harm(d: &Design, c: &Creature, mut amount: i32) -> i32 {
 
 /// `Substance.Apply`: what a liquid leaves on whoever it touches (strike, retaliation, puddle),
 /// then `NotifyReceivedSubstance` (Vampirism drinks Blood).
-fn apply_liquid(d: &Design, target: &mut Creature, liquid: Liquid, ids: &mut u32) {
+fn apply_liquid(d: &Design, target: &mut Creature, liquid: Liquid, from: Source, ids: &mut u32) {
     let s = &d.statuses;
+    let mut add = |kind, duration| add_status(target, kind, duration, from, ids);
     match liquid {
-        Liquid::Water => add_status(target, StatusKind::Wet, s.wet, ids),
+        Liquid::Water => add(StatusKind::Wet, s.wet),
         Liquid::Oil => {
-            add_status(target, StatusKind::Instability, s.instability, ids);
-            add_status(target, StatusKind::Flammable, s.flammable, ids);
+            add(StatusKind::Instability, s.instability);
+            add(StatusKind::Flammable, s.flammable);
         }
-        Liquid::Poison => add_status(target, StatusKind::Poisoned, s.poisoned, ids),
+        Liquid::Poison => add(StatusKind::Poisoned, s.poisoned),
         Liquid::Acid => {
             let corrosion = d.liquid(Liquid::Acid).corrosion;
-            add_status(
-                target,
-                StatusKind::Corroding { corrosion },
-                s.corroding,
-                ids,
-            );
+            add(StatusKind::Corroding { corrosion }, s.corroding);
         }
-        Liquid::Lava => add_status(target, StatusKind::Burning, s.burning, ids),
+        Liquid::Lava => add(StatusKind::Burning, s.burning),
         Liquid::Blood | Liquid::Mercury => {}
     }
     if liquid == Liquid::Blood && target.vampirism {
@@ -869,7 +981,7 @@ fn apply_liquid(d: &Design, target: &mut Creature, liquid: Liquid, ids: &mut u32
 
 /// `StatusQueue.Add`: Water dominance blocks Burning; Wet and Burning/Corroding cancel each
 /// other (the existing one is removed and the incoming one is not added).
-fn add_status(c: &mut Creature, kind: StatusKind, duration: i32, ids: &mut u32) {
+fn add_status(c: &mut Creature, kind: StatusKind, duration: i32, source: Source, ids: &mut u32) {
     if kind == StatusKind::Burning && c.dominant == Some(Liquid::Water) {
         return;
     }
@@ -889,6 +1001,7 @@ fn add_status(c: &mut Creature, kind: StatusKind, duration: i32, ids: &mut u32) 
     *ids += 1;
     c.statuses.push(Status {
         kind,
+        source,
         remaining: duration,
         id: *ids,
     });
@@ -922,6 +1035,7 @@ fn refresh_dominance(d: &Design, c: &mut Creature, ids: &mut u32) {
                 0,
                 Status {
                     kind: StatusKind::Regeneration,
+                    source: Source::Body,
                     remaining: FOREVER,
                     id: *ids,
                 },

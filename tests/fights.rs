@@ -1,7 +1,7 @@
 //! Acceptance checks for the design guard (docs/design/design-guard.md, first version).
 
 use simulator::data::{Design, Liquid};
-use simulator::fight::{Fight, FightResult};
+use simulator::fight::{Fight, FightResult, Tally};
 use simulator::report::{self, Build, Encounter};
 use simulator::text;
 
@@ -36,6 +36,15 @@ fn won(rounds: u32, left: usize, spent: usize, bitten: usize) -> FightResult {
         units_grown: 0,
         enemies_killed: 1,
         cause: None,
+        tally: Tally::default(),
+    }
+}
+
+/// The result without the slice breakdown, to compare with `won(...)`.
+fn core(r: FightResult) -> FightResult {
+    FightResult {
+        tally: Tally::default(),
+        ..r
     }
 }
 
@@ -79,7 +88,7 @@ fn seeds_change_fights_with_wandering_enemies() {
 fn ten_lava_vs_one_mushroom_one_action() {
     let d = design();
     let r = report::play(&d, &pure(&d, Liquid::Lava), &one("Mushroom"), 1, 0);
-    assert_eq!(r, won(4, 7, 2, 1));
+    assert_eq!(core(r.clone()), won(4, 7, 2, 1));
 }
 
 // With two actions: round 1 two steps, the Mushroom steps (distance 2); round 2 step + strike
@@ -89,7 +98,7 @@ fn ten_lava_vs_one_mushroom_one_action() {
 fn ten_lava_vs_one_mushroom_two_actions() {
     let d = design();
     let r = report::play(&d, &pure(&d, Liquid::Lava), &one("Mushroom"), 2, 0);
-    assert_eq!(r, won(3, 6, 3, 1));
+    assert_eq!(core(r.clone()), won(3, 6, 3, 1));
 }
 
 // Water deals 1 per strike and nothing over time: from round 3 each round is one strike and
@@ -98,7 +107,7 @@ fn ten_lava_vs_one_mushroom_two_actions() {
 fn ten_water_vs_one_mushroom_one_action() {
     let d = design();
     let r = report::play(&d, &pure(&d, Liquid::Water), &one("Mushroom"), 1, 0);
-    assert_eq!(r, won(7, 1, 5, 4));
+    assert_eq!(core(r.clone()), won(7, 1, 5, 4));
 }
 
 #[test]
@@ -298,9 +307,23 @@ fn text_report_is_stable_and_has_no_run_details() {
     let with_file = text::render(&toml, Some("x.toml"), &reports("t", "c"), &[]).unwrap();
     assert!(with_file.contains("\ndesign.file = x.toml\n"));
 
-    let table: Vec<&str> = a.split("[cells]\n").nth(1).unwrap().lines().collect();
+    let table: Vec<&str> = a
+        .split("[cells]\n")
+        .nth(1)
+        .unwrap()
+        .lines()
+        .take_while(|l| !l.is_empty())
+        .collect();
     let (header, cells) = (table[0], &table[1..]);
     assert_eq!(cells.len(), 2 * 8 * 18);
+    for section in ["[economy]", "[damage]"] {
+        let rows = a.split(section).nth(1).unwrap().lines().skip(2);
+        assert_eq!(
+            rows.take_while(|l| !l.is_empty()).count(),
+            2 * 8 * 18,
+            "{section}"
+        );
+    }
     assert_eq!(
         cells[0].split_whitespace().take(4).collect::<Vec<_>>(),
         ["1", "face-tank", "start", "bat-1"]
@@ -338,7 +361,7 @@ fn text_report_is_stable_and_has_no_run_details() {
 fn trace_logs_the_fight_turn_by_turn() {
     let d = design();
     let (r, log) = report::fight(&d, &pure(&d, Liquid::Lava), &one("Mushroom"), 1, 0).run_traced();
-    assert_eq!(r, won(4, 7, 2, 1));
+    assert_eq!(core(r.clone()), won(4, 7, 2, 1));
     assert!(log.iter().any(|l| l == "round 4"));
     assert!(
         log.iter()
@@ -485,4 +508,70 @@ fn level_design_errors_are_explicit() {
             .unwrap_err()
             .contains("no enemy named Ghost")
     );
+}
+
+// The hand-checked 10 Lava vs 1 Mushroom fight, by source. Strike 1: 5->4. Its pulse: strike
+// Burning 4->3. The bite pops a Lava unit; Retaliation adds a second Burning. Strike 2 comes
+// while the queued Burnings (2 + 3 pulses left, 5 HP) already outweigh its 3 HP: a doomed
+// strike, 3->2. Next pulse: the strike Burning 2->1, the retaliation Burning 1->0.
+#[test]
+fn slices_split_the_reference_fight_by_source() {
+    let d = design();
+    let r = report::play(&d, &pure(&d, Liquid::Lava), &one("Mushroom"), 1, 0);
+    let t = &r.tally;
+    assert_eq!(t.spent_by.get(&Liquid::Lava), Some(&2));
+    assert_eq!(t.bitten_by.get(&Liquid::Lava), Some(&1));
+    assert!(t.status_lost_by.is_empty());
+    assert_eq!((t.strike_dmg, t.status_dmg, t.retaliation_dmg), (2, 2, 1));
+    assert_eq!(t.status_dmg_by.get("Burning"), Some(&3));
+    assert_eq!((t.overkill, t.doomed_strikes), (0, 1));
+
+    let toml =
+        std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/data/design.toml")).unwrap();
+    let rep = report::run(
+        &d,
+        1,
+        vec![pure(&d, Liquid::Lava)],
+        vec![one("Mushroom")],
+        "t",
+        "c",
+    );
+    let text = text::render(&toml, None, &[rep], &[]).unwrap();
+    let line = |section: &str| {
+        text.split(&format!("[{section}]\n"))
+            .nth(1)
+            .unwrap()
+            .lines()
+            .nth(1)
+            .unwrap()
+            .split_whitespace()
+            .skip(4)
+            .collect::<Vec<_>>()
+            .join(" ")
+    };
+    assert_eq!(
+        line("economy"),
+        "2.00 1.00 0.00 0.00 -3.00 spent=Lava:2.00 bitten=Lava:1.00 status=-"
+    );
+    assert_eq!(line("damage"), "2.00 2.00 1.00 0.00 1.00 2.50 Burning:3.00");
+}
+
+#[test]
+fn overkill_counts_damage_beyond_the_hp_left() {
+    // Two Oil strikes make the Mushroom doubly Flammable: the next Lava strike means 4 HP.
+    let d = design();
+    let mut f = Fight::new(
+        &d,
+        0,
+        1,
+        vec![Liquid::Oil, Liquid::Oil, Liquid::Lava, Liquid::Water],
+        (1, 5),
+        &[("Mushroom", (2, 5))],
+    );
+    f.slime_strike(0, Liquid::Oil);
+    f.slime_strike(0, Liquid::Oil);
+    f.slime_strike(0, Liquid::Lava);
+    assert_eq!(f.enemies[0].hit_points, 0);
+    let r = f.run();
+    assert_eq!((r.tally.strike_dmg, r.tally.overkill), (5, 1));
 }
