@@ -243,6 +243,14 @@ impl Design {
         if (1..policies.len()).any(|i| policies[..i].contains(&policies[i])) {
             return Err("matrix.policies: a policy is listed twice".into());
         }
+        for e in &design.enemies {
+            if e.hit_points < 1 || e.armor < 0 || e.speed < 0 || e.melee_power < 0 {
+                return Err(format!(
+                    "enemy {}: hit_points must be >= 1; armor, speed, melee_power >= 0",
+                    e.name
+                ));
+            }
+        }
         for (i, level) in design.levels.iter().enumerate() {
             let problem = if design.levels[..i].iter().any(|l| l.id == level.id) {
                 Some("duplicate id")

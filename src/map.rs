@@ -4,7 +4,7 @@
 //! `docs/map-levels.md`, format in `docs/report-format.md`.
 
 use crate::data::{Design, Level, Liquid, MapSpec};
-use crate::fight::{Board, Fight, MapState, Rect};
+use crate::fight::{Board, Fight, MapState, Rect, in_rect};
 use crate::path::{Cell, chebyshev};
 use crate::rng::Rng;
 use std::collections::BTreeMap;
@@ -92,7 +92,7 @@ pub fn generate(m: &MapSpec, seed: u64) -> Map {
     };
     let mut passages: Vec<Cell> = (0..height)
         .flat_map(|y| (0..width).map(move |x| (x, y)))
-        .filter(|&c| board.open(c) && !rooms.iter().any(|&r| inside(r, c)))
+        .filter(|&c| board.open(c) && !rooms.iter().any(|&r| in_rect(r, c)))
         .collect();
     for _ in 0..m.blockers_per_level {
         if passages.is_empty() {
@@ -235,10 +235,6 @@ pub fn fight<'a>(
     f.policy = crate::fight::Policy::from_name(&level.policy, d);
     f.map = Some(state);
     f
-}
-
-fn inside(r: Rect, c: Cell) -> bool {
-    c.0 >= r.0.0 && c.0 <= r.1.0 && c.1 >= r.0.1 && c.1 <= r.1.1
 }
 
 /// Two decimals; `+ 0.0` turns -0.0 into 0.0.

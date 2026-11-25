@@ -1032,3 +1032,58 @@ fn stationary_enemies_stay_put() {
         assert!(line.contains("(6, 5)->(6, 5)"), "{line}");
     }
 }
+
+#[test]
+fn thorns_on_the_killing_strike_can_kill_the_slime() {
+    // Two units, a 1-HP thorny Cactus: the strike kills it and leaves 1 unit, the thorn takes
+    // it. A loss by thorns, not a win — and a stage level does not eat the corpse back to life.
+    let mut d = level2();
+    d.enemies
+        .iter_mut()
+        .find(|e| e.name == "Cactus")
+        .unwrap()
+        .hit_points = 1;
+    let mut f = Fight::new(
+        &d,
+        0,
+        1,
+        vec![Liquid::Water; 2],
+        (1, 5),
+        &[("Cactus", (2, 5))],
+    );
+    f.policy = Policy::Newcomer;
+    let r = f.run();
+    assert!(!r.won);
+    assert_eq!(
+        (r.units_left, r.cause.as_deref()),
+        (0, Some("thorns:Cactus"))
+    );
+}
+
+#[test]
+fn newcomer_never_spits_and_a_toothless_neighbour_does_not_aggro() {
+    let d = level2();
+    let mut f = Fight::new(
+        &d,
+        0,
+        1,
+        vec![Liquid::Water; 10],
+        (1, 5),
+        &[("Cactus", (2, 5))],
+    );
+    f.policy = Policy::Newcomer;
+    let r = f.run();
+    assert_eq!((r.tally.spits, r.units_bitten), (0, 0));
+}
+
+#[test]
+fn negative_enemy_numbers_are_rejected() {
+    let base =
+        std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/data/design.toml")).unwrap();
+    let neg = base.replacen(
+        "speed = 1\nmelee_power = 1",
+        "speed = -1\nmelee_power = 1",
+        1,
+    );
+    assert!(Design::parse(&neg).unwrap_err().contains("speed"));
+}

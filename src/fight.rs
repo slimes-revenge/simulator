@@ -167,7 +167,7 @@ impl Board {
 /// An inclusive rectangle of cells: (min corner, max corner).
 pub type Rect = (Cell, Cell);
 
-fn in_rect(r: Rect, c: Cell) -> bool {
+pub fn in_rect(r: Rect, c: Cell) -> bool {
     c.0 >= r.0.0 && c.0 <= r.1.0 && c.1 >= r.0.1 && c.1 <= r.1.1
 }
 
@@ -511,6 +511,10 @@ impl<'a> Fight<'a> {
                 self.last_action = k + 1 == self.actions_per_round;
                 self.slime_act();
                 self.track_engagement();
+                // Thorns can kill the slime on its own strike.
+                if !self.slime.alive() {
+                    return self.result(false, round);
+                }
                 if self.goal_reached() {
                     return self.result(true, round);
                 }
@@ -547,7 +551,7 @@ impl<'a> Fight<'a> {
     fn goal_reached(&self) -> bool {
         match &self.map {
             Some(m) => self.slime.alive() && self.slime.cell == m.exit,
-            None => self.enemies_dead(),
+            None => self.slime.alive() && self.enemies_dead(),
         }
     }
 
@@ -835,7 +839,7 @@ impl<'a> Fight<'a> {
             let next = through.map(|r| r[0]);
             let blocker =
                 next.and_then(|c| self.enemies.iter().position(|e| e.alive() && e.cell == c));
-            if let Some(i) = blocker.or_else(|| adjacent(self, false)) {
+            if let Some(i) = blocker.or_else(|| adjacent(self, true)) {
                 self.strike_or_wait(i);
             } else if let Some(to) = next.filter(|&c| !self.occupied().contains(&c)) {
                 let from = self.slime.cell;
@@ -893,6 +897,7 @@ impl<'a> Fight<'a> {
         self.enemies
             .iter()
             .filter(|e| e.alive() && !e.aggroed && e.personality == Personality::Aggressive)
+            .filter(|e| e.base_speed > 0)
             .filter(|e| !hidden && chebyshev(e.cell, cell) <= self.vision)
             .filter(|e| self.board.line_of_sight(e.cell, cell))
             .count()

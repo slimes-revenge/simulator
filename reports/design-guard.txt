@@ -2813,19 +2813,19 @@ sample-ap2       0   4.00     4   0.00  stage2:melee:Bat=50
 [map-levels]
 level          policy     end rooms  rounds fights engaged0 engaged1 engaged2 engaged3+ net_per_fight
 map-vision2    strafe       6  2.18   12.18   1.82     0.00    91.21     8.79      0.00         -5.36
-map-vision3    strafe       0  1.74   10.02   1.70     0.00    78.82    21.18      0.00         -5.88
-map-vision4    strafe       0  1.80   10.00   1.60     0.00    73.75    26.25      0.00         -6.25
+map-vision3    strafe       0  1.74   10.04   1.70     0.00    80.00    20.00      0.00         -5.88
+map-vision4    strafe       0  1.82   10.20   1.60     0.00    72.50    27.50      0.00         -6.25
 map-lure2      lure         6  2.16   12.26   1.84     0.00    93.48     6.52      0.00         -5.30
-map-lure3      lure         0  1.54   11.10   1.80     0.00    86.67    13.33      0.00         -5.56
-map-lure4      lure         0  1.46   12.24   1.68     0.00    85.71    14.29      0.00         -5.95
+map-lure3      lure         0  1.54   11.12   1.80     0.00    87.78    12.22      0.00         -5.56
+map-lure4      lure         0  1.48   12.48   1.68     0.00    84.52    15.48      0.00         -5.95
 map-kite3      kite         0  1.78   19.16   1.90     0.00    83.16    16.84      0.00         -5.26
 
 [map-level-ends]
 level          end    min worst  stops
 map-vision2      6   0.24     0  room1:melee:Cactus=5 room2:melee:Cactus=5 room1:melee:Mandragora=4 room2:melee:Eye=4 room2:melee:Mandragora=4 room3:melee:Mandragora=4 room1:melee:Eye=3 room2:melee:Undine=3 room3:melee:Mushroom=3 room1:melee:Mushroom=2 room1:melee:Undine=2 room2:melee:Mushroom=2 room4:melee:Mandragora=2 room3:melee:Cactus=1 room3:melee:Eye=1 room3:melee:Undine=1 room4:melee:Cactus=1
 map-vision3      0   0.00     0  room1:melee:Mushroom=8 room1:melee:Mandragora=7 room2:melee:Mandragora=5 room2:melee:Eye=4 room3:melee:Mushroom=4 room1:melee:Eye=3 room2:melee:Cactus=3 room2:melee:Mushroom=3 room2:melee:Undine=3 room1:melee:Cactus=2 room1:melee:Undine=2 room1:melee:Bat=1 room3:melee:Cactus=1 room3:melee:Eye=1 room3:melee:Mandragora=1 room3:melee:Undine=1 room4:melee:Mandragora=1
-map-vision4      0   0.00     0  room1:melee:Mushroom=8 room1:melee:Mandragora=7 room1:melee:Eye=5 room2:melee:Eye=5 room2:melee:Mandragora=4 room2:melee:Undine=4 room2:melee:Mushroom=3 room3:melee:Mandragora=3 room2:melee:Cactus=2 room3:melee:Mushroom=2 room3:melee:Undine=2 room1:melee:Undine=1 room2:melee:Bat=1 room3:melee:Cactus=1 room3:melee:Eye=1 room4:melee:Mushroom=1
+map-vision4      0   0.00     0  room1:melee:Mushroom=8 room1:melee:Mandragora=7 room1:melee:Eye=5 room2:melee:Eye=5 room2:melee:Mandragora=4 room2:melee:Undine=4 room2:melee:Mushroom=3 room3:melee:Mandragora=3 room3:melee:Undine=3 room2:melee:Cactus=2 room3:melee:Mushroom=2 room1:melee:Undine=1 room3:melee:Cactus=1 room3:melee:Eye=1 room4:melee:Mushroom=1
 map-lure2        6   0.24     0  room1:melee:Cactus=5 room2:melee:Cactus=5 room1:melee:Eye=4 room1:melee:Mandragora=4 room2:melee:Eye=4 room2:melee:Mandragora=4 room3:melee:Mandragora=4 room2:melee:Undine=3 room3:melee:Mushroom=3 room1:melee:Mushroom=2 room1:melee:Undine=2 room4:melee:Mandragora=2 room2:melee:Mushroom=1 room3:melee:Cactus=1 room3:melee:Eye=1 room3:melee:Undine=1 room4:melee:Cactus=1
 map-lure3        0   0.00     0  room1:melee:Mandragora=8 room1:melee:Mushroom=8 room1:melee:Cactus=5 room1:melee:Eye=5 room1:melee:Undine=4 room2:melee:Mandragora=4 room2:melee:Eye=3 room2:melee:Cactus=2 room2:melee:Undine=2 room3:melee:Mushroom=2 room1:melee:Bat=1 room2:melee:Mushroom=1 room3:melee:Cactus=1 room3:melee:Eye=1 room3:melee:Mandragora=1 room3:melee:Undine=1 room4:melee:Undine=1
-map-lure4        0   0.00     0  room1:melee:Mushroom=9 room1:melee:Eye=8 room1:melee:Mandragora=8 room1:melee:Undine=5 room2:melee:Mandragora=5 room1:melee:Cactus=3 room3:melee:Mushroom=3 room2:melee:Cactus=2 room2:melee:Eye=2 room2:melee:Bat=1 room2:melee:Undine=1 room3:melee:Eye=1 room3:melee:Mandragora=1 room3:melee:Undine=1
+map-lure4        0   0.00     0  room1:melee:Mushroom=9 room1:melee:Eye=8 room1:melee:Mandragora=8 room1:melee:Undine=5 room2:melee:Mandragora=5 room1:melee:Cactus=3 room3:melee:Mushroom=3 room2:melee:Cactus=2 room2:melee:Eye=2 room3:melee:Undine=2 room2:melee:Undine=1 room3:melee:Eye=1 room3:melee:Mandragora=1
 map-kite3        0   0.00     0  room1:melee:Mushroom=8 room1:melee:Mandragora=5 room2:melee:Cactus=5 room1:melee:Undine=4 room2:melee:Mandragora=4 room3:melee:Undine=4 room1:melee:Cactus=3 room1:melee:Eye=3 room2:melee:Eye=3 room2:melee:Mushroom=2 room3:melee:Bat=2 room3:melee:Mushroom=2 room2:melee:Bat=1 room2:melee:Undine=1 room3:melee:Cactus=1 room3:melee:Mandragora=1 room4:melee:Cactus=1
