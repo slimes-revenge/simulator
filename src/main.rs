@@ -2,6 +2,7 @@
 //! Runs the matrix once per `matrix.action_points` value and writes the reports as one JSON
 //! array for the site and one plain-text file for the balance session (`docs/report-format.md`).
 
+use rayon::prelude::*;
 use simulator::data::Design;
 use simulator::report;
 use std::path::PathBuf;
@@ -180,15 +181,16 @@ fn main() -> ExitCode {
             )
         })
         .collect();
+    // Levels run in parallel; `collect` keeps the file order, so the report is unchanged.
     let levels: Vec<simulator::level::LevelResult> = d
         .levels
-        .iter()
+        .par_iter()
         .filter(|l| l.map.is_none())
         .map(|l| simulator::level::run(&d, l))
         .collect();
     let maps: Vec<simulator::map::MapLevelResult> = d
         .levels
-        .iter()
+        .par_iter()
         .filter(|l| l.map.is_some())
         .map(|l| simulator::map::run(&d, l))
         .collect();

@@ -906,20 +906,20 @@ impl<'a> Fight<'a> {
     /// Where `lure` fights: the nearest non-room cell, preferring corridor cells with at most
     /// two open neighbours (one enemy can reach it from each side) over doorways; ties go west.
     fn fighting_spot(&self) -> Option<Cell> {
-        let mut best: Option<((bool, usize, i32), Cell)> = None;
+        let occupied = self.occupied();
+        // One search from the slime gives the route length to every cell.
+        let tree = path::Tree::new(self.board.width, self.board.height, self.slime.cell, |c| {
+            self.blocked(&occupied, c)
+        });
+        let mut best: Option<((bool, i32, i32), Cell)> = None;
         for y in 0..self.board.height {
             for x in 0..self.board.width {
                 let c = (x, y);
                 if !self.board.open(c) || self.in_room(c) {
                     continue;
                 }
-                let steps = if c == self.slime.cell {
-                    0
-                } else {
-                    match self.route_to(c) {
-                        Some(r) => r.len(),
-                        None => continue,
-                    }
+                let Some(steps) = tree.steps_to(c) else {
+                    continue;
                 };
                 let open = path::neighbours(c).filter(|&n| self.board.open(n)).count();
                 let key = (open > 2, steps, x);
