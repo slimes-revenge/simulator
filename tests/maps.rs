@@ -126,13 +126,13 @@ fn map_level_errors_are_explicit() {
             .unwrap_err()
             .contains("either stages or map")
     );
-    let face = base.replacen("policy = \"strafe\"", "policy = \"face-tank\"", 1);
+    let face = base.replacen("policy = \"strafe\"", "policy = \"newcomer\"", 1);
     assert!(Design::parse(&face).unwrap_err().contains("strafe"));
-    let lure_on_stages = base.replacen("policy = \"face-tank\"", "policy = \"lure\"", 1);
+    let lure_on_stages = base.replacen("policy = \"newcomer\"", "policy = \"lure\"", 1);
     assert!(
         Design::parse(&lure_on_stages)
             .unwrap_err()
-            .contains("face-tank")
+            .contains("newcomer")
     );
     let ghost = base.replacen("enemy_kinds = [\"Bat\"", "enemy_kinds = [\"Ghost\"", 1);
     assert!(

@@ -30,8 +30,8 @@ matrix.enemy_rows = 5 4 6
 
 [cells]
 ap policy     build      encounter        win  rounds killed   left  spent bitten status  cause
-1  face-tank  lava       mushroom-1       100    4.00   1.00   7.00   2.00   1.00   0.00  -
-1  face-tank  start      bat-3              0  176.82   0.88   0.88   2.92   2.20   0.00  timeout=44 melee:Bat=6
+1  newcomer   lava       mushroom-1       100    4.00   1.00   7.00   2.00   1.00   0.00  -
+1  newcomer   start      bat-3              0   23.96   1.08   0.08   3.00   2.92   0.00  melee:Bat=46 timeout=4
 ```
 
 - **Header line:** format version. It goes up when an existing section's columns change.
@@ -53,7 +53,7 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 | Column | Meaning |
 | --- | --- |
 | `ap` | Slime actions per round |
-| `policy` | How the slime plays (`face-tank`) |
+| `policy` | How the slime plays: `newcomer` (walk to the nearest enemy, strike with the edge unit, never swap) |
 | `build`, `encounter` | Ids, the same as in the JSON |
 | `win` | Win rate in percent, an integer (exact with 50 seeds) |
 | `rounds` | Average rounds until the fight ended |
@@ -77,12 +77,12 @@ alphabetical. A column appears only once its mechanic exists in the model, so no
 
 ```
 [economy]
-ap policy     build      encounter         spent bitten status  grown     net  by
-1  face-tank  start      bat-3              2.92   2.20   0.00   0.00   -5.12  spent=Water:2.00,Oil:0.92 bitten=Oil:0.08,Poison:0.12,Acid:1.00,Lava:1.00 status=-
+ap policy     build      encounter         spent bitten status  grown  swaps     net  by
+1  newcomer   start      bat-3              3.00   2.92   0.00   0.00   0.00   -5.92  spent=Water:0.08,Oil:0.92,Poison:1.00,Lava:1.00 bitten=Water:1.84,Oil:0.08,Acid:1.00 status=-
 
 [damage]
 ap policy     build      encounter        strike status  retal overkill doomed per_unit  status_by
-2  face-tank  lava       eye-3              4.00   3.00   6.00     0.00   3.00     3.25  Burning:9.00
+2  newcomer   lava       eye-3              4.00   3.00   6.00     0.00   3.00     3.25  Burning:9.00
 ```
 
 `[economy]`, the body ledger of one fight:
@@ -91,6 +91,7 @@ ap policy     build      encounter        strike status  retal overkill doomed p
 | --- | --- |
 | `spent`, `bitten`, `status` | Units spent on strikes, popped by bites, lost to the slime's own status pulses (the same numbers as `[cells]`) |
 | `grown` | Blood grown by Regeneration |
+| `swaps` | Actions spent swapping two units of the body (`newcomer` never swaps) |
 | `net` | `grown − spent − bitten − status` (eating and fountains are in `[levels]`) |
 | `by` | `spent=` by liquid, `bitten=` by liquid popped, `status=` by status |
 
@@ -206,7 +207,7 @@ Every report is complete on its own.
     "schemaVersion": 1,
     "generatedUtc": "2026-11-25T17:00:00Z",
     "commit": "<git sha the report was built from>",
-    "policy": "face-tank",
+    "policy": "newcomer",
     "actionsPerRound": 1,
     "seeds": 50,
     "builds": [
@@ -244,7 +245,7 @@ Every report is complete on its own.
 | `schemaVersion` | int | `1` |
 | `generatedUtc` | string | When the report was built, `YYYY-MM-DDTHH:MM:SSZ` |
 | `commit` | string | The simulator commit (`GITHUB_SHA` in CI, else `git rev-parse HEAD`, else `unknown`) |
-| `policy` | string | How the simulated slime plays; `face-tank` only in v1 |
+| `policy` | string | How the simulated slime plays; `newcomer` for the matrix and stage levels |
 | `actionsPerRound` | int | Slime actions per round; enemies always act once |
 | `seeds` | int | Fights per cell; seeds `0 .. seeds-1` |
 | `builds[]` | object | `id` (stable key), `name` (label), `units` (liquid → count). Order: `start`, then one pure build per liquid in `[[liquids]]` order |
@@ -264,7 +265,7 @@ Cell fields:
 | `avgUnitsBitten` | number | Units lost to enemy bites, over all fights |
 | `avgUnitsStatus` | number | Units lost to the slime's own status pulses, over all fights |
 | `avgEnemiesKilled` | number | Enemies killed, over all fights |
-| `avgUnitsGrown`, `avgNet`, `spentBy`, `bittenBy`, `statusLostBy` | numbers, objects | The `[economy]` slice (objects: name → average) |
+| `avgUnitsGrown`, `avgSwaps`, `avgNet`, `spentBy`, `bittenBy`, `statusLostBy` | numbers, objects | The `[economy]` slice (objects: name → average) |
 | `avgStrikeDmg`, `avgStatusDmg`, `avgRetaliationDmg`, `statusDmgBy`, `avgOverkill`, `avgDoomedStrikes`, `dmgPerUnit` | numbers, object, number or null | The `[damage]` slice |
 | `cause` | string or null | The most common cause of a loss; `null` when every fight was won |
 | `causes` | object | Every loss cause → number of fights it ended (`{}` when all were won) |

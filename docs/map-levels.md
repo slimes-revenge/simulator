@@ -43,7 +43,7 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
   anywhere, through doorways, with the usual pursuit memory.
 - **Round limit.** `rules.max_rounds × rooms`; beyond it the run is a `timeout` loss.
 - **`strafe` policy:**
-  1. If an aggroed enemy is adjacent, strike it with the liquid held most (or wait on the
+  1. If an aggroed enemy is adjacent, strike it with the edge unit (or wait on the
      last unit).
   2. Otherwise take one step along the path to the exit.
   3. If no path is free, strike any adjacent enemy to clear the way.
