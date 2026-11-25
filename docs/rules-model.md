@@ -256,6 +256,12 @@ Agreed design rules (balance `sim-reactions-spec.md`, `bestiary-numbers.md`); no
   drink onto an edge it reacts with is poured away instead (one action, the source loses it).
 - **`arranger`** skips a swap that would make reacting neighbours.
 - `newcomer` and `strafe` do none of this: their reactions are the measured mistakes.
+- **No repeated useless strikes (R2 stalls).** When the edge is the target's own element,
+  every policy brings up a unit 1 or 2 under the edge that is not (one action), unless that
+  makes reacting neighbours; `newcomer` and `strafe` first waste one strike. With nothing to
+  bring up the slime gives up on that enemy: it neither strikes nor waits for it (on maps it
+  walks on to the exit past it; a blocker it cannot hurt still blocks). A matrix fight in which
+  the slime gives up on every living enemy ends at once as a loss, cause `stalemate`.
 
 ## Where the docs and the code disagree
 

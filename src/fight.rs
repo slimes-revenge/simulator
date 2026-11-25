@@ -373,6 +373,10 @@ pub struct Fight<'a> {
     stones: Vec<(Cell, u32)>,
     /// This slime turn's encouragement bonus is used.
     encouraged: bool,
+    /// `newcomer`/`strafe` already wasted its one same-element strike (R2 stalls).
+    wasted: bool,
+    /// Matrix fights: no living enemy can be hurt any more (R2 stalls).
+    stalemate: bool,
     round: u32,
     rng: Rng,
     actions_per_round: u32,
@@ -448,6 +452,8 @@ impl<'a> Fight<'a> {
             rooted: 0,
             stones: Vec::new(),
             encouraged: false,
+            wasted: false,
+            stalemate: false,
             round: 0,
             rng: Rng::new(seed),
             actions_per_round,
@@ -554,6 +560,10 @@ impl<'a> Fight<'a> {
                 self.last_action = k + 1 == actions;
                 self.slime_act();
                 self.track_engagement();
+                if self.stalemate {
+                    self.last_harm = Some("stalemate".into());
+                    return self.result(false, round);
+                }
                 // Thorns can kill the slime on its own strike.
                 if !self.slime.alive() {
                     return self.result(false, round);
@@ -890,6 +900,13 @@ impl<'a> Fight<'a> {
         if self.map.is_some() {
             return self.map_act();
         }
+        let living: Vec<usize> = (0..self.enemies.len())
+            .filter(|&i| self.enemies[i].alive())
+            .collect();
+        if !living.is_empty() && living.iter().all(|&i| self.gives_up(i)) {
+            self.stalemate = true;
+            return self.note(|_| "Slime cannot hurt anyone left: a stalemate".into());
+        }
         if self.kites() {
             if !self.enemies.iter().any(|e| self.engaging(e)) {
                 return self.note(|_| "Slime waits for the enemy".into());
@@ -898,10 +915,10 @@ impl<'a> Fight<'a> {
                 return;
             }
             // Only harmless neighbours (no bite, e.g. a blocker): hit them; else wait for them.
-            let harmless = self
-                .enemies
-                .iter()
-                .position(|e| self.engaging(e) && chebyshev(e.cell, self.slime.cell) == 1);
+            let harmless = (0..self.enemies.len()).find(|&i| {
+                let e = &self.enemies[i];
+                self.engaging(e) && chebyshev(e.cell, self.slime.cell) == 1 && !self.gives_up(i)
+            });
             match harmless {
                 Some(i) => self.strike_or_wait(i),
                 None => self.note(|_| "Slime waits for the enemy".into()),
@@ -912,13 +929,16 @@ impl<'a> Fight<'a> {
             .enemies
             .iter()
             .enumerate()
-            .filter(|(_, e)| e.alive())
+            .filter(|&(i, e)| e.alive() && !self.gives_up(i))
             .min_by_key(|(i, e)| (chebyshev(self.slime.cell, e.cell), *i))
             .map(|(i, _)| i)
         else {
             return;
         };
         if chebyshev(self.slime.cell, self.enemies[target].cell) == 1 {
+            if self.unstall(target) {
+                return;
+            }
             // `Volume.CanSpend`: the last unit is the slime's life.
             if self.can_strike()
                 && !self.swapped
@@ -975,12 +995,18 @@ impl<'a> Fight<'a> {
     ///   `policies.lure_patience` actions per approach) while 2+ calm Aggressive enemies would
     ///   see the next cell.
     fn map_act(&mut self) {
+        // R2 stalls: an enemy the slime gives up on is neither struck nor waited for.
         let adjacent = |f: &Fight, aggroed_only: bool| {
-            f.enemies.iter().position(|e| {
-                e.alive() && chebyshev(e.cell, f.slime.cell) == 1 && (e.aggroed || !aggroed_only)
+            (0..f.enemies.len()).find(|&i| {
+                let e = &f.enemies[i];
+                e.alive()
+                    && chebyshev(e.cell, f.slime.cell) == 1
+                    && (e.aggroed || !aggroed_only)
+                    && !f.gives_up(i)
             })
         };
-        let aggro = self.enemies.iter().any(|e| self.engaging(e));
+        let aggro =
+            (0..self.enemies.len()).any(|i| self.engaging(&self.enemies[i]) && !self.gives_up(i));
         if self.kites() && aggro && self.kite_adjacent() {
             return;
         }
@@ -1156,8 +1182,11 @@ impl<'a> Fight<'a> {
             .enemies
             .iter()
             .enumerate()
-            .filter(|(_, e)| {
-                e.alive() && e.melee_power > 0 && chebyshev(e.cell, self.slime.cell) == 1
+            .filter(|&(i, e)| {
+                e.alive()
+                    && e.melee_power > 0
+                    && chebyshev(e.cell, self.slime.cell) == 1
+                    && !self.gives_up(i)
             })
             .min_by_key(|(i, e)| (e.hit_points, *i))
             .map(|(i, _)| i)
@@ -1210,6 +1239,9 @@ impl<'a> Fight<'a> {
     /// Strikes `target` with the edge unit, or spits it when the policy spits at Thorns
     /// (`lure`, `kite`) and the target has them; waits when the last unit cannot be spent.
     fn strike_or_wait(&mut self, target: usize) {
+        if self.unstall(target) {
+            return;
+        }
         if self.policy == Policy::Reader
             && self.can_strike()
             && !self.swapped
@@ -1263,6 +1295,63 @@ impl<'a> Fight<'a> {
             || (next == Liquid::Lava
                 && edge != Liquid::Lava
                 && has(|k| *k == StatusKind::Flammable))
+    }
+
+    /// R2 stalls: the edge unit is enemy `i`'s own element, so a strike would do nothing.
+    fn edge_useless(&self, i: usize) -> bool {
+        let el = &self.d.elements;
+        let theirs = self.enemies[i].element;
+        theirs.is_some() && self.slime.volume.last().and_then(|&l| el.of(l)) == theirs
+    }
+
+    /// A unit 1 or 2 under the edge that is not enemy `i`'s element, when bringing it up
+    /// makes no reacting neighbours.
+    fn unstall_pick(&self, i: usize) -> Option<usize> {
+        let el = &self.d.elements;
+        let theirs = self.enemies[i].element;
+        let v = &self.slime.volume;
+        let n = v.len();
+        if n < 2 {
+            return None;
+        }
+        (n.saturating_sub(3)..n - 1).rev().find(|&k| {
+            let mut after = v.clone();
+            let unit = after.remove(k);
+            after.push(unit);
+            el.of(unit) != theirs && !self.reacts_anywhere(&after)
+        })
+    }
+
+    /// Policies other than `newcomer`/`strafe` avoid waste; those two waste one strike first.
+    fn careful(&self) -> bool {
+        self.policy != Policy::Newcomer || self.map.as_ref().is_some_and(|m| m.lure)
+    }
+
+    /// The slime gives up on enemy `i`: its edge cannot hurt it, no unit within 2 of the edge
+    /// can, and (for `newcomer`/`strafe`) its one wasted strike is spent.
+    fn gives_up(&self, i: usize) -> bool {
+        self.edge_useless(i) && self.unstall_pick(i).is_none() && (self.careful() || self.wasted)
+    }
+
+    /// Before a strike on `i` with a useless edge: `newcomer`/`strafe` waste one strike first;
+    /// then any policy brings a unit that can hurt it to the edge (one action). `true` when
+    /// it acted.
+    fn unstall(&mut self, i: usize) -> bool {
+        if !self.edge_useless(i) || !self.can_strike() {
+            return false;
+        }
+        if !self.careful() && !self.wasted {
+            self.wasted = true;
+            return false;
+        }
+        let Some(k) = self.unstall_pick(i) else {
+            return false;
+        };
+        let unit = self.slime.volume.remove(k);
+        self.slime.volume.push(unit);
+        self.tally.swaps += 1;
+        self.note(|_| format!("Slime brings {unit:?} up: its edge cannot hurt its own element"));
+        true
     }
 
     /// `kite` or `reader`.

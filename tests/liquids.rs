@@ -55,7 +55,9 @@ fn retaliation_lasts_retaliation_pulses() {
 #[test]
 fn heavy_liquids_cost_action_points() {
     use Liquid::*;
-    let d = Design::bundled();
+    // No elements: a Water body would just stall against the Water Mushroom (R2).
+    let mut d = Design::bundled();
+    d.elements = simulator::data::Elements::default();
     let waits = |body: Vec<Liquid>, ap: u32| {
         fight(&d, body, ap)
             .run_traced()

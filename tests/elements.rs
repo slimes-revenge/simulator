@@ -229,3 +229,31 @@ fn an_enemy_can_be_immune_on_its_own() {
     let (log, _, _) = round(&d, with_edge(&[Liquid::Oil]), Policy::Newcomer, 0);
     assert!(!strike(&log).contains("Instability"), "{log:?}");
 }
+
+#[test]
+fn no_strike_is_repeated_on_its_own_element() {
+    use Liquid::*;
+    // Kite: an Oil unit lies 1 under the Water edge facing a Water Mushroom: bring it up.
+    let d = design(Water);
+    let (log, _, _) = round(&d, with_edge(&[Oil, Water]), Policy::Kite, 0);
+    assert!(!log.iter().any(|l| l.contains("shrugs off")), "{log:?}");
+    // A pure Water body has nothing to bring up: the matrix fight ends as a stalemate at once,
+    // the newcomer after one wasted strike.
+    let water = vec![Water; 10];
+    let mut f = Fight::new(&d, 0, 2, water.clone(), (0, 5), &[("Mushroom", (1, 5))]);
+    f.policy = Policy::Kite;
+    let r = f.run();
+    assert_eq!(
+        (r.won, r.cause.as_deref(), r.rounds),
+        (false, Some("stalemate"), 1)
+    );
+    let mut f = Fight::new(&d, 0, 2, water, (0, 5), &[("Mushroom", (1, 5))]);
+    f.policy = Policy::Newcomer;
+    let (r, log) = f.run_traced();
+    assert_eq!(r.cause.as_deref(), Some("stalemate"));
+    assert_eq!(
+        log.iter().filter(|l| l.contains("shrugs off")).count(),
+        1,
+        "{log:?}"
+    );
+}
