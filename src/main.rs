@@ -10,7 +10,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 const USAGE: &str = "usage: simulator [--design PATH] [--out PATH] [--no-json] [--out-txt PATH|-]
                  [--only-builds ID,ID] [--only-enemies NAME,NAME]
-                 [--trace BUILD ENCOUNTER SEED AP] [--trace-map LEVEL SEED]";
+                 [--trace BUILD ENCOUNTER SEED AP [--policy NAME]] [--trace-map LEVEL SEED]";
 
 fn main() -> ExitCode {
     let mut design: Option<String> = None;
@@ -21,6 +21,7 @@ fn main() -> ExitCode {
     let mut only_enemies: Option<Vec<String>> = None;
     let mut trace: Option<Vec<String>> = None;
     let mut trace_map: Option<(String, String)> = None;
+    let mut trace_policy = String::from("newcomer");
     let args: Vec<String> = std::env::args().skip(1).collect();
     let mut i = 0;
     while i < args.len() {
@@ -57,6 +58,10 @@ fn main() -> ExitCode {
             {
                 trace = Some(args[i + 1..i + 5].to_vec());
                 5
+            }
+            ("--policy", Some(p)) if ["newcomer", "arranger", "kite"].contains(&p.as_str()) => {
+                trace_policy = p;
+                2
             }
             ("--trace-map", Some(level)) if args.len() >= i + 3 => {
                 trace_map = Some((level, args[i + 2].clone()));
@@ -146,7 +151,9 @@ fn main() -> ExitCode {
             eprintln!("--trace needs a build id, an encounter id, a seed and an action count");
             return ExitCode::from(2);
         };
-        for line in report::fight(&d, b, e, ap, seed).run_traced().1 {
+        let mut f = report::fight(&d, b, e, ap, seed);
+        f.policy = simulator::fight::Policy::from_name(&trace_policy, &d);
+        for line in f.run_traced().1 {
             println!("{line}");
         }
         return ExitCode::SUCCESS;

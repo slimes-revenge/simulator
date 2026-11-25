@@ -211,7 +211,9 @@ pub fn fight<'a>(
     f.max_rounds = d.rules.max_rounds * spec.rooms as u32;
     let homes = map.enemies.iter().map(|e| Some(e.2)).collect();
     let mut state = MapState::new(map.rooms, homes, map.exit, body.len());
-    state.lure = level.policy == "lure";
+    // `kite` walks and holds corridors like `lure`; next to enemies it kites (src/fight.rs).
+    state.lure = level.policy == "lure" || level.policy == "kite";
+    f.policy = crate::fight::Policy::from_name(&level.policy, d);
     f.map = Some(state);
     f
 }

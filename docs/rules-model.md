@@ -116,6 +116,29 @@ round needs a third action to swap and strike together. With 2 actions the polic
 twice even when the enemy is already doomed by damage over time: it spends body it did not
 need to.
 
+## Kite policy (`Policy::Kite`, `kite_adjacent`)
+
+For slow enemies (speed 1: a step or a bite per turn). Per slime action:
+
+1. No living enemy aggroed: wait (matrix and stage levels). On map levels it walks like `lure`.
+2. Aggroed enemies but none adjacent: wait, so the enemy spends its move coming. On map levels
+   it holds `lure`'s fighting spot.
+3. Enemies adjacent:
+   - **On the round's last action:** step to a free neighbour that no living enemy touches. The
+     cell with the largest smallest distance to the enemies wins, then a cell outside the
+     rooms, then the lowest (x, y). With no such cell, it strikes instead.
+   - **Otherwise:** strike the adjacent enemy with the lowest HP (ties: placement order) with
+     the edge unit. When the last unit cannot be spent, it steps away as above.
+
+At 2 actions per round that is strike, step. At 4 it is strike ×3, step. A Passive enemy that
+nobody hits never aggroes, so against bats the kite waits until the round limit (`timeout`).
+
+## Last-drop strike (`rules.last_drop_strike`)
+
+Balance proposal П15. With the flag on, the slime may strike with its last unit: the strike hits
+as usual and the unit is not spent. It applies to every policy. `false` is the game today:
+the last unit cannot be spent (`Volume.CanSpend`).
+
 ## Where the docs and the code disagree
 
 Found while building the model (game `dev` at 44018ffe, 2026-11-25). The simulator follows the code.

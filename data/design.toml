@@ -9,6 +9,7 @@ vision_range = 5          # Creature.visionRange (Chebyshev, no walls)
 dominance_percent = 80    # Volume.DominantPercent
 pursuit_memory_turns = 3  # Creature.PursuitMemoryTurns
 max_rounds = 200          # simulator only: a fight that lasts longer is a loss with cause "timeout"
+last_drop_strike = false      # balance П15: at 1 unit a strike hits and spends nothing (false = the game today)
 
 [slime]
 capacity = 10             # Volume.Capacity
@@ -141,7 +142,7 @@ enemy_counts = [1, 2, 3]
 slime_cell = [1, 5]
 enemy_column_offset = 5       # enemies stand in the column slime_cell.x + offset
 enemy_rows = [5, 4, 6]        # the n-th enemy stands on this row
-policies = ["newcomer", "arranger"]  # slime policies the matrix runs
+policies = ["newcomer", "arranger", "kite"]  # slime policies the matrix runs
 
 [policies]
 lure_patience = 10            # actions `lure` waits per room approach while 2+ calm enemies would see it
@@ -222,3 +223,10 @@ capacity = 10
 action_points = 2
 policy = "lure"
 map = { rooms = 5, room_side = [5, 9], enemies_per_room = [1, 2], enemy_kinds = ["Bat", "Mushroom", "Undine", "Cactus", "Mandragora", "Eye"], corridor = 2, vision = 4 }
+
+[[levels]]
+id = "map-kite3"
+capacity = 10
+action_points = 2
+policy = "kite"
+map = { rooms = 5, room_side = [5, 9], enemies_per_room = [1, 2], enemy_kinds = ["Bat", "Mushroom", "Undine", "Cactus", "Mandragora", "Eye"], corridor = 2, vision = 3 }
