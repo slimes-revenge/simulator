@@ -113,6 +113,35 @@ pub struct Elements {
     /// edge unit.
     #[serde(default)]
     pub encouragement_bonus: i32,
+    /// R2: a dominating hit is `plus1` (+1) or `double` (x2).
+    #[serde(default = "plus1")]
+    pub suppress: String,
+    /// R2: a suppressed enemy's bite lands this percent of the time...
+    #[serde(default = "hundred")]
+    pub suppressed_hit_percent: usize,
+    /// ...and a miss costs it this many HP.
+    #[serde(default)]
+    pub miss_self_damage: i32,
+    /// The element of Living creatures: Ambrosia heals them instead of hurting.
+    pub living: Option<Liquid>,
+    /// An enemy without `element` takes its corpse's main liquid's element: a circle liquid
+    /// is its own, the others map here (lore forum.md §3).
+    #[serde(default)]
+    pub corpse: BTreeMap<Liquid, Liquid>,
+    /// Statuses (by name) that do not take on enemies of these elements.
+    #[serde(default)]
+    pub status_immune: BTreeMap<String, Vec<Liquid>>,
+    /// Statuses that take twice (two copies) on enemies of these elements.
+    #[serde(default)]
+    pub status_double: BTreeMap<String, Vec<Liquid>>,
+}
+
+fn plus1() -> String {
+    "plus1".into()
+}
+
+fn hundred() -> usize {
+    100
 }
 
 impl Elements {
@@ -123,6 +152,40 @@ impl Elements {
                 .position(|&l| l == a)
                 .is_some_and(|i| c[(i + 1) % c.len()] == b)
         })
+    }
+
+    /// `a` ⊣ `b`: `b` is two places after `a` in a circle.
+    pub fn suppresses(&self, a: Liquid, b: Liquid) -> bool {
+        self.circles.iter().any(|c| {
+            c.iter()
+                .position(|&l| l == a)
+                .is_some_and(|i| c[(i + 2) % c.len()] == b)
+        })
+    }
+
+    /// A liquid's element: circle liquids are their own; the others have none.
+    pub fn of(&self, l: Liquid) -> Option<Liquid> {
+        self.circles.iter().any(|c| c.contains(&l)).then_some(l)
+    }
+
+    /// An enemy's element: `element`, else its corpse's most common liquid (the first on a
+    /// tie) as its own element or through `corpse`.
+    pub fn of_enemy(&self, e: &EnemyData) -> Option<Liquid> {
+        if e.element.is_some() {
+            return e.element;
+        }
+        let main = e
+            .volume
+            .iter()
+            .max_by_key(|&&l| {
+                let first = e.volume.iter().position(|&x| x == l);
+                (
+                    e.volume.iter().filter(|&&x| x == l).count(),
+                    std::cmp::Reverse(first),
+                )
+            })
+            .copied()?;
+        self.of(main).or_else(|| self.corpse.get(&main).copied())
     }
 }
 
@@ -195,7 +258,8 @@ pub struct Rules {
     pub board_height: i32,
     pub vision_range: i32,
     pub dominance_percent: usize,
-    /// What `dominance_percent` is a share of: `capacity` (the design) or `volume` (the game).
+    /// What `dominance_percent` is a share of: `current` (the body now; the design and the game)
+    /// or `capacity` (fallback).
     pub dominance_basis: String,
     /// Retaliation statuses last this many pulses (the game: the liquid's usual duration, 0).
     pub retaliation_pulses: i32,
@@ -249,9 +313,12 @@ pub struct LiquidData {
     pub name: Liquid,
     pub power: i32,
     pub corrosion: i32,
+    /// Pulses of this liquid's strike statuses, when they differ from `[statuses]`.
+    pub pulses: Option<i32>,
 }
 
 #[derive(Deserialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
 pub struct EnemyData {
     pub name: String,
     pub hit_points: i32,
@@ -266,6 +333,11 @@ pub struct EnemyData {
     pub thorns: usize,
     /// Its own sight range; the level's (or `rules.vision_range`) when absent.
     pub vision: Option<i32>,
+    /// R2: its element; derived from the corpse when absent (`Elements::of_enemy`).
+    pub element: Option<Liquid>,
+    /// Statuses (by name) that never take on it, on top of `elements.status_immune`.
+    #[serde(default)]
+    pub status_immune: Vec<String>,
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -426,8 +498,8 @@ impl Design {
                 design.matrix.enemy_rows.len()
             ));
         }
-        if !["capacity", "volume"].contains(&design.rules.dominance_basis.as_str()) {
-            return Err("rules.dominance_basis must be \"capacity\" or \"volume\"".into());
+        if !["capacity", "current"].contains(&design.rules.dominance_basis.as_str()) {
+            return Err("rules.dominance_basis must be \"current\" or \"capacity\"".into());
         }
         if design.rules.retaliation_pulses < 0 {
             return Err(
@@ -461,6 +533,36 @@ impl Design {
                 "reactions make at most 2 units, and rules.stone_rounds must be >= 1".into(),
             );
         }
+        let el = &design.elements;
+        let known = [
+            "Wet",
+            "Burning",
+            "Poisoned",
+            "Corroding",
+            "Instability",
+            "Flammable",
+            "Regeneration",
+        ];
+        if !["plus1", "double"].contains(&el.suppress.as_str())
+            || el.suppressed_hit_percent > 100
+            || el.miss_self_damage < 0
+        {
+            return Err(
+                "elements: suppress is plus1 or double, suppressed_hit_percent 0..=100, miss_self_damage >= 0"
+                    .into(),
+            );
+        }
+        if let Some(name) = el
+            .status_immune
+            .keys()
+            .chain(el.status_double.keys())
+            .chain(design.enemies.iter().flat_map(|e| &e.status_immune))
+            .find(|k| !known.contains(&k.as_str()))
+        {
+            return Err(format!(
+                "elements: no status named {name:?} in the model (known: {known:?})"
+            ));
+        }
         if design.elements.circles.iter().any(|c| c.len() < 3) {
             return Err("elements.circles: each circle needs at least 3 liquids".into());
         }
@@ -476,7 +578,7 @@ impl Design {
         let policies = &design.matrix.policies;
         if let Some(p) = policies
             .iter()
-            .find(|p| !["newcomer", "arranger", "kite"].contains(&p.as_str()))
+            .find(|p| !["newcomer", "arranger", "kite", "reader"].contains(&p.as_str()))
         {
             return Err(format!("matrix.policies: unknown policy {p:?}"));
         }
@@ -525,9 +627,9 @@ impl Design {
                 return Err(format!("level {:?}: {problem}", level.id));
             }
             let allowed: &[&str] = if level.map.is_some() {
-                &["strafe", "lure", "kite"]
+                &["strafe", "lure", "kite", "reader"]
             } else {
-                &["newcomer", "arranger", "kite"]
+                &["newcomer", "arranger", "kite", "reader"]
             };
             if !allowed.contains(&level.policy.as_str()) {
                 return Err(format!(
@@ -637,7 +739,7 @@ impl Design {
         for t in &design.ladder.thresholds {
             if t.min.is_some() == t.max.is_some()
                 || !["E", "N", "H"].contains(&t.difficulty.as_str())
-                || !["strafe", "lure", "kite"].contains(&t.policy.as_str())
+                || !["strafe", "lure", "kite", "reader"].contains(&t.policy.as_str())
             {
                 return Err(format!(
                     "ladder.thresholds {} {}: difficulty E, N or H, a map policy, exactly one of min, max",

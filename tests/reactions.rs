@@ -57,7 +57,13 @@ fn an_encouraged_edge_strikes_one_harder_once_per_turn() {
     // Water encourages Phosphorus, Aquavita encourages Water (circle I); Lava does not
     // encourage Phosphorus. The second encouraged strike of the turn gets no bonus.
     let strike = |body: Vec<Liquid>| {
-        let d = Design::bundled();
+        // An Alkali Mushroom: no element relation with circle I, so only encouragement counts.
+        let mut d = Design::bundled();
+        d.enemies
+            .iter_mut()
+            .find(|e| e.name == "Mushroom")
+            .unwrap()
+            .element = Some(Alkali);
         let mut f = Fight::new(&d, 0, 2, body, (0, 5), &[("Mushroom", (1, 5))]);
         f.policy = Policy::Newcomer;
         f.max_rounds = 1;

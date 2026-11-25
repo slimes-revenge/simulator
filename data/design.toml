@@ -7,7 +7,7 @@ board_width = 10          # RunConfig: 10x10 grass
 board_height = 10
 vision_range = 5          # Creature.visionRange (Chebyshev, no walls)
 dominance_percent = 60        # affinity threshold (balance liquids.md); the game uses 80 of the volume
-dominance_basis = "capacity"  # share of the capacity (design); "volume" = of the body now (the game)
+dominance_basis = "current"   # share of the body now (design, Oleg 2026-11-26; the game too); "capacity" = fallback
 retaliation_pulses = 3        # Retaliation statuses last 3 pulses, a full status like a strike (design, Oleg 2026-11-26; fallback 2); 0 = the liquid's own duration (the game)
 heavy = { Lava = 3, Mercury = 2 }  # holding this many costs 1 action point each (design)
 heavy_min_action_points = 2   # heaviness never takes the slime below this
@@ -86,7 +86,9 @@ name = "Pus"
 power = 0
 corrosion = 0
 
-# The rest of the 18 liquids (lore forum.md): a strike for `power`, no status yet.
+# The rest of the 18 liquids (lore forum.md; rows: balance liquids.md "Финальный список").
+# Vitriol: Corroding; Alkali: Instability 2; Sulfur: Flammable; Ambrosia heals Living. The rest
+# strike for `power` with no status until their statuses exist (Cold fire, Greased, Rooted, Charmed).
 [[liquids]]
 name = "Phosphorus"
 power = 1
@@ -106,6 +108,7 @@ corrosion = 0
 name = "Alkali"
 power = 1
 corrosion = 0
+pulses = 2                    # Instability 2 (liquids.md)
 
 [[liquids]]
 name = "Ambrosia"
@@ -157,6 +160,7 @@ melee_power = 1
 volume = ["Water"]
 personality = "Aggressive"
 traits = []
+element = "Alkali"   # lore forum.md §3: Living
 
 [[enemies]]
 name = "Undine"
@@ -167,6 +171,7 @@ melee_power = 1
 volume = ["Water"]
 personality = "Aggressive"
 traits = []
+element = "Water"   # lore forum.md §3: Water spirits
 
 [[enemies]]
 name = "Cactus"
@@ -177,6 +182,7 @@ melee_power = 1
 volume = ["Water"]
 personality = "Aggressive"
 traits = []
+element = "Ambrosia"   # lore forum.md §3: Plants
 
 [[enemies]]
 name = "Mandragora"
@@ -187,6 +193,7 @@ melee_power = 1
 volume = ["Water"]
 personality = "Aggressive"
 traits = []
+element = "Ambrosia"   # lore forum.md §3: Plants
 
 [[enemies]]
 name = "Eye"
@@ -197,6 +204,7 @@ melee_power = 1
 volume = ["Water"]
 personality = "Aggressive"
 traits = []
+element = "Alkali"   # lore forum.md §3: Living
 
 # The build x encounter matrix.
 [matrix]
@@ -208,7 +216,7 @@ enemy_counts = [1, 2, 3]
 slime_cell = [1, 5]
 enemy_column_offset = 5       # enemies stand in the column slime_cell.x + offset
 enemy_rows = [5, 4, 6]        # the n-th enemy stands on this row
-policies = ["newcomer", "arranger", "kite"]  # slime policies the matrix runs
+policies = ["newcomer", "arranger", "kite", "reader"]  # slime policies the matrix runs
 
 [policies]
 lure_patience = 10            # actions `lure` waits per room approach while 2+ calm enemies would see it
@@ -221,6 +229,17 @@ circles = [
   ["Vitriol", "Alkali", "Ambrosia", "Acid", "Poison"],
 ]
 encouragement_bonus = 1       # once per slime turn: the unit under the edge encourages the edge
+# R2 elements in combat (balance sim-reactions-spec.md, bestiary-numbers.md).
+suppress = "plus1"            # a dominating hit: "plus1" (+1) or "double" (x2, fallback)
+suppressed_hit_percent = 25   # a suppressed enemy's bite lands this often...
+miss_self_damage = 1          # ...and a miss costs it this many HP
+living = "Alkali"             # Living creatures: Ambrosia heals them 1 instead of hurting
+# An enemy without `element`: its corpse's main liquid (circle liquids are their own element).
+corpse = { Blood = "Alkali", Fat = "Alkali", Pus = "Poison", Oil = "Lava", Sulfur = "Acid", Resin = "Ambrosia", Tar = "Ambrosia" }
+# Statuses that do not take on enemies of these elements (the strike still hurts).
+status_immune = { Poisoned = ["Mercury", "Water", "Phosphorus", "Poison", "Lava"], Burning = ["Lava", "Water", "Mercury"], Corroding = ["Water", "Lava", "Acid", "Vitriol"], Instability = ["Ambrosia"] }
+# Statuses that take twice on enemies of these elements.
+status_double = { Corroding = ["Mercury"] }
 
 # R1: neighbouring units (either order) that react at the end of the slime's turn.
 [[reactions]]

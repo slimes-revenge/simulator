@@ -5,9 +5,15 @@ use simulator::data::{Design, Liquid, Trait};
 use simulator::fight::{Fight, Policy};
 use simulator::map;
 
+/// The design without R2 elements: these tests check other mechanics (R2: `tests/elements.rs`).
+fn no_elements(mut d: Design) -> Design {
+    d.elements = simulator::data::Elements::default();
+    d
+}
+
 /// The bundled design with the Mushroom changed by `edit`.
 fn mushroom(edit: impl Fn(&mut simulator::data::EnemyData)) -> Design {
-    let mut d = Design::bundled();
+    let mut d = no_elements(Design::bundled());
     edit(d.enemies.iter_mut().find(|e| e.name == "Mushroom").unwrap());
     d
 }
@@ -81,7 +87,7 @@ fn an_alarm_wakes_enemies_within_its_radius() {
     // The Eye (5 away) sees the slime; the Mushroom 8 away cannot, but stands 4 from the Eye
     // once it has stepped closer.
     let d = |alarm: bool| {
-        let mut d = Design::bundled();
+        let mut d = no_elements(Design::bundled());
         let eye = d.enemies.iter_mut().find(|e| e.name == "Eye").unwrap();
         eye.traits = if alarm {
             vec![Trait::Alarm { radius: 4 }]
@@ -175,11 +181,11 @@ fn a_net_keeps_the_slime_from_stepping() {
 fn regeneration_grows_blood_only_in_a_fight() {
     // A Passive Bat far away never engages: no growth under the G3 rule.
     let body = vec![Liquid::Blood; 9];
-    let d = Design::bundled();
+    let d = no_elements(Design::bundled());
     assert!(d.rules.regeneration_in_fight_only);
     let (_, out) = play(&d, body.clone(), Policy::Kite, 1, &[("Bat", (9, 9))], 2);
     assert_eq!(out.len(), 9);
-    let mut game = Design::bundled();
+    let mut game = no_elements(Design::bundled());
     game.rules.regeneration_in_fight_only = false;
     let (_, out) = play(&game, body, Policy::Kite, 1, &[("Bat", (9, 9))], 2);
     assert_eq!(out.len(), 10);
@@ -194,7 +200,7 @@ fn map_design(extra: &str) -> Design {
          map = {{ rooms = 3, room_side = [5, 7], enemies_per_room = [0, 0], \
          enemy_kinds = [\"Mushroom\"], corridor = 2, vision = 3{extra} }}\n"
     );
-    Design::parse(&text).unwrap()
+    no_elements(Design::parse(&text).unwrap())
 }
 
 #[test]
@@ -244,7 +250,7 @@ fn the_camp_stands_in_the_second_to_last_room() {
 fn pus_does_not_spread_outside_a_fight() {
     use Liquid::*;
     // A Passive Bat far away never engages: no clock, no spread.
-    let d = Design::bundled();
+    let d = no_elements(Design::bundled());
     let body = vec![Blood, Pus, Blood, Water];
     let (_, out) = play(&d, body.clone(), Policy::Kite, 1, &[("Bat", (9, 9))], 3);
     assert_eq!(out, body);
@@ -254,7 +260,7 @@ fn pus_does_not_spread_outside_a_fight() {
 fn an_alarm_rings_even_when_the_slime_struck_first() {
     // The Eye stands next to the slime; the newcomer strikes it first (it gets aggroed by the
     // hit), then on its own turn it sees the slime and still raises the alarm, once.
-    let mut d = Design::bundled();
+    let mut d = no_elements(Design::bundled());
     let eye = d.enemies.iter_mut().find(|e| e.name == "Eye").unwrap();
     eye.traits = vec![Trait::Alarm { radius: 9 }];
     eye.hit_points = 99;

@@ -156,9 +156,9 @@ These appear only when the design file has map levels. The rules are in [map-lev
 
 ```
 [map-levels]
-level          policy     end rooms  rounds fights engaged0 engaged1 engaged2 engaged3+ net_per_fight      hunter hunter_net reactions react_loss stones
-map-vision3    strafe       0  1.74   10.02   1.70     0.00    78.82    21.18      0.00         -5.88           -          -      0.00       0.00   0.00
-map-lure3      lure         0  1.54   11.10   1.80     0.00    86.67    13.33      0.00         -5.56    40/55/5      +0.50      0.40       0.80   0.20
+level          policy     end rooms  rounds fights engaged0 engaged1 engaged2 engaged3+ net_per_fight      hunter hunter_net reactions react_loss stones elem_plus elem_miss
+map-vision3    strafe       0  1.74   10.02   1.70     0.00    78.82    21.18      0.00         -5.88           -          -      0.00       0.00   0.00      0.00      0.00
+map-lure3      lure         0  1.54   11.10   1.80     0.00    86.67    13.33      0.00         -5.56    40/55/5      +0.50      0.40       0.80   0.20      1.10      0.30
 
 [map-level-ends]
 level          end    min worst  stops
@@ -175,6 +175,7 @@ map-vision3      0   0.00     0  room1:melee:Mushroom=8 room1:melee:Mandragora=7
 | `hunter` | With a hunter: `killed/alive/killed_slime`, percent of the seeds played; `-` without one |
 | `hunter_net` | Net summed over the episodes the hunter took part in / those episodes, signed; `-` without any |
 | `reactions`, `react_loss`, `stones` | R1, averages per seed: reacting pairs, units they took off the body, stones dropped |
+| `elem_plus`, `elem_miss` | R2, averages per seed: slime hits that dominated the target, suppressed enemy bites that missed |
 | `min`, `worst` | Average and worst smallest body (start and after each episode) |
 | `stops` | Where runs ended without the exit: `room<k>:<cause>=seeds`, by count descending |
 
@@ -185,9 +186,9 @@ are in [ladder.md](ladder.md). Ladder rows are not repeated in `[map-levels]`.
 
 ```
 [ladder]
-mode  difficulty policy   branch                   level end fights net_per_fight engaged2+ min_body body_out      hunter hunter_net reactions react_loss stones  stops
-level E          strafe   -                            1   8   1.74         -5.14      9.20     0.24     7.75           -          -      0.00       0.00   0.00  room3:sun=11 ...
-run   E          strafe   Lava                         2   0   2.25         -4.67      0.00     0.00        -           -          -      0.00       0.00   0.00  room3:melee:Eye=2 ...
+mode  difficulty policy   branch                   level end fights net_per_fight engaged2+ min_body body_out      hunter hunter_net reactions react_loss stones elem_plus elem_miss  stops
+level E          strafe   -                            1   8   1.74         -5.14      9.20     0.24     7.75           -          -      0.00       0.00   0.00      0.00      0.00  room3:sun=11 ...
+run   E          strafe   Lava                         2   0   2.25         -4.67      0.00     0.00        -           -          -      0.00       0.00   0.00      0.00      0.00  room3:melee:Eye=2 ...
 
 [ladder-summary]
 mode  difficulty policy   branch                   rule   furthest_level first_fail_level  cause
@@ -203,7 +204,7 @@ run   E          strafe   Lava                     min90               -        
 | `end` | Percent of seeds that reached the exit; in `run` mode, of all seeds that started the ladder |
 | `fights`, `net_per_fight`, `min_body` | As in `[map-levels]`, over the seeds that played the level |
 | `engaged2+` | `engaged2` + `engaged3+` of `[map-levels]` |
-| `hunter` … `stones` | As in `[map-levels]` |
+| `hunter` … `elem_miss` | As in `[map-levels]` |
 | `body_out` | Average body at the exit, after drinking, over the seeds that reached it (in `run` mode: the next level's entry body); `-` when none did |
 | `stops` | As in `[map-level-ends]` |
 
@@ -242,7 +243,7 @@ Locally `cargo run --release` writes `design-guard.json` in the repository root.
 ## Shape
 
 The file is a **JSON array of reports**, one per value of `matrix.action_points` × policy in
-`matrix.policies` (`data/design.toml`; today actions `[1, 2]` × `newcomer`, `arranger`, `kite`),
+`matrix.policies` (`data/design.toml`; today actions `[1, 2]` × `newcomer`, `arranger`, `kite`, `reader`),
 ordered by actions, then policy.
 Every report is complete on its own.
 
@@ -290,7 +291,7 @@ Every report is complete on its own.
 | `schemaVersion` | int | `1` |
 | `generatedUtc` | string | When the report was built, `YYYY-MM-DDTHH:MM:SSZ` |
 | `commit` | string | The simulator commit (`GITHUB_SHA` in CI, else `git rev-parse HEAD`, else `unknown`) |
-| `policy` | string | How the simulated slime plays: `newcomer`, `arranger` or `kite` |
+| `policy` | string | How the simulated slime plays: `newcomer`, `arranger`, `kite` or `reader` |
 | `actionsPerRound` | int | Slime actions per round; enemies always act once |
 | `seeds` | int | Fights per cell; seeds `0 .. seeds-1` |
 | `builds[]` | object | `id` (stable key), `name` (label), `units` (liquid → count). Order: `start`, then one pure build per liquid in `matrix.build_liquids` order |
@@ -324,4 +325,5 @@ Loss causes:
 | --- | --- |
 | `melee:<Enemy>` | That enemy's bite took the slime's last unit |
 | `status:<Status>` | A status pulse on the slime took its last unit (not possible in v1: enemies apply no statuses) |
-| `timeout` | Nobody won within `rules.max_rounds` rounds: a stalemate, for example a Blood slime against a Vampirism bat that heals more than it loses, or a slime down to its last unit next to a Passive enemy that was never hit |
+| `stalemate` | The slime gave up on every living enemy it could not hurt (R2: its own element, nothing within 2 of the edge to bring up), or a stationary enemy it cannot hurt blocks the only way to the exit |
+| `timeout` | Nobody won within `rules.max_rounds` rounds, for example a Blood slime against a Vampirism bat that heals more than it loses, or a slime down to its last unit next to a Passive enemy that was never hit |
