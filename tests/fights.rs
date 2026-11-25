@@ -600,7 +600,10 @@ fn overkill_counts_damage_beyond_the_hp_left() {
 fn overkill_counts_a_status_pulse_beyond_the_hp_left() {
     // Lava then Oil: Burning on a Flammable Mushroom, 3 HP left. At 1 HP its Burning pulse means
     // 2 (×2 Flammable) and takes 1: overkill 1. The slime keeps one Water and only waits.
-    let d = design();
+    // The game's rule (no last-drop strike), so the slime only waits on its last unit.
+    let mut d = design();
+    d.rules.last_drop_strike = false;
+    let d = d;
     let mut f = Fight::new(
         &d,
         0,
@@ -900,6 +903,7 @@ fn kite_waits_for_enemies_that_never_come() {
 #[test]
 fn the_last_drop_strikes_without_being_spent_when_the_rule_is_on() {
     let mut d = design();
+    d.rules.last_drop_strike = false;
     let strike_on_last = |d: &Design| {
         let mut f = Fight::new(
             d,
