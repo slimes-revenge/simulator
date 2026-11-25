@@ -145,6 +145,9 @@ pub struct MapLevelResult {
     /// Average over seeds of the smallest body (start and after each episode).
     pub min_body: f64,
     pub worst_body: usize,
+    /// Average body at the exit (after drinking) over the seeds that reached it; `None` when
+    /// none did.
+    pub body_out: Option<f64>,
     /// Where runs ended without the exit: `room<k>:<cause>` → seeds.
     pub stops: BTreeMap<String, u64>,
 }
@@ -183,8 +186,12 @@ pub fn summarize(level: &Level, runs: &[(FightResult, MapState)], of: u64) -> Ma
     let mut engaged = [0u64; 4];
     let (mut episodes, mut net_sum) = (0u64, 0i64);
     let mut stops = BTreeMap::new();
+    let mut out_sum = 0;
     for (result, state) in runs {
         ends += u64::from(result.won);
+        if result.won {
+            out_sum += state.body.len();
+        }
         rooms += state.rooms_entered;
         rounds += u64::from(result.rounds);
         min_sum += state.min_body;
@@ -219,6 +226,7 @@ pub fn summarize(level: &Level, runs: &[(FightResult, MapState)], of: u64) -> Ma
         net_per_fight: (episodes > 0).then(|| round2(net_sum as f64 / episodes as f64)),
         min_body: round2(min_sum as f64 / n),
         worst_body: if runs.is_empty() { 0 } else { worst },
+        body_out: (ends > 0).then(|| round2(out_sum as f64 / ends as f64)),
         stops,
     }
 }

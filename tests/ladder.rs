@@ -115,6 +115,16 @@ fn a_run_carries_the_body_and_the_summary_finds_the_failing_level() {
     assert_eq!(end("level", 1), 100.0);
     assert_eq!(end("level", 2), 0.0);
     assert_eq!(end("run", 2), 100.0);
+    let body_out = |mode: &str, level: u32| {
+        out.iter()
+            .find(|r| r.mode == mode && r.place.level == level)
+            .unwrap()
+            .result
+            .body_out
+    };
+    assert_eq!(body_out("run", 1), Some(2.0), "Water + the drunk Oil");
+    assert_eq!(body_out("level", 2), None, "nobody reached the exit");
+    assert_eq!(body_out("run", 2), Some(1.0), "the sun took the Water");
     let s: Vec<_> = summary.iter().filter(|s| s.rule == "min90").collect();
     assert_eq!(s.len(), 2, "one per mode for E strafe, branch Oil");
     assert_eq!(s[0].mode, "level");

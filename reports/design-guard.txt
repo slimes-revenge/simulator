@@ -2886,13 +2886,13 @@ map-lure4        0   0.00     0  room1:melee:Mushroom=9 room1:melee:Eye=8 room1:
 map-kite3       52   1.04     0  room1:melee:Mandragora=3 room1:melee:Mushroom=3 room1:melee:Cactus=2 room2:melee:Cactus=2 room2:melee:Mandragora=2 room3:melee:Mandragora=2 room5:melee:Mushroom=2 room1:melee:Eye=1 room1:melee:Undine=1 room2:melee:Bat=1 room2:melee:Eye=1 room3:melee:Mushroom=1 room3:melee:Undine=1 room4:melee:Cactus=1 room5:melee:Eye=1
 
 [ladder]
-mode  difficulty policy   branch                   level end fights net_per_fight engaged2+ min_body  stops
-level E          strafe   -                            1   8   1.74         -5.14      9.20     0.24  room3:sun=11 room2:melee:Mushroom=7 room2:melee:Undine=7 room1:melee:Undine=6 room1:melee:Mushroom=5 room3:melee:Undine=3 room4:melee:Mushroom=3 room3:melee:Mushroom=2 room5:melee:Mushroom=2
-level E          strafe   Acid                         2   0   1.80         -5.56     15.56     0.00  room2:melee:Cactus=9 room1:melee:Mandragora=8 room1:melee:Cactus=7 room1:melee:Eye=6 room2:melee:Eye=6 room2:melee:Mandragora=4 room3:melee:Mandragora=3 room3:melee:Eye=2 room4:melee:Mandragora=2 room3:melee:Cactus=1 room4:melee:Cactus=1 room4:melee:Eye=1
-level E          strafe   Lava                         2   2   1.88         -6.00     14.89     0.04  room1:melee:Cactus=7 room1:melee:Mandragora=7 room2:melee:Eye=7 room1:melee:Eye=6 room2:melee:Cactus=6 room2:melee:Mandragora=5 room3:melee:Eye=4 room3:melee:Mandragora=2 room4:melee:Eye=2 room3:melee:Cactus=1 room4:melee:Cactus=1 room4:melee:Mandragora=1
-run   E          strafe   -                            1   8   1.74         -5.14      9.20     0.24  room3:sun=11 room2:melee:Mushroom=7 room2:melee:Undine=7 room1:melee:Undine=6 room1:melee:Mushroom=5 room3:melee:Undine=3 room4:melee:Mushroom=3 room3:melee:Mushroom=2 room5:melee:Mushroom=2
-run   E          strafe   Acid                         2   0   2.00         -3.88      0.00     0.00  room2:melee:Cactus=2 room3:melee:Eye=1 room4:melee:Cactus=1
-run   E          strafe   Lava                         2   0   2.25         -4.67      0.00     0.00  room3:melee:Eye=2 room2:melee:Cactus=1 room4:melee:Cactus=1
+mode  difficulty policy   branch                   level end fights net_per_fight engaged2+ min_body body_out  stops
+level E          strafe   -                            1   8   1.74         -5.14      9.20     0.24     7.75  room3:sun=11 room2:melee:Mushroom=7 room2:melee:Undine=7 room1:melee:Undine=6 room1:melee:Mushroom=5 room3:melee:Undine=3 room4:melee:Mushroom=3 room3:melee:Mushroom=2 room5:melee:Mushroom=2
+level E          strafe   Acid                         2   0   1.80         -5.56     15.56     0.00        -  room2:melee:Cactus=9 room1:melee:Mandragora=8 room1:melee:Cactus=7 room1:melee:Eye=6 room2:melee:Eye=6 room2:melee:Mandragora=4 room3:melee:Mandragora=3 room3:melee:Eye=2 room4:melee:Mandragora=2 room3:melee:Cactus=1 room4:melee:Cactus=1 room4:melee:Eye=1
+level E          strafe   Lava                         2   2   1.88         -6.00     14.89     0.04     2.00  room1:melee:Cactus=7 room1:melee:Mandragora=7 room2:melee:Eye=7 room1:melee:Eye=6 room2:melee:Cactus=6 room2:melee:Mandragora=5 room3:melee:Eye=4 room3:melee:Mandragora=2 room4:melee:Eye=2 room3:melee:Cactus=1 room4:melee:Cactus=1 room4:melee:Mandragora=1
+run   E          strafe   -                            1   8   1.74         -5.14      9.20     0.24     7.75  room3:sun=11 room2:melee:Mushroom=7 room2:melee:Undine=7 room1:melee:Undine=6 room1:melee:Mushroom=5 room3:melee:Undine=3 room4:melee:Mushroom=3 room3:melee:Mushroom=2 room5:melee:Mushroom=2
+run   E          strafe   Acid                         2   0   2.00         -3.88      0.00     0.00        -  room2:melee:Cactus=2 room3:melee:Eye=1 room4:melee:Cactus=1
+run   E          strafe   Lava                         2   0   2.25         -4.67      0.00     0.00        -  room3:melee:Eye=2 room2:melee:Cactus=1 room4:melee:Cactus=1
 
 [ladder-summary]
 mode  difficulty policy   branch                   rule   furthest_level first_fail_level  cause

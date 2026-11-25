@@ -364,7 +364,7 @@ pub fn render_ladder(rows: &[LadderRow], summary: &[SummaryRow]) -> String {
     };
     let _ = writeln!(
         out,
-        "{:<5} {:<10} {:<8} {:<24} {:>5} {:>3} {:>6} {:>13} {:>9} {:>8}  stops",
+        "{:<5} {:<10} {:<8} {:<24} {:>5} {:>3} {:>6} {:>13} {:>9} {:>8} {:>8}  stops",
         "mode",
         "difficulty",
         "policy",
@@ -374,7 +374,8 @@ pub fn render_ladder(rows: &[LadderRow], summary: &[SummaryRow]) -> String {
         "fights",
         "net_per_fight",
         "engaged2+",
-        "min_body"
+        "min_body",
+        "body_out"
     );
     for r in rows {
         let m = &r.result;
@@ -383,7 +384,7 @@ pub fn render_ladder(rows: &[LadderRow], summary: &[SummaryRow]) -> String {
             .map_or("-".to_string(), |v| format!("{v:+.2}"));
         let _ = writeln!(
             out,
-            "{:<5} {:<10} {:<8} {:<24} {:>5} {:>3.0} {:>6.2} {:>13} {:>9.2} {:>8.2}  {}",
+            "{:<5} {:<10} {:<8} {:<24} {:>5} {:>3.0} {:>6.2} {:>13} {:>9.2} {:>8.2} {:>8}  {}",
             r.mode,
             r.place.difficulty,
             r.policy,
@@ -394,6 +395,7 @@ pub fn render_ladder(rows: &[LadderRow], summary: &[SummaryRow]) -> String {
             net,
             m.engaged[2] + m.engaged[3],
             m.min_body,
+            m.body_out.map_or("-".to_string(), |v| format!("{v:.2}")),
             stops_field(&m.stops)
         );
     }

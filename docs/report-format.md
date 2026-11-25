@@ -182,9 +182,9 @@ are in [ladder.md](ladder.md). Ladder rows are not repeated in `[map-levels]`.
 
 ```
 [ladder]
-mode  difficulty policy   branch                   level end fights net_per_fight engaged2+ min_body  stops
-level E          strafe   -                            1   8   1.74         -5.14      9.20     0.24  room3:sun=11 ...
-run   E          strafe   Lava                         2   0   2.00         -5.50      0.00     0.00  room2:melee:Cactus=1
+mode  difficulty policy   branch                   level end fights net_per_fight engaged2+ min_body body_out  stops
+level E          strafe   -                            1   8   1.74         -5.14      9.20     0.24    10.00  room3:sun=11 ...
+run   E          strafe   Lava                         2   0   2.00         -5.50      0.00     0.00        -  room2:melee:Cactus=1
 
 [ladder-summary]
 mode  difficulty policy   branch                   rule   furthest_level first_fail_level  cause
@@ -200,6 +200,7 @@ run   E          strafe   Lava                     min90               -        
 | `end` | Percent of seeds that reached the exit; in `run` mode, of all seeds that started the ladder |
 | `fights`, `net_per_fight`, `min_body` | As in `[map-levels]`, over the seeds that played the level |
 | `engaged2+` | `engaged2` + `engaged3+` of `[map-levels]` |
+| `body_out` | Average body at the exit, after drinking, over the seeds that reached it (in `run` mode: the next level's entry body); `-` when none did |
 | `stops` | As in `[map-level-ends]` |
 
 `[ladder-summary]` has one row per mode × `[ladder]` threshold × full branch (one no other row
