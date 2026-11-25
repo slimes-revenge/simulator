@@ -723,6 +723,8 @@ impl<'a> Fight<'a> {
             }
             return;
         }
+        // A pending swap belongs to the strike next to it: walking off (a new target) drops it.
+        self.swapped = false;
         let from = self.slime.cell;
         if let Some(to) = self.walk_toward(from, self.enemies[target].cell, 1) {
             self.slime.cell = to;
