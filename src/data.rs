@@ -48,6 +48,9 @@ pub struct Design {
     pub liquids: Vec<LiquidData>,
     pub enemies: Vec<EnemyData>,
     pub matrix: Matrix,
+    /// Level runs for the body economy (`src/level.rs`); none is fine.
+    #[serde(default)]
+    pub levels: Vec<Level>,
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -114,6 +117,27 @@ pub struct Matrix {
     pub enemy_rows: Vec<i32>,
 }
 
+/// A level: stages played in order, the slime's body carried from one to the next.
+#[derive(Deserialize, Clone, Debug)]
+pub struct Level {
+    pub id: String,
+    pub capacity: usize,
+    /// The body at the level start; full Water by default.
+    pub start: Option<Vec<Liquid>>,
+    pub action_points: u32,
+    pub policy: String,
+    pub stages: Vec<Stage>,
+}
+
+#[derive(Deserialize, Clone, Debug)]
+#[serde(tag = "kind", rename_all = "lowercase")]
+pub enum Stage {
+    /// `enemies` of `enemy` at once; the slime eats every corpse after a won fight.
+    Fight { enemy: String, enemies: usize },
+    /// The slime drinks up to `units` of `liquid` until full; the rest is lost.
+    Fountain { liquid: Liquid, units: usize },
+}
+
 impl Design {
     pub fn load(path: &Path) -> Result<Design, String> {
         let text = std::fs::read_to_string(path)
@@ -143,6 +167,28 @@ impl Design {
                 "matrix.enemy_rows has {} rows, encounters need {max_count}",
                 design.matrix.enemy_rows.len()
             ));
+        }
+        for level in &design.levels {
+            if level.policy != "face-tank" {
+                return Err(format!(
+                    "level {}: policy {:?} is not supported (only \"face-tank\")",
+                    level.id, level.policy
+                ));
+            }
+            for stage in &level.stages {
+                if let Stage::Fight { enemy, enemies } = stage {
+                    if !design.enemies.iter().any(|e| &e.name == enemy) {
+                        return Err(format!("level {}: no enemy named {enemy}", level.id));
+                    }
+                    if *enemies == 0 || *enemies > design.matrix.enemy_rows.len() {
+                        return Err(format!(
+                            "level {}: {enemies} {enemy} at once, matrix.enemy_rows allows 1..={}",
+                            level.id,
+                            design.matrix.enemy_rows.len()
+                        ));
+                    }
+                }
+            }
         }
         Ok(design)
     }

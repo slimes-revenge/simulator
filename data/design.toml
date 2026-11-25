@@ -141,3 +141,33 @@ enemy_counts = [1, 2, 3]
 slime_cell = [1, 5]
 enemy_column_offset = 5       # enemies stand in the column slime_cell.x + offset
 enemy_rows = [5, 4, 6]        # the n-th enemy stands on this row
+
+# Level runs for the body economy (src/level.rs, docs/report-format.md "[levels]").
+# Placeholders until balance defines real levels: the same stages at 1 and 2 actions per round.
+# `start` defaults to full Water. Stages: kind = "fight" (enemy, enemies at once) or
+# kind = "fountain" (liquid, units; the slime drinks until full, the rest is lost).
+[[levels]]
+id = "sample-ap1"
+capacity = 10
+action_points = 1
+policy = "face-tank"
+stages = [
+  { kind = "fight", enemy = "Mushroom", enemies = 1 },
+  { kind = "fight", enemy = "Bat", enemies = 1 },
+  { kind = "fountain", liquid = "Water", units = 3 },
+  { kind = "fight", enemy = "Mushroom", enemies = 1 },
+  { kind = "fight", enemy = "Eye", enemies = 2 },
+]
+
+[[levels]]
+id = "sample-ap2"
+capacity = 10
+action_points = 2
+policy = "face-tank"
+stages = [
+  { kind = "fight", enemy = "Mushroom", enemies = 1 },
+  { kind = "fight", enemy = "Bat", enemies = 1 },
+  { kind = "fountain", liquid = "Water", units = 3 },
+  { kind = "fight", enemy = "Mushroom", enemies = 1 },
+  { kind = "fight", enemy = "Eye", enemies = 2 },
+]

@@ -283,8 +283,8 @@ fn text_report_is_stable_and_has_no_run_details() {
             })
             .collect()
     };
-    let a = text::render(&toml, None, &reports("2026-01-01T00:00:00Z", "aaaa")).unwrap();
-    let b = text::render(&toml, None, &reports("2027-02-02T00:00:00Z", "bbbb")).unwrap();
+    let a = text::render(&toml, None, &reports("2026-01-01T00:00:00Z", "aaaa"), &[]).unwrap();
+    let b = text::render(&toml, None, &reports("2027-02-02T00:00:00Z", "bbbb"), &[]).unwrap();
     assert_eq!(
         a, b,
         "the text report must not depend on the time or the commit"
@@ -294,7 +294,7 @@ fn text_report_is_stable_and_has_no_run_details() {
     assert!(a.contains("\nenemies.Mushroom.traits = \n"));
     assert!(a.contains("\nmatrix.enemy_rows = 5 4 6\n"));
     assert!(a.contains("\nslime.start = Water Water Oil Poison Acid Lava\n"));
-    let with_file = text::render(&toml, Some("x.toml"), &reports("t", "c")).unwrap();
+    let with_file = text::render(&toml, Some("x.toml"), &reports("t", "c"), &[]).unwrap();
     assert!(with_file.contains("\ndesign.file = x.toml\n"));
 
     let table: Vec<&str> = a.split("[cells]\n").nth(1).unwrap().lines().collect();
@@ -348,4 +348,111 @@ fn trace_logs_the_fight_turn_by_turn() {
             .any(|l| l.starts_with("Mushroom#1 pulse Burning: HP 1->0"))
     );
     assert!(log.last().unwrap().starts_with("result:"));
+}
+
+fn level_design(stages: &str) -> Design {
+    let mut text =
+        std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/data/design.toml")).unwrap();
+    text = text[..text.find("[[levels]]").unwrap()].to_string();
+    text += &format!(
+        "[[levels]]\nid = \"t\"\ncapacity = 10\nstart = [{}]\naction_points = 1\npolicy = \"face-tank\"\nstages = [{stages}]\n",
+        ["\"Lava\""; 10].join(", ")
+    );
+    Design::parse(&text).unwrap()
+}
+
+// 10 Lava vs 1 Mushroom (hand-checked above: 2 strikes, 1 bite, 7 left), then the slime eats
+// the Mushroom's 1 Water: 8. The fountain of 5 Water fills it to 10 (2 drunk, 3 wasted).
+#[test]
+fn level_carries_the_body_from_fight_to_fountain() {
+    let d = level_design(
+        r#"{ kind = "fight", enemy = "Mushroom", enemies = 1 },
+           { kind = "fountain", liquid = "Water", units = 5 }"#,
+    );
+    let l = simulator::level::run(&d, &d.levels[0]);
+    let (fight, fountain) = (&l.rows[0], &l.rows[1]);
+    assert_eq!((fight.reached, fight.win), (100.0, Some(100.0)));
+    assert_eq!(
+        (
+            fight.before,
+            fight.spent,
+            fight.bitten,
+            fight.eaten,
+            fight.after,
+            fight.net
+        ),
+        (10.0, 2.0, 1.0, 1.0, 8.0, -2.0)
+    );
+    assert_eq!(
+        (
+            fountain.before,
+            fountain.drunk,
+            fountain.wasted,
+            fountain.after,
+            fountain.net
+        ),
+        (8.0, 2.0, 3.0, 10.0, 2.0)
+    );
+    assert_eq!(fountain.win, None);
+    assert_eq!(
+        (l.end, l.min_body, l.worst_body, l.wasted),
+        (100.0, 8.0, 8, 3.0)
+    );
+    assert!(l.stops.is_empty());
+}
+
+#[test]
+fn level_stops_at_the_lost_fight() {
+    // Two Lava units: one strike, then the slime waits on its last unit and dies to the bite.
+    let mut d = level_design(
+        r#"{ kind = "fight", enemy = "Mushroom", enemies = 3 },
+           { kind = "fountain", liquid = "Water", units = 1 }"#,
+    );
+    d.levels[0].start = Some(vec![Liquid::Lava; 2]);
+    let l = simulator::level::run(&d, &d.levels[0]);
+    assert_eq!(l.end, 0.0);
+    assert_eq!(l.rows[0].win, Some(0.0));
+    assert_eq!((l.rows[1].reached, l.rows[1].win), (0.0, None));
+    assert_eq!(
+        l.stops.keys().collect::<Vec<_>>(),
+        ["stage1:melee:Mushroom"]
+    );
+}
+
+#[test]
+fn level_ledger_adds_up() {
+    let d = design();
+    for level in &d.levels {
+        for r in &simulator::level::run(&d, level).rows {
+            let expected = r.before - r.spent - r.bitten - r.status + r.grown + r.eaten + r.drunk;
+            assert!(
+                (r.after - expected).abs() < 0.02,
+                "{} stage {}: {r:?}",
+                level.id,
+                r.stage
+            );
+        }
+    }
+}
+
+#[test]
+fn level_design_errors_are_explicit() {
+    let base =
+        std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/data/design.toml")).unwrap();
+    let kite = base.replacen(
+        "policy = \"face-tank\"\nstages",
+        "policy = \"kite\"\nstages",
+        1,
+    );
+    assert!(Design::parse(&kite).unwrap_err().contains("not supported"));
+    let ghost = base.replacen(
+        "enemy = \"Bat\", enemies = 1",
+        "enemy = \"Ghost\", enemies = 1",
+        1,
+    );
+    assert!(
+        Design::parse(&ghost)
+            .unwrap_err()
+            .contains("no enemy named Ghost")
+    );
 }

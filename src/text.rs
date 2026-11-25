@@ -1,6 +1,7 @@
 //! The plain-text report (`design-guard.txt`, `docs/report-format.md`) for the balance
 //! session: no timestamps, stable order, fixed columns, so two versions compare with `diff`.
 
+use crate::level::LevelResult;
 use crate::report::Report;
 use std::fmt::Write;
 
@@ -10,6 +11,7 @@ pub fn render(
     design_toml: &str,
     design_file: Option<&str>,
     reports: &[Report],
+    levels: &[LevelResult],
 ) -> Result<String, String> {
     let design: toml::Table = toml::from_str(design_toml).map_err(|e| e.to_string())?;
     let mut out = String::from("# Slime's Revenge design guard — plain-text report, format 1\n");
@@ -64,7 +66,83 @@ pub fn render(
             );
         }
     }
+    if !levels.is_empty() {
+        render_levels(levels, &mut out);
+    }
     Ok(out)
+}
+
+fn render_levels(levels: &[LevelResult], out: &mut String) {
+    *out += "\n[levels]\n";
+    let _ = writeln!(
+        out,
+        "{:<14} {:>5} {:<8} {:<14} {:>7} {:>3} {:>6} {:>6} {:>6} {:>6} {:>6} {:>6} {:>6} {:>6} {:>6} {:>7}",
+        "level",
+        "stage",
+        "kind",
+        "detail",
+        "reached",
+        "win",
+        "before",
+        "spent",
+        "bitten",
+        "status",
+        "grown",
+        "eaten",
+        "drunk",
+        "wasted",
+        "after",
+        "net"
+    );
+    for l in levels {
+        for r in &l.rows {
+            let win = r.win.map_or("-".to_string(), |w| format!("{w:.0}"));
+            let _ = writeln!(
+                out,
+                "{:<14} {:>5} {:<8} {:<14} {:>7.0} {:>3} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>+7.2}",
+                l.id,
+                r.stage,
+                r.kind,
+                r.detail,
+                r.reached,
+                win,
+                r.before,
+                r.spent,
+                r.bitten,
+                r.status,
+                r.grown,
+                r.eaten,
+                r.drunk,
+                r.wasted,
+                r.after,
+                r.net
+            );
+        }
+    }
+    *out += "\n[level-ends]\n";
+    let _ = writeln!(
+        out,
+        "{:<14} {:>3} {:>6} {:>5} {:>6}  stops",
+        "level", "end", "min", "worst", "wasted"
+    );
+    for l in levels {
+        let mut stops: Vec<(&String, &u64)> = l.stops.iter().collect();
+        stops.sort_by(|a, b| b.1.cmp(a.1).then(a.0.cmp(b.0)));
+        let stops = if stops.is_empty() {
+            "-".to_string()
+        } else {
+            stops
+                .iter()
+                .map(|(k, v)| format!("{k}={v}"))
+                .collect::<Vec<_>>()
+                .join(" ")
+        };
+        let _ = writeln!(
+            out,
+            "{:<14} {:>3.0} {:>6.2} {:>5} {:>6.2}  {stops}",
+            l.id, l.end, l.min_body, l.worst_body, l.wasted
+        );
+    }
 }
 
 /// One `key = value` per number, in file order. Arrays of tables are keyed by their `name`
@@ -82,11 +160,14 @@ fn flatten(prefix: &str, value: &toml::Value, out: &mut String) {
             }
         }
         toml::Value::Array(items) if !items.is_empty() && items.iter().all(|i| i.is_table()) => {
-            for item in items {
-                let name = item.get("name").and_then(|n| n.as_str()).unwrap_or("?");
+            for (i, item) in items.iter().enumerate() {
+                // Keyed by `name` or `id` when the table has one, else by its 1-based position.
                 let mut rest = item.as_table().cloned().unwrap_or_default();
-                rest.remove("name");
-                flatten(&format!("{prefix}.{name}"), &toml::Value::Table(rest), out);
+                let key = match rest.remove("name").or_else(|| rest.remove("id")) {
+                    Some(toml::Value::String(k)) => k,
+                    _ => (i + 1).to_string(),
+                };
+                flatten(&format!("{prefix}.{key}"), &toml::Value::Table(rest), out);
             }
         }
         toml::Value::Array(items) => {

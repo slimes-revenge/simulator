@@ -3,6 +3,7 @@
 
 pub mod data;
 pub mod fight;
+pub mod level;
 pub mod path;
 pub mod report;
 pub mod rng;

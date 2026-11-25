@@ -199,6 +199,12 @@ impl<'a> Fight<'a> {
         self.play().0
     }
 
+    /// Plays the fight and returns the slime's body at the end as well (level runs).
+    pub fn run_with_volume(mut self) -> (FightResult, Vec<Liquid>) {
+        let result = self.rounds();
+        (result, self.slime.volume)
+    }
+
     /// Plays the fight and returns a turn-by-turn log as well (`--trace`).
     pub fn run_traced(mut self) -> (FightResult, Vec<String>) {
         self.trace = Some(Vec::new());
