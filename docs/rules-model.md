@@ -43,7 +43,8 @@ truth for how the game behaves today; the simulator mirrors it by hand. Numbers 
 - Enemy melee is a bare hit of `melee_power`. It pops the edge unit (the "tip"): the starting
   mix (Water, Water, Oil, Poison, Acid, Lava from the centre out) has Lava on the edge.
 - Retaliation: when the slime has a dominant liquid before the hit and survives it, the
-  attacker receives that liquid's effect. Under `rules.retaliation_pulses` > 0 (the design: 1)
+  attacker receives that liquid's effect. Under `rules.retaliation_pulses` > 0 (the design: 2, so
+  it lasts through the enemy's next turn: statuses pulse at the start of their owner's turn)
   its statuses last that many pulses; 0 keeps the liquid's usual duration (the game).
 - Dominance (affinity): one liquid with at least `rules.dominance_percent` of the basis.
   `rules.dominance_basis = "capacity"` (the design: 60 % of the capacity, so a bitten body does

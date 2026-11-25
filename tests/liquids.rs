@@ -28,8 +28,8 @@ fn affinity_is_a_share_of_the_capacity() {
 }
 
 #[test]
-fn retaliation_lasts_one_pulse() {
-    // A Lava slime is bitten: the biter burns for 1 pulse, not the strike's 3.
+fn retaliation_lasts_one_enemy_turn() {
+    // A Lava slime is bitten: the biter burns for 2 pulses (its next turn), not the strike's 3.
     let d = Design::bundled();
     let mut f = Fight::new(
         &d,
@@ -46,7 +46,7 @@ fn retaliation_lasts_one_pulse() {
         .iter()
         .find(|l| l.starts_with("end of round 1"))
         .unwrap();
-    assert!(end.contains("(Burning, 1)"), "{end}");
+    assert!(end.contains("(Burning, 2)"), "{end}");
 }
 
 #[test]
