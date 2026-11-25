@@ -45,7 +45,7 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
 - **Drips** stand on random passage cells free of blockers. Every passage lies on the only way
   between two rooms, so the slime crosses each drip on its walk.
 - **The camp** stands on random cells of the second-to-last room, which lies on the way to the
-  exit. Its home room is that room.
+  exit, farther than `vision` from the start like room enemies. Its home room is that room.
 - **Surface rooms** are the `surface_rooms` rooms in the middle of the chain (from index
   `(rooms − surface_rooms) / 2`).
 - `--trace-map LEVEL SEED` prints the map (`#` wall, `S` start, `X` exit, `~` drip, an enemy by
@@ -104,10 +104,13 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
 - **The hunter (G17).** It enters at the start of the enemy phase of round `enter_round`, or
   earlier once the slime has entered the second-to-last room, on the exit or the free open
   cell nearest to it. It enters aggroed. Every `scent_every` rounds it learns the slime's cell
-  (through walls) and chases it by the shortest path; between scents it follows its pursuit
-  memory. Alarms never wake it. An episode it takes part in is a hunter episode. Its outcome
-  per seed: `killed_slime` when the slime died to its bite, else `killed` when it died, else
-  `alive` (also when it never entered).
+  (through walls) and chases it by the shortest path. Between scents it walks to the last cell
+  it learned; there, with its pursuit memory empty, it heads for the slime's cell like any
+  aggroed enemy, so `scent_every` > 1 only makes it lag. It engages the slime (opens an
+  episode, holds `lure` and `kite`, lets G3 and Pus tick) only while it sees the slime (its
+  sight range, walls block) or stands next to it. An episode it takes part in is a hunter
+  episode. Its outcome per seed: `killed_slime` when its bite killed the slime, else `killed`
+  when it died, else `alive` (also when it never entered).
 - **Min body:** the body at the start and after each closed episode; 0 when the slime dies.
 - **Engagement checks** run after every slime action, every enemy turn and every pulse of the
   slime's statuses.

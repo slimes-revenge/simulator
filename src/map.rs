@@ -112,6 +112,7 @@ pub fn generate(m: &MapSpec, seed: u64) -> Map {
         for kind in &m.camp {
             let free: Vec<Cell> = (y0..=y1)
                 .flat_map(|y| (x0..=x1).map(move |x| (x, y)))
+                .filter(|&c| chebyshev(c, start) > m.vision && c != exit)
                 .filter(|&c| enemies.iter().all(|e| e.1 != c))
                 .collect();
             if free.is_empty() {
@@ -210,9 +211,8 @@ pub fn summarize(level: &Level, runs: &[(FightResult, MapState)], of: u64) -> Ma
     let mut hunter = [0u64; 3];
     let (mut hunter_eps, mut hunter_sum) = (0u64, 0i64);
     for (result, state) in runs {
-        if let Some(h) = &state.hunter {
-            let killer = format!("melee:{}", h.kind);
-            let k = if !result.won && result.cause.as_deref() == Some(killer.as_str()) {
+        if state.hunter.is_some() {
+            let k = if state.hunter_killed_slime {
                 2
             } else if state.hunter_dead {
                 0

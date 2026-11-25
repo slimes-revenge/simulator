@@ -75,6 +75,10 @@ pub struct Creature {
     pub traits: Vec<Trait>,
     /// Its own sight range (enemies); the fight's `vision` when `None`.
     pub vision: Option<i32>,
+    /// G17: the hunter, engaged only while it sees the slime or stands next to it.
+    pub hunter: bool,
+    /// G4: it has raised its alarm (once per enemy).
+    pub alarmed: bool,
     /// Thorns: a melee strike on this creature costs the striker this many edge units.
     pub thorns: usize,
     /// Slime only: the liquid with at least `dominance_percent` of the volume.
@@ -208,6 +212,8 @@ pub struct MapState {
     pub hunter_at: Option<usize>,
     /// The hunter entered and died (set when the run ends).
     pub hunter_dead: bool,
+    /// The hunter's bite killed the slime.
+    pub hunter_killed_slime: bool,
 }
 
 /// One fight on a map: from the first enemy aggroed on the slime until none is.
@@ -390,6 +396,8 @@ impl<'a> Fight<'a> {
             vampirism: false,
             traits: Vec::new(),
             vision: None,
+            hunter: false,
+            alarmed: false,
             thorns: 0,
             dominant: None,
             aggroed: false,
@@ -733,8 +741,25 @@ impl<'a> Fight<'a> {
 
     /// An enemy in the fight with the slime: aggroed and able to come (speed above 0) or
     /// already next to it. A stationary blocker that saw the slime does not hold it.
+    /// The hunter always knows where the slime is, so it engages only once it sees it (its
+    /// sight range, walls block) or stands next to it.
     fn engaging(&self, e: &Creature) -> bool {
-        e.alive() && e.aggroed && (e.base_speed > 0 || chebyshev(e.cell, self.slime.cell) == 1)
+        let adjacent = chebyshev(e.cell, self.slime.cell) == 1;
+        let comes = if e.hunter {
+            chebyshev(e.cell, self.slime.cell) <= self.sight(e)
+                && self.board.line_of_sight(e.cell, self.slime.cell)
+        } else {
+            e.base_speed > 0
+        };
+        e.alive() && e.aggroed && (comes || adjacent)
+    }
+
+    /// An enemy's sight range: its own or the fight's, +2 for `SmellsBlood` while the slime's
+    /// edge unit is Blood (G2).
+    fn sight(&self, e: &Creature) -> i32 {
+        let smells = e.traits.contains(&Trait::SmellsBlood)
+            && self.slime.volume.last() == Some(&Liquid::Blood);
+        e.vision.unwrap_or(self.vision) + if smells { 2 } else { 0 }
     }
 
     /// Every unit the slime has lost so far: spent, bitten, to statuses, to thorns.
@@ -856,8 +881,9 @@ impl<'a> Fight<'a> {
         self.swapped = false;
         let from = self.slime.cell;
         if let Some(to) = self.walk_toward(from, self.enemies[target].cell, 1) {
-            self.move_slime(to);
-            self.note(|_| format!("Slime steps {from:?}->{to:?}"));
+            if self.move_slime(to) {
+                self.note(|_| format!("Slime steps {from:?}->{to:?}"));
+            }
         } else {
             self.note(|_| "Slime waits: no path".into());
         }
@@ -906,8 +932,9 @@ impl<'a> Fight<'a> {
         };
         if let Some(route) = self.route_to(goal) {
             let (from, to) = (self.slime.cell, route[0]);
-            self.move_slime(to);
-            self.note(|_| format!("Slime steps {from:?}->{to:?}"));
+            if self.move_slime(to) {
+                self.note(|_| format!("Slime steps {from:?}->{to:?}"));
+            }
         } else {
             // Blocked: follow the route through creatures; step if the next cell is free,
             // else strike (or spit at) whoever stands in it or next to the slime.
@@ -925,8 +952,9 @@ impl<'a> Fight<'a> {
                 self.strike_or_wait(i);
             } else if let Some(to) = next.filter(|&c| !self.occupied().contains(&c)) {
                 let from = self.slime.cell;
-                self.move_slime(to);
-                self.note(|_| format!("Slime steps {from:?}->{to:?}"));
+                if self.move_slime(to) {
+                    self.note(|_| format!("Slime steps {from:?}->{to:?}"));
+                }
             } else {
                 self.note(|_| "Slime waits: no path to the exit".into());
             }
@@ -934,9 +962,11 @@ impl<'a> Fight<'a> {
     }
 
     /// Moves the slime one cell; on a map, entering a room counts it and resets lure's wait.
-    fn move_slime(&mut self, to: Cell) {
+    /// `false` when the slime is netted and stays.
+    fn move_slime(&mut self, to: Cell) -> bool {
         if self.rooted > 0 {
-            return self.note(|_| "Slime is netted: it cannot step".into());
+            self.note(|_| "Slime is netted: it cannot step".into());
+            return false;
         }
         self.slime.cell = to;
         if let Some(m) = self.map.as_mut()
@@ -945,6 +975,7 @@ impl<'a> Fight<'a> {
             m.rooms_entered = m.rooms_entered.max(k + 1);
             m.waited = 0;
         }
+        true
     }
 
     /// How far `c` is from the nearest room's centre (Chebyshev); 0 without rooms.
@@ -983,7 +1014,7 @@ impl<'a> Fight<'a> {
             .iter()
             .filter(|e| e.alive() && !e.aggroed && e.personality == Personality::Aggressive)
             .filter(|e| e.base_speed > 0)
-            .filter(|e| !hidden && chebyshev(e.cell, cell) <= self.vision)
+            .filter(|e| !hidden && chebyshev(e.cell, cell) <= self.sight(e))
             .filter(|e| self.board.line_of_sight(e.cell, cell))
             .count()
     }
@@ -1046,8 +1077,9 @@ impl<'a> Fight<'a> {
             && let Some(to) = self.kite_step()
         {
             let from = self.slime.cell;
-            self.move_slime(to);
-            self.note(|_| format!("Slime steps back {from:?}->{to:?}"));
+            if self.move_slime(to) {
+                self.note(|_| format!("Slime steps back {from:?}->{to:?}"));
+            }
             return true;
         }
         self.strike_or_wait(target);
@@ -1233,7 +1265,6 @@ impl<'a> Fight<'a> {
             e.pursuit = Some(cell);
             e.pursuit_left = memory.max(e.pursuit_left);
         }
-        let was_aggroed = self.enemies[i].aggroed;
         let mut intent = self.decide(i);
         // `CreatureHunt.Redirect`: no fear/hate traits in the live roster, so only pursuit memory.
         if matches!(intent, Intent::Wander | Intent::Idle) {
@@ -1265,20 +1296,22 @@ impl<'a> Fight<'a> {
             )
         });
         self.after_act(i, intent);
-        self.alarm(i, was_aggroed);
+        self.alarm(i);
     }
 
-    /// G4 `Alarm`: an enemy that just saw the slime for the first time aggroes every living
-    /// enemy within its radius (Chebyshev, through walls), except the hunter.
-    fn alarm(&mut self, i: usize, was_aggroed: bool) {
+    /// G4 `Alarm`: the first time an aggroed enemy sees the slime (after its own turn), it
+    /// aggroes every living enemy within its radius (Chebyshev, through walls), except the
+    /// hunter. Once per enemy; a woken enemy with an alarm raises its own when it sees the slime.
+    fn alarm(&mut self, i: usize) {
         let radius = self.enemies[i].traits.iter().find_map(|t| match t {
             Trait::Alarm { radius } => Some(*radius),
             _ => None,
         });
         let Some(radius) = radius else { return };
-        if was_aggroed || !self.enemies[i].aggroed || !self.can_see(i) {
+        if self.enemies[i].alarmed || !self.enemies[i].aggroed || !self.can_see(i) {
             return;
         }
+        self.enemies[i].alarmed = true;
         let (from, cell) = (self.enemies[i].cell, self.slime.cell);
         let memory = self.d.rules.pursuit_memory_turns;
         let hunter = self.map.as_ref().and_then(|m| m.hunter_at);
@@ -1317,6 +1350,7 @@ impl<'a> Fight<'a> {
         let Some(&cell) = cells.first() else { return };
         let mut hunter = enemy_creature(self.d, &kind, cell);
         hunter.aggroed = true;
+        hunter.hunter = true;
         self.enemies.push(hunter);
         let m = self.map.as_mut().expect("checked");
         m.homes.push(None);
@@ -1351,11 +1385,7 @@ impl<'a> Fight<'a> {
     }
 
     fn can_see(&self, i: usize) -> bool {
-        let e = &self.enemies[i];
-        let smells = e.traits.contains(&Trait::SmellsBlood)
-            && self.slime.volume.last() == Some(&Liquid::Blood);
-        let range = e.vision.unwrap_or(self.vision) + if smells { 2 } else { 0 };
-        chebyshev(self.enemies[i].cell, self.slime.cell) <= range
+        chebyshev(self.enemies[i].cell, self.slime.cell) <= self.sight(&self.enemies[i])
             && self.detected(i)
             && self
                 .board
@@ -1423,6 +1453,12 @@ impl<'a> Fight<'a> {
         }
         if tip.is_some() {
             self.last_harm = Some(format!("melee:{}", self.enemies[i].name));
+        }
+        if !self.slime.alive()
+            && let Some(m) = self.map.as_mut()
+            && m.hunter_at == Some(i)
+        {
+            m.hunter_killed_slime = true;
         }
         let traits = &self.enemies[i].traits;
         if self.slime.alive()
@@ -1896,6 +1932,8 @@ fn enemy_creature(d: &Design, kind: &str, cell: Cell) -> Creature {
         vampirism: e.traits.contains(&Trait::Vampirism),
         traits: e.traits.clone(),
         vision: e.vision,
+        hunter: false,
+        alarmed: false,
         thorns: e.thorns,
         dominant: None,
         aggroed: false,

@@ -249,3 +249,26 @@ fn pus_does_not_spread_outside_a_fight() {
     let (_, out) = play(&d, body.clone(), Policy::Kite, 1, &[("Bat", (9, 9))], 3);
     assert_eq!(out, body);
 }
+
+#[test]
+fn an_alarm_rings_even_when_the_slime_struck_first() {
+    // The Eye stands next to the slime; the newcomer strikes it first (it gets aggroed by the
+    // hit), then on its own turn it sees the slime and still raises the alarm, once.
+    let mut d = Design::bundled();
+    let eye = d.enemies.iter_mut().find(|e| e.name == "Eye").unwrap();
+    eye.traits = vec![Trait::Alarm { radius: 9 }];
+    eye.hit_points = 99;
+    let (log, _) = play(
+        &d,
+        vec![Liquid::Water; 10],
+        Policy::Newcomer,
+        1,
+        &[("Eye", (1, 5)), ("Mushroom", (9, 9))],
+        3,
+    );
+    let alarms = log
+        .iter()
+        .filter(|l| l.starts_with("Eye#1 raises the alarm"))
+        .count();
+    assert_eq!(alarms, 1, "{log:?}");
+}
