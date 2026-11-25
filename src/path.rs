@@ -5,6 +5,9 @@
 //! route with the fewest cells wins, then the cheaper one, then the goal with the smaller
 //! (x, y). No puddle penalties: v1 has no puddles on the floor.
 
+use std::cmp::Reverse;
+use std::collections::BinaryHeap;
+
 pub type Cell = (i32, i32);
 
 pub fn chebyshev(a: Cell, b: Cell) -> i32 {
@@ -40,22 +43,13 @@ pub fn find(
     let mut done = vec![false; size];
     cost[index(start)] = 0;
     steps[index(start)] = 0;
-    loop {
-        // Dijkstra over at most 100 cells: a linear scan is simpler than a heap.
-        let mut current: Option<Cell> = None;
-        for y in 0..height {
-            for x in 0..width {
-                let i = index((x, y));
-                if !done[i]
-                    && cost[i] != i32::MAX
-                    && current
-                        .is_none_or(|c| (cost[i], steps[i]) < (cost[index(c)], steps[index(c)]))
-                {
-                    current = Some((x, y));
-                }
-            }
+    // Dijkstra; ties between equal (cost, steps) settle in row-major order (y, then x).
+    let mut queue = BinaryHeap::from([Reverse((0, 0, start.1, start.0))]);
+    while let Some(Reverse((c, s, y, x))) = queue.pop() {
+        let cell = (x, y);
+        if done[index(cell)] || (c, s) != (cost[index(cell)], steps[index(cell)]) {
+            continue;
         }
-        let Some(cell) = current else { break };
         done[index(cell)] = true;
         for next in neighbours(cell) {
             if !inside(next) || blocked(next) {
@@ -69,6 +63,7 @@ pub fn find(
                 cost[i] = c;
                 steps[i] = s;
                 parent[i] = Some(cell);
+                queue.push(Reverse((c, s, next.1, next.0)));
             }
         }
     }

@@ -38,8 +38,9 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
 
 - **Sight.** An enemy sees the slime within `vision` (Chebyshev) when no wall lies on the
   Bresenham line strictly between them (`Board::line_of_sight`). Mercury invisibility still applies.
-- **Movement.** Walls block movement and paths. Until aggroed, an enemy wanders only inside its
-  own room. Once aggroed it chases anywhere, through doorways, with the usual pursuit memory.
+- **Movement.** Walls block movement and paths. An enemy inside its own room wanders only
+  inside it; outside it (fled, or aggro lost) it wanders freely. Once aggroed it chases
+  anywhere, through doorways, with the usual pursuit memory.
 - **Round limit.** `rules.max_rounds × rooms`; beyond it the run is a `timeout` loss.
 - **`strafe` policy:**
   1. If an aggroed enemy is adjacent, strike it with the liquid held most (or wait on the
@@ -58,12 +59,15 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
     capacity. There is no walking and no time.
   - `net` = corpse units + grown − spent − bitten − status during the episode, ignoring
     capacity.
-- **Min body:** the body at the start and after each closed episode.
+- **Min body:** the body at the start and after each closed episode; 0 when the slime dies.
+- **Engagement checks** run after every slime action, every enemy turn and every pulse of the
+  slime's statuses.
 
 ## Limits
 
 - Only the `strafe` policy exists; `lure` comes next.
-- Corpses of enemies killed outside an episode are not eaten. Today that cannot happen: a
-  strike aggroes its target, and no enemy dies to one strike.
+- An enemy killed by a single strike outside an episode opens no episode, so its corpse and
+  the spent unit are not counted. Today that cannot happen: no live enemy dies to one strike.
+- An enemy standing on the exit blocks it; `strafe` waits (or strikes it when adjacent).
 - No fountains, puddles or spit on map levels yet.
 - One corridor shape: straight, 1 cell wide.

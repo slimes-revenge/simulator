@@ -159,7 +159,7 @@ map-vision3    strafe       0  1.76   10.22   1.72     0.00    81.40    18.60   
 
 [map-level-ends]
 level          end    min worst  stops
-map-vision3      0   0.00     0  room1:melee:Undine=6 room2:melee:Mushroom=6 ...
+map-vision3      0   0.00     0  room1:melee:Mushroom=8 room1:melee:Mandragora=7 ...
 ```
 
 | Column | Meaning |

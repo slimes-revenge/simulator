@@ -445,6 +445,7 @@ impl<'a> Fight<'a> {
 
     fn rounds(&mut self) -> FightResult {
         self.pulse(None);
+        self.track_engagement();
         if !self.slime.alive() {
             return self.result(false, 0);
         }
@@ -475,6 +476,7 @@ impl<'a> Fight<'a> {
                 return self.result(true, round);
             }
             self.pulse(None);
+            self.track_engagement();
             if !self.slime.alive() {
                 return self.result(false, round);
             }
@@ -577,7 +579,11 @@ impl<'a> Fight<'a> {
         self.track_engagement();
         let result = self.rounds();
         self.close_episode();
-        (result, self.map.take().unwrap_or_default())
+        let mut state = self.map.take().unwrap_or_default();
+        if !self.slime.alive() {
+            state.min_body = 0;
+        }
+        (result, state)
     }
 
     fn result(&self, won: bool, rounds: u32) -> FightResult {
@@ -935,9 +941,11 @@ impl<'a> Fight<'a> {
             .map
             .as_ref()
             .and_then(|m| m.homes.get(i).copied().flatten().map(|k| m.rooms[k]));
-        let mut options: Vec<Cell> = path::neighbours(self.enemies[i].cell)
+        let here = self.enemies[i].cell;
+        let mut options: Vec<Cell> = path::neighbours(here)
             .filter(|&c| self.inside(c) && !occupied.contains(&c))
-            .filter(|&c| home.is_none_or(|r| in_rect(r, c)))
+            // Inside its room it stays there; outside it (fled, lost aggro) it walks freely.
+            .filter(|&c| home.is_none_or(|r| !in_rect(r, here) || in_rect(r, c)))
             .collect();
         if options.is_empty() {
             return;

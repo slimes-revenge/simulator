@@ -135,3 +135,56 @@ fn map_level_errors_are_explicit() {
             .contains("no enemy named Ghost")
     );
 }
+
+#[test]
+fn sight_lines_bend_around_corners() {
+    // . . .
+    // . # .
+    // . . .
+    let board = Board {
+        width: 3,
+        height: 3,
+        walls: vec![false, false, false, false, true, false, false, false, false],
+    };
+    assert!(
+        !board.line_of_sight((0, 0), (2, 2)),
+        "the diagonal passes the wall"
+    );
+    assert!(!board.line_of_sight((0, 1), (2, 1)));
+    assert!(board.line_of_sight((0, 0), (2, 0)), "the top row is clear");
+    assert!(board.line_of_sight((0, 0), (1, 0)));
+}
+
+#[test]
+fn calm_enemies_stay_in_their_rooms() {
+    // Passive bats never notice a slime parked out of reach, so they only wander: every step
+    // they take in the log ends inside their own room.
+    let d = design_with(
+        r#"{ rooms = 3, room_side = [5, 6], enemies_per_room = [2, 2], enemy_kinds = ["Bat"], corridor = 1, vision = 1 }"#,
+    );
+    let s = d.levels[0].map.clone().unwrap();
+    let mut steps = 0;
+    for seed in 0..5 {
+        let m = map::generate(&s, seed);
+        let mut f = map::fight(&d, &d.levels[0], &s, &[Liquid::Water; 10], seed);
+        f.slime.cell = (0, 0); // inside the outer wall: no path, never seen
+        f.max_rounds = 60;
+        let (_, log) = f.run_traced();
+        for line in log
+            .iter()
+            .filter(|l| l.starts_with("Bat#") && l.contains("->("))
+        {
+            let k: usize = line[4..line.find(' ').unwrap()].parse().unwrap();
+            let to = &line[line.find("->(").unwrap() + 3..line.find("), slime").unwrap()];
+            let (x, y) = to.split_once(", ").unwrap();
+            let (x, y): (i32, i32) = (x.parse().unwrap(), y.parse().unwrap());
+            let ((x0, y0), (x1, y1)) = m.rooms[m.enemies[k - 1].2];
+            assert!(
+                x >= x0 && x <= x1 && y >= y0 && y <= y1,
+                "seed {seed}: {line}"
+            );
+            steps += 1;
+        }
+    }
+    assert!(steps > 0);
+}
