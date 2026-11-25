@@ -828,10 +828,11 @@ impl<'a> Fight<'a> {
     }
 
     /// `swap`: exchanges the units at positions `i` and `i + 1`, counted from the edge
-    /// (0 = the edge unit). Costs one action. No policy uses it yet.
+    /// (0 = the edge unit), and counts it. A policy that swaps spends one action on it (as on a
+    /// step); no policy swaps yet, so this hook spends none by itself.
     pub fn slime_swap(&mut self, i: usize) {
         let n = self.slime.volume.len();
-        if i + 1 < n {
+        if i < n.saturating_sub(1) {
             self.slime.volume.swap(n - 1 - i, n - 2 - i);
             self.tally.swaps += 1;
         }

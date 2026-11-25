@@ -13,7 +13,7 @@ with the balance session. Code: `src/level.rs`. Output: `[levels]` and `[level-e
 | --- | --- |
 | `id` | Stable, unique id of 1–14 characters, printed in the report |
 | `capacity` | Body capacity for this level. It also bounds Regeneration inside the level's fights |
-| `start` | The body at the start, in volume order, 1..=`capacity` units. Default: `capacity` × Water |
+| `start` | The body at the start, from the centre to the edge (the last unit is the edge), 1..=`capacity` units. Default: `capacity` × Water |
 | `action_points` | Slime actions per round in every fight of the level |
 | `policy` | `newcomer` only. Any other value is a design-file error |
 | `stages` | 1 to 999 stages, in order: `{ kind = "fight", enemy, enemies }` or `{ kind = "fountain", liquid, units }` |

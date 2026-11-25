@@ -13,8 +13,8 @@ max_rounds = 200          # simulator only: a fight that lasts longer is a loss 
 [slime]
 capacity = 10             # Volume.Capacity
 speed = 1                 # Creature.speed default
-# Slime.FillStarting, in volume order: strikes take the first unit of a kind,
-# hits pop the last unit.
+# Slime.FillStarting, from the centre to the edge: the last unit is the edge, which strikes
+# spend and hits pop first (rule S13).
 start = ["Water", "Water", "Oil", "Poison", "Acid", "Lava"]
 
 [statuses]

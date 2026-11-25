@@ -14,7 +14,7 @@ pub struct Build {
     pub name: String,
     /// Units per liquid.
     pub units: BTreeMap<Liquid, usize>,
-    /// The volume in order: strikes take the first unit of a kind, hits pop the last.
+    /// The volume from the centre to the edge: the last unit is the edge, spent and hit first.
     #[serde(skip)]
     pub volume: Vec<Liquid>,
 }

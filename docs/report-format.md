@@ -265,8 +265,8 @@ Cell fields:
 | `avgUnitsBitten` | number | Units lost to enemy bites, over all fights |
 | `avgUnitsStatus` | number | Units lost to the slime's own status pulses, over all fights |
 | `avgEnemiesKilled` | number | Enemies killed, over all fights |
-| `avgUnitsGrown`, `avgNet`, `spentBy`, `bittenBy`, `statusLostBy` | numbers, objects | The `[economy]` slice (objects: name → average) |
-| `avgStrikeDmg`, `avgStatusDmg`, `avgRetaliationDmg`, `statusDmgBy`, `avgOverkill`, `avgDoomedStrikes`, `avgSwaps`, `dmgPerUnit` | numbers, object, number or null | The `[damage]` slice |
+| `avgUnitsGrown`, `avgSwaps`, `avgNet`, `spentBy`, `bittenBy`, `statusLostBy` | numbers, objects | The `[economy]` slice (objects: name → average) |
+| `avgStrikeDmg`, `avgStatusDmg`, `avgRetaliationDmg`, `statusDmgBy`, `avgOverkill`, `avgDoomedStrikes`, `dmgPerUnit` | numbers, object, number or null | The `[damage]` slice |
 | `cause` | string or null | The most common cause of a loss; `null` when every fight was won |
 | `causes` | object | Every loss cause → number of fights it ended (`{}` when all were won) |
 
