@@ -99,7 +99,8 @@ it. It never swaps.
 
 Like the newcomer, but before each strike on an adjacent target it may spend one action on
 `swap(0, 1)` (the edge and the unit under it). It applies the first matching rule, then
-strikes with the edge unit on its next action:
+strikes with the edge unit on its next action, whatever the rules say then (one swap per
+strike: two rules cannot undo each other's swap):
 
 1. **Keep the kept liquid deep** (`policies.arranger_keep`, or `none`): swap when the edge is
    the kept liquid and the unit under it is not. When both are the kept liquid, it strikes

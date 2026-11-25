@@ -218,13 +218,15 @@ impl Design {
                 design.policies.arranger_keep
             ));
         }
-        if let Some(p) = design
-            .matrix
-            .policies
+        let policies = &design.matrix.policies;
+        if let Some(p) = policies
             .iter()
             .find(|p| !["newcomer", "arranger"].contains(&p.as_str()))
         {
             return Err(format!("matrix.policies: unknown policy {p:?}"));
+        }
+        if (1..policies.len()).any(|i| policies[..i].contains(&policies[i])) {
+            return Err("matrix.policies: a policy is listed twice".into());
         }
         for (i, level) in design.levels.iter().enumerate() {
             let problem = if design.levels[..i].iter().any(|l| l.id == level.id) {

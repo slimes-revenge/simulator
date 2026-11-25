@@ -779,3 +779,77 @@ fn a_swap_on_the_last_action_feeds_the_bite() {
         ]
     );
 }
+
+#[test]
+fn arranger_strikes_after_one_swap_even_when_another_rule_would_swap_back() {
+    // Keep Lava. Oil makes the Mushroom Flammable; Lava is then on the edge over Water, so rule
+    // 1 swaps Water up. Rule 3 would swap the Lava back — but one swap per strike: it strikes.
+    let keep_lava = Policy::Arranger {
+        keep: Some(Liquid::Lava),
+    };
+    let body = [
+        Liquid::Water,
+        Liquid::Water,
+        Liquid::Water,
+        Liquid::Lava,
+        Liquid::Oil,
+    ];
+    assert_eq!(
+        first_actions(&body, keep_lava, 3, 3),
+        [
+            "Slime strikes Mushroom#1 with Oil",
+            "Slime swaps",
+            "Slime strikes Mushroom#1 with Water"
+        ]
+    );
+}
+
+#[test]
+fn arranger_keeps_water_off_corroding_too() {
+    // Acid leaves Corroding; Water on the edge over Oil: swap, then strike with Oil.
+    assert_eq!(
+        first_actions(
+            &[Liquid::Oil, Liquid::Oil, Liquid::Water, Liquid::Acid],
+            ARRANGER,
+            3,
+            3
+        ),
+        [
+            "Slime strikes Mushroom#1 with Acid",
+            "Slime swaps",
+            "Slime strikes Mushroom#1 with Oil"
+        ]
+    );
+    // Water over Water: rule 2 does not swap.
+    assert_eq!(
+        first_actions(
+            &[Liquid::Oil, Liquid::Water, Liquid::Water, Liquid::Acid],
+            ARRANGER,
+            3,
+            2
+        ),
+        [
+            "Slime strikes Mushroom#1 with Acid",
+            "Slime strikes Mushroom#1 with Water"
+        ]
+    );
+}
+
+#[test]
+fn policy_settings_are_validated() {
+    let base =
+        std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/data/design.toml")).unwrap();
+    let lava = base.replacen("arranger_keep = \"none\"", "arranger_keep = \"Lava\"", 1);
+    assert_eq!(
+        Design::parse(&lava).unwrap().policies.keep(),
+        Some(Liquid::Lava)
+    );
+    let wrong = base.replacen("arranger_keep = \"none\"", "arranger_keep = \"Ink\"", 1);
+    assert!(Design::parse(&wrong).unwrap_err().contains("arranger_keep"));
+    let twice = base.replacen(
+        "policies = [\"newcomer\", \"arranger\"]",
+        "policies = [\"newcomer\", \"newcomer\"]",
+        1,
+    );
+    assert!(Design::parse(&twice).unwrap_err().contains("twice"));
+}

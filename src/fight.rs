@@ -304,6 +304,8 @@ pub struct Fight<'a> {
     /// Set for map levels: the slime walks to the exit (`strafe`, `lure`) instead of hunting.
     pub map: Option<MapState>,
     pub policy: Policy,
+    /// `arranger` swapped before its pending strike: the next strike action strikes.
+    swapped: bool,
     rng: Rng,
     actions_per_round: u32,
     pub slime: Creature,
@@ -385,6 +387,7 @@ impl<'a> Fight<'a> {
             max_rounds: d.rules.max_rounds,
             map: None,
             policy: Policy::Newcomer,
+            swapped: false,
             rng: Rng::new(seed),
             actions_per_round,
             slime,
@@ -693,10 +696,12 @@ impl<'a> Fight<'a> {
         };
         if chebyshev(self.slime.cell, self.enemies[target].cell) == 1 {
             // `Volume.CanSpend`: the last unit is the slime's life.
-            if self.slime.volume.len() > 1 && self.arranger_swap(target) {
+            if self.slime.volume.len() > 1 && !self.swapped && self.arranger_swap(target) {
                 self.slime_swap(0);
+                self.swapped = true;
                 self.note(|f| format!("Slime swaps: {:?} to the edge", f.edge()));
             } else if self.slime.volume.len() > 1 {
+                self.swapped = false;
                 let liquid = self.edge();
                 let hp = self.enemies[target].hit_points;
                 self.slime_strike(target, liquid);
