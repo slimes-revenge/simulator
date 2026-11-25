@@ -4,7 +4,7 @@
 //! `docs/map-levels.md`, format in `docs/report-format.md`.
 
 use crate::data::{Design, Level, Liquid, MapSpec};
-use crate::fight::{Board, Fight, MapState, Rect};
+use crate::fight::{Board, Fight, MapState, Rect, in_rect};
 use crate::path::{Cell, chebyshev};
 use crate::rng::Rng;
 use std::collections::BTreeMap;
@@ -16,7 +16,8 @@ pub struct Map {
     pub rooms: Vec<Rect>,
     pub start: Cell,
     pub exit: Cell,
-    pub enemies: Vec<(String, Cell, usize)>,
+    /// (kind, cell, home room); blockers have no room.
+    pub enemies: Vec<(String, Cell, Option<usize>)>,
 }
 
 fn between(rng: &mut Rng, (min, max): (i32, i32)) -> i32 {
@@ -65,7 +66,7 @@ pub fn generate(m: &MapSpec, seed: u64) -> Map {
     let last = rooms[rooms.len() - 1];
     let exit = (last.1.0, middle(last));
 
-    let mut enemies: Vec<(String, Cell, usize)> = Vec::new();
+    let mut enemies: Vec<(String, Cell, Option<usize>)> = Vec::new();
     for (k, &((x0, y0), (x1, y1))) in rooms.iter().enumerate() {
         let (lo, hi) = m.enemies_per_room;
         let count = lo + rng.pick(hi - lo + 1);
@@ -80,8 +81,26 @@ pub fn generate(m: &MapSpec, seed: u64) -> Map {
             }
             let cell = free[rng.pick(free.len())];
             let kind = m.enemy_kinds[rng.pick(m.enemy_kinds.len())].clone();
-            enemies.push((kind, cell, k));
+            enemies.push((kind, cell, Some(k)));
         }
+    }
+    // Blockers stand in doorways and corridors: open cells outside every room.
+    let board = Board {
+        width,
+        height,
+        walls: walls.clone(),
+    };
+    let mut passages: Vec<Cell> = (0..height)
+        .flat_map(|y| (0..width).map(move |x| (x, y)))
+        .filter(|&c| board.open(c) && !rooms.iter().any(|&r| in_rect(r, c)))
+        .collect();
+    for _ in 0..m.blockers_per_level {
+        if passages.is_empty() {
+            break;
+        }
+        let cell = passages.remove(rng.pick(passages.len()));
+        let kind = m.blockers[rng.pick(m.blockers.len())].clone();
+        enemies.push((kind, cell, None));
     }
     Map {
         board: Board {
@@ -209,7 +228,7 @@ pub fn fight<'a>(
     f.board = map.board;
     f.vision = spec.vision;
     f.max_rounds = d.rules.max_rounds * spec.rooms as u32;
-    let homes = map.enemies.iter().map(|e| Some(e.2)).collect();
+    let homes = map.enemies.iter().map(|e| e.2).collect();
     let mut state = MapState::new(map.rooms, homes, map.exit, body.len());
     // `kite` walks and holds corridors like `lure`; next to enemies it kites (src/fight.rs).
     state.lure = level.policy == "lure" || level.policy == "kite";

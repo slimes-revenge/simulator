@@ -77,8 +77,8 @@ alphabetical. A column appears only once its mechanic exists in the model, so no
 
 ```
 [economy]
-ap policy     build      encounter         spent bitten status  grown  swaps     net  by
-1  newcomer   start      bat-3              3.00   2.92   0.00   0.00   0.00   -5.92  spent=Water:0.08,Oil:0.92,Poison:1.00,Lava:1.00 bitten=Water:1.84,Oil:0.08,Acid:1.00 status=-
+ap policy     build      encounter         spent bitten status thorns  grown  swaps     net  by
+1  newcomer   start      bat-3              3.00   2.92   0.00   0.00   0.00   0.00   -5.92  spent=Water:0.08,Oil:0.92,Poison:1.00,Lava:1.00 bitten=Water:1.84,Oil:0.08,Acid:1.00 status=-
 
 [damage]
 ap policy     build      encounter        strike status  retal overkill doomed per_unit  status_by
@@ -90,9 +90,10 @@ ap policy     build      encounter        strike status  retal overkill doomed p
 | Column | Meaning |
 | --- | --- |
 | `spent`, `bitten`, `status` | Units spent on strikes, popped by bites, lost to the slime's own status pulses (the same numbers as `[cells]`) |
+| `thorns` | Units lost to Thorns after melee strikes |
 | `grown` | Blood grown by Regeneration |
 | `swaps` | Actions spent swapping two units of the body (`newcomer` never swaps) |
-| `net` | `grown − spent − bitten − status` (eating and fountains are in `[levels]`) |
+| `net` | `grown − spent − bitten − status − thorns` (eating and fountains are in `[levels]`) |
 | `by` | `spent=` by liquid, `bitten=` by liquid popped, `status=` by status |
 
 `[damage]`, the HP the slime took off enemies, by source:
@@ -113,9 +114,9 @@ These appear only when the design file has `[[levels]]`. The rules are in [level
 
 ```
 [levels]
-level          stage kind     detail         reached win before  spent bitten status  grown corpse  eaten  drunk wasted  after     net
-sample-ap2         1 fight    mushroom-1         100 100  10.00   5.00   2.00   0.00   0.00   1.00   1.00   0.00   0.00   4.00   -6.00
-sample-ap2         3 fountain Water x3             0   -   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   +0.00
+level          stage kind     detail         reached win before  spent bitten status thorns  grown corpse  eaten  drunk wasted  after     net
+sample-ap2         1 fight    mushroom-1         100 100  10.00   5.00   2.00   0.00   0.00   0.00   1.00   1.00   0.00   0.00   4.00   -6.00
+sample-ap2         3 fountain Water x3             0   -   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   +0.00
 
 [level-ends]
 level          end    min worst wasted  stops
@@ -132,12 +133,12 @@ the seeds that reached the stage, with 2 decimals; `net` carries a sign.
 | `reached` | Percent of seeds that started this stage |
 | `win` | Percent of those that won the fight; `-` for a fountain or a stage nobody reached |
 | `before`, `after` | Body at the stage start and end (after eating or drinking; 0 after a death, what was left after a timeout) |
-| `spent`, `bitten`, `status` | Units lost to strikes, bites, the slime's own status pulses |
+| `spent`, `bitten`, `status`, `thorns` | Units lost to strikes, bites, the slime's own status pulses, Thorns |
 | `grown` | Blood grown by Regeneration during the fight |
 | `corpse` | Units the corpses offered: `eaten` plus what did not fit |
 | `eaten`, `drunk` | Units gained from corpses and from the fountain |
 | `wasted` | Corpse or fountain units that did not fit into capacity |
-| `net` | `corpse + drunk + grown − spent − bitten − status`: the stage's own yield, ignoring capacity (a fountain's undrunk rest is not counted) |
+| `net` | `corpse + drunk + grown − spent − bitten − status − thorns`: the stage's own yield, ignoring capacity (a fountain's undrunk rest is not counted) |
 
 `[level-ends]` has one line per level:
 
@@ -156,8 +157,8 @@ These appear only when the design file has map levels. The rules are in [map-lev
 ```
 [map-levels]
 level          policy     end rooms  rounds fights engaged0 engaged1 engaged2 engaged3+ net_per_fight
-map-vision3    strafe       0  1.76   10.22   1.72     0.00    81.40    18.60      0.00         -5.81
-map-lure3      lure         0  1.56   11.24   1.80     0.00    88.89    11.11      0.00         -5.56
+map-vision3    strafe       0  1.74   10.02   1.70     0.00    78.82    21.18      0.00         -5.88
+map-lure3      lure         0  1.54   11.10   1.80     0.00    86.67    13.33      0.00         -5.56
 
 [map-level-ends]
 level          end    min worst  stops
@@ -266,6 +267,7 @@ Cell fields:
 | `avgUnitsSpent` | number | Units the slime spent on strikes, over all fights |
 | `avgUnitsBitten` | number | Units lost to enemy bites, over all fights |
 | `avgUnitsStatus` | number | Units lost to the slime's own status pulses, over all fights |
+| `avgUnitsThorns` | number | Units lost to Thorns after melee strikes, over all fights |
 | `avgEnemiesKilled` | number | Enemies killed, over all fights |
 | `avgUnitsGrown`, `avgSwaps`, `avgNet`, `spentBy`, `bittenBy`, `statusLostBy` | numbers, objects | The `[economy]` slice (objects: name → average) |
 | `avgStrikeDmg`, `avgStatusDmg`, `avgRetaliationDmg`, `statusDmgBy`, `avgOverkill`, `avgDoomedStrikes`, `dmgPerUnit` | numbers, object, number or null | The `[damage]` slice |

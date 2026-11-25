@@ -10,6 +10,7 @@ dominance_percent = 80    # Volume.DominantPercent
 pursuit_memory_turns = 3  # Creature.PursuitMemoryTurns
 max_rounds = 200          # simulator only: a fight that lasts longer is a loss with cause "timeout"
 last_drop_strike = false      # balance П15: at 1 unit a strike hits and spends nothing (false = the game today)
+spit_range = 1                # level 2: spit reaches this far (Chebyshev); only 1 is modelled
 
 [slime]
 capacity = 10             # Volume.Capacity

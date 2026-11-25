@@ -21,6 +21,8 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
 | `enemy_kinds` | Each enemy's kind is a random pick from this list |
 | `corridor` | Corridor cells between the two doorways of neighbouring rooms (0 or more) |
 | `vision` | Enemy sight range (Chebyshev), blocked by walls |
+| `blockers` | Optional: kinds placed in passages (doorways and corridor cells) instead of rooms, a random pick each |
+| `blockers_per_level` | How many blockers; goes together with `blockers` |
 
 ## The map (`map::generate`, deterministic per seed)
 
@@ -31,6 +33,9 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
   last room's east side.
 - **Enemies** stand on random free cells of their room, farther than `vision` from the start,
   so nobody starts aggroed. A room with no such cell gets fewer enemies.
+- **Blockers** stand on random open cells outside every room (doorways, corridors). They have
+  no home room. A corridor is 1 cell wide, so a blocker on a corridor cell closes it until it
+  dies; one in a doorway may leave a way around through the room.
 - `--trace-map LEVEL SEED` prints the map (`#` wall, `S` start, `X` exit, an enemy by its first
   letter) and the turn-by-turn log of that seed.
 
@@ -49,6 +54,12 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
   3. If no path is free, strike any adjacent enemy to clear the way.
 
   It never hunts: a passive enemy it never touches stays behind.
+- **A blocked way (every policy):** when no free path to the goal exists, the slime follows the
+  path through creatures. If the next cell holds an enemy, or an aggroed enemy stands next to
+  the slime, it hits it. Otherwise it steps on toward the blocker.
+- **Fights only with enemies that can come:** an enemy holds the slime in an episode (and in
+  lure's and kite's holding) when it is aggroed and either moves (speed above 0) or stands next
+  to the slime. A stationary blocker that merely saw the slime does not.
 - **`lure` policy.** It fights in corridors, so enemies reach it one at a time:
   1. If an aggroed enemy is adjacent, strike it (or wait on the last unit).
   2. While any enemy is aggroed, go to the fighting spot and wait there. The spot is the
@@ -69,7 +80,7 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
     slime action and each enemy turn.
   - When it closes, a living slime eats the corpses of the enemies that died in it, up to
     capacity. There is no walking and no time.
-  - `net` = corpse units + grown − spent − bitten − status during the episode, ignoring
+  - `net` = corpse units + grown − spent − bitten − status − thorns during the episode, ignoring
     capacity.
 - **Min body:** the body at the start and after each closed episode; 0 when the slime dies.
 - **Engagement checks** run after every slime action, every enemy turn and every pulse of the

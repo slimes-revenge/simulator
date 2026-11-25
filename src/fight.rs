@@ -72,6 +72,8 @@ pub struct Creature {
     pub statuses: Vec<Status>,
     pub personality: Personality,
     pub vampirism: bool,
+    /// Thorns: a melee strike on this creature costs the striker this many edge units.
+    pub thorns: usize,
     /// Slime only: the liquid with at least `dominance_percent` of the volume.
     pub dominant: Option<Liquid>,
     pub aggroed: bool,
@@ -97,7 +99,13 @@ impl Creature {
             .filter(|s| s.kind == StatusKind::Instability)
             .map(|_| d.statuses.instability_speed)
             .sum();
-        (self.base_speed.max(1) + modifier).max(0)
+        // Speed 0 is a stationary creature (design, level 2); otherwise at least 1 like the game.
+        let base = if self.base_speed == 0 {
+            0
+        } else {
+            self.base_speed.max(1)
+        };
+        (base + modifier).max(0)
     }
 
     fn count(&self, liquid: Liquid) -> usize {
@@ -159,7 +167,7 @@ impl Board {
 /// An inclusive rectangle of cells: (min corner, max corner).
 pub type Rect = (Cell, Cell);
 
-fn in_rect(r: Rect, c: Cell) -> bool {
+pub fn in_rect(r: Rect, c: Cell) -> bool {
     c.0 >= r.0.0 && c.0 <= r.1.0 && c.1 >= r.0.1 && c.1 <= r.1.1
 }
 
@@ -218,7 +226,7 @@ impl MapState {
 struct OpenEpisode {
     max_adjacent: usize,
     /// spent, bitten, status, grown when the episode opened.
-    counters: (usize, usize, usize, usize),
+    counters: (usize, usize),
     alive_at_open: Vec<bool>,
 }
 
@@ -278,6 +286,8 @@ pub struct Tally {
     pub doomed_strikes: usize,
     /// Actions spent swapping two units of the body.
     pub swaps: usize,
+    /// Spits (strikes without melee contact).
+    pub spits: usize,
 }
 
 #[derive(Clone, Debug, PartialEq, Default)]
@@ -290,6 +300,8 @@ pub struct FightResult {
     pub units_bitten: usize,
     /// Units the slime lost to its own status pulses.
     pub units_status: usize,
+    /// Units the slime lost to Thorns after melee strikes.
+    pub units_thorns: usize,
     /// Blood units the slime grew by Regeneration.
     pub units_grown: usize,
     pub enemies_killed: usize,
@@ -319,6 +331,7 @@ pub struct Fight<'a> {
     units_spent: usize,
     units_bitten: usize,
     units_status: usize,
+    units_thorns: usize,
     units_grown: usize,
     tally: Tally,
     /// What last took a unit off the slime.
@@ -350,6 +363,7 @@ impl<'a> Fight<'a> {
             statuses: Vec::new(),
             personality: Personality::Aggressive,
             vampirism: false,
+            thorns: 0,
             dominant: None,
             aggroed: false,
             pursuit: None,
@@ -373,6 +387,7 @@ impl<'a> Fight<'a> {
                     statuses: Vec::new(),
                     personality: e.personality,
                     vampirism: e.traits.contains(&Trait::Vampirism),
+                    thorns: e.thorns,
                     dominant: None,
                     aggroed: false,
                     pursuit: None,
@@ -402,6 +417,7 @@ impl<'a> Fight<'a> {
             units_spent: 0,
             units_bitten: 0,
             units_status: 0,
+            units_thorns: 0,
             units_grown: 0,
             tally: Tally::default(),
             last_harm: None,
@@ -495,6 +511,10 @@ impl<'a> Fight<'a> {
                 self.last_action = k + 1 == self.actions_per_round;
                 self.slime_act();
                 self.track_engagement();
+                // Thorns can kill the slime on its own strike.
+                if !self.slime.alive() {
+                    return self.result(false, round);
+                }
                 if self.goal_reached() {
                     return self.result(true, round);
                 }
@@ -531,7 +551,7 @@ impl<'a> Fight<'a> {
     fn goal_reached(&self) -> bool {
         match &self.map {
             Some(m) => self.slime.alive() && self.slime.cell == m.exit,
-            None => self.enemies_dead(),
+            None => self.slime.alive() && self.enemies_dead(),
         }
     }
 
@@ -539,19 +559,14 @@ impl<'a> Fight<'a> {
     /// aggroed enemies stand next to it at once, closes it when none is left.
     fn track_engagement(&mut self) {
         let Some(m) = self.map.as_ref() else { return };
-        let engaged = |e: &Creature| e.alive() && e.aggroed;
+        let engaged = |e: &Creature| self.engaging(e);
         let aggro = self.enemies.iter().any(engaged);
         let adjacent = self
             .enemies
             .iter()
             .filter(|e| engaged(e) && chebyshev(e.cell, self.slime.cell) == 1)
             .count();
-        let counters = (
-            self.units_spent,
-            self.units_bitten,
-            self.units_status,
-            self.units_grown,
-        );
+        let counters = (self.units_lost(), self.units_grown);
         let alive: Vec<bool> = self.enemies.iter().map(|e| e.alive()).collect();
         let open = m.open.is_some();
         let m = self.map.as_mut().expect("checked");
@@ -584,7 +599,7 @@ impl<'a> Fight<'a> {
         let Some(o) = self.map.as_mut().and_then(|m| m.open.take()) else {
             return;
         };
-        let (spent, bitten, status, grown) = o.counters;
+        let (lost, grown) = o.counters;
         let mut ep = Episode {
             max_adjacent: o.max_adjacent,
             ..Episode::default()
@@ -606,9 +621,7 @@ impl<'a> Fight<'a> {
             let d = self.d;
             refresh_dominance(d, &mut self.slime, &mut self.next_status_id);
         }
-        ep.net = (ep.corpse + self.units_grown - grown) as i64
-            - (self.units_spent - spent + self.units_bitten - bitten + self.units_status - status)
-                as i64;
+        ep.net = (ep.corpse + self.units_grown - grown) as i64 - (self.units_lost() - lost) as i64;
         let body = self.slime.volume.len();
         let m = self.map.as_mut().expect("an episode was open");
         m.min_body = m.min_body.min(body);
@@ -635,11 +648,23 @@ impl<'a> Fight<'a> {
             units_spent: self.units_spent,
             units_bitten: self.units_bitten,
             units_status: self.units_status,
+            units_thorns: self.units_thorns,
             units_grown: self.units_grown,
             tally: self.tally.clone(),
             enemies_killed: self.enemies.iter().filter(|e| !e.alive()).count(),
             cause: if won { None } else { self.last_harm.clone() },
         }
+    }
+
+    /// An enemy in the fight with the slime: aggroed and able to come (speed above 0) or
+    /// already next to it. A stationary blocker that saw the slime does not hold it.
+    fn engaging(&self, e: &Creature) -> bool {
+        e.alive() && e.aggroed && (e.base_speed > 0 || chebyshev(e.cell, self.slime.cell) == 1)
+    }
+
+    /// Every unit the slime has lost so far: spent, bitten, to statuses, to thorns.
+    fn units_lost(&self) -> usize {
+        self.units_spent + self.units_bitten + self.units_status + self.units_thorns
     }
 
     fn enemies_dead(&self) -> bool {
@@ -692,9 +717,20 @@ impl<'a> Fight<'a> {
             return self.map_act();
         }
         if self.policy == Policy::Kite {
-            // No aggroed enemy, or none adjacent: wait for them to come.
-            if !self.enemies.iter().any(|e| e.alive() && e.aggroed) || !self.kite_adjacent() {
-                self.note(|_| "Slime waits for the enemy".into());
+            if !self.enemies.iter().any(|e| self.engaging(e)) {
+                return self.note(|_| "Slime waits for the enemy".into());
+            }
+            if self.kite_adjacent() {
+                return;
+            }
+            // Only harmless neighbours (no bite, e.g. a blocker): hit them; else wait for them.
+            let harmless = self
+                .enemies
+                .iter()
+                .position(|e| self.engaging(e) && chebyshev(e.cell, self.slime.cell) == 1);
+            match harmless {
+                Some(i) => self.strike_or_wait(i),
+                None => self.note(|_| "Slime waits for the enemy".into()),
             }
             return;
         }
@@ -761,7 +797,7 @@ impl<'a> Fight<'a> {
                 e.alive() && chebyshev(e.cell, f.slime.cell) == 1 && (e.aggroed || !aggroed_only)
             })
         };
-        let aggro = self.enemies.iter().any(|e| e.alive() && e.aggroed);
+        let aggro = self.enemies.iter().any(|e| self.engaging(e));
         if self.policy == Policy::Kite && aggro && self.kite_adjacent() {
             return;
         }
@@ -770,7 +806,7 @@ impl<'a> Fight<'a> {
         }
         let m = self.map.as_ref().expect("map runs");
         let (lure, exit, waited) = (m.lure, m.exit, m.waited);
-        let goal = if lure && self.enemies.iter().any(|e| e.alive() && e.aggroed) {
+        let goal = if lure && aggro {
             self.map.as_mut().expect("checked").waited = 0;
             match self.fighting_spot() {
                 Some(spot) if spot != self.slime.cell => spot,
@@ -790,10 +826,28 @@ impl<'a> Fight<'a> {
             let (from, to) = (self.slime.cell, route[0]);
             self.move_slime(to);
             self.note(|_| format!("Slime steps {from:?}->{to:?}"));
-        } else if let Some(i) = adjacent(self, false) {
-            self.strike_or_wait(i);
         } else {
-            self.note(|_| "Slime waits: no path to the exit".into());
+            // Blocked: follow the route through creatures; step if the next cell is free,
+            // else strike (or spit at) whoever stands in it or next to the slime.
+            let through = path::find(
+                self.board.width,
+                self.board.height,
+                self.slime.cell,
+                &[goal],
+                |c| self.board.wall(c),
+            );
+            let next = through.map(|r| r[0]);
+            let blocker =
+                next.and_then(|c| self.enemies.iter().position(|e| e.alive() && e.cell == c));
+            if let Some(i) = blocker.or_else(|| adjacent(self, true)) {
+                self.strike_or_wait(i);
+            } else if let Some(to) = next.filter(|&c| !self.occupied().contains(&c)) {
+                let from = self.slime.cell;
+                self.move_slime(to);
+                self.note(|_| format!("Slime steps {from:?}->{to:?}"));
+            } else {
+                self.note(|_| "Slime waits: no path to the exit".into());
+            }
         }
     }
 
@@ -843,6 +897,7 @@ impl<'a> Fight<'a> {
         self.enemies
             .iter()
             .filter(|e| e.alive() && !e.aggroed && e.personality == Personality::Aggressive)
+            .filter(|e| e.base_speed > 0)
             .filter(|e| !hidden && chebyshev(e.cell, cell) <= self.vision)
             .filter(|e| self.board.line_of_sight(e.cell, cell))
             .count()
@@ -892,7 +947,9 @@ impl<'a> Fight<'a> {
             .enemies
             .iter()
             .enumerate()
-            .filter(|(_, e)| e.alive() && chebyshev(e.cell, self.slime.cell) == 1)
+            .filter(|(_, e)| {
+                e.alive() && e.melee_power > 0 && chebyshev(e.cell, self.slime.cell) == 1
+            })
             .min_by_key(|(i, e)| (e.hit_points, *i))
             .map(|(i, _)| i)
         else {
@@ -918,7 +975,7 @@ impl<'a> Fight<'a> {
         let living: Vec<Cell> = self
             .enemies
             .iter()
-            .filter(|e| e.alive())
+            .filter(|e| e.alive() && e.melee_power > 0)
             .map(|e| e.cell)
             .collect();
         path::neighbours(self.slime.cell)
@@ -938,8 +995,15 @@ impl<'a> Fight<'a> {
             .map(|(_, c)| c)
     }
 
+    /// Strikes `target` with the edge unit, or spits it when the policy spits at Thorns
+    /// (`lure`, `kite`) and the target has them; waits when the last unit cannot be spent.
     fn strike_or_wait(&mut self, target: usize) {
-        if self.can_strike() {
+        let spits = self.policy == Policy::Kite || self.map.as_ref().is_some_and(|m| m.lure);
+        if self.can_strike() && spits && self.enemies[target].thorns > 0 {
+            let liquid = self.edge();
+            self.slime_spit(target);
+            self.note(|f| format!("Slime spits at {} with {liquid:?}", f.label(target)));
+        } else if self.can_strike() {
             let liquid = self.edge();
             self.slime_strike(target, liquid);
             self.note(|f| format!("Slime strikes {} with {liquid:?}", f.label(target)));
@@ -992,8 +1056,35 @@ impl<'a> Fight<'a> {
         }
     }
 
-    /// `TurnManager.TryAttack` → `Combat.Attack(attacker, target, substance)`.
+    /// A melee strike: `hit`, then the target's Thorns take that many units off the edge.
     pub fn slime_strike(&mut self, target: usize, liquid: Liquid) {
+        self.hit(target, liquid);
+        let thorns = self.enemies[target].thorns;
+        if thorns > 0 && self.slime.alive() {
+            let d = self.d;
+            let before = self.slime.volume.len();
+            damage(
+                d,
+                &mut self.slime,
+                thorns as i32,
+                false,
+                &mut self.next_status_id,
+            );
+            self.units_thorns += before - self.slime.volume.len();
+            self.last_harm = Some(format!("thorns:{}", self.enemies[target].name));
+        }
+    }
+
+    /// Spit (`rules.spit_range`): the edge unit hits like a strike, without melee contact, so
+    /// Thorns do not answer. One action.
+    pub fn slime_spit(&mut self, target: usize) {
+        let liquid = self.edge();
+        self.hit(target, liquid);
+        self.tally.spits += 1;
+    }
+
+    /// `TurnManager.TryAttack` → `Combat.Attack(attacker, target, substance)`.
+    fn hit(&mut self, target: usize, liquid: Liquid) {
         let d = self.d;
         // The unit of that kind nearest the edge: the edge unit itself in every policy.
         let Some(at) = self.slime.volume.iter().rposition(|&l| l == liquid) else {
@@ -1128,7 +1219,8 @@ impl<'a> Fight<'a> {
 
     /// `Combat.Attack(attacker, target)`: a bare melee hit on the slime.
     fn enemy_melee(&mut self, i: usize) {
-        if !self.detected(i) {
+        // No bite (melee_power 0): not an attack at all.
+        if !self.detected(i) || self.enemies[i].melee_power <= 0 {
             return;
         }
         let d = self.d;
@@ -1274,7 +1366,8 @@ impl<'a> Fight<'a> {
                 }
             }
             Intent::Chase | Intent::Attack => {
-                if intent == Intent::Attack || sees {
+                // A creature without a bite (melee_power 0) does not attack.
+                if (intent == Intent::Attack && e.melee_power > 0) || sees {
                     e.aggroed = true;
                 }
                 if sees {

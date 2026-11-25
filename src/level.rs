@@ -22,6 +22,8 @@ pub struct StageRow {
     pub spent: f64,
     pub bitten: f64,
     pub status: f64,
+    /// Units lost to Thorns after melee strikes.
+    pub thorns: f64,
     /// Blood grown by Regeneration during the fight.
     pub grown: f64,
     /// Units the corpses offered (eaten + what did not fit).
@@ -31,7 +33,7 @@ pub struct StageRow {
     /// Corpse or fountain units that did not fit into capacity.
     pub wasted: f64,
     pub after: f64,
-    /// corpse + drunk + grown − spent − bitten − status: the stage's own yield, ignoring
+    /// corpse + drunk + grown − spent − bitten − status − thorns: the stage's own yield, ignoring
     /// capacity. A fountain's undrunk rest stays out: a full slime gains nothing from it.
     pub net: f64,
 }
@@ -59,6 +61,7 @@ struct Record {
     spent: usize,
     bitten: usize,
     status: usize,
+    thorns: usize,
     grown: usize,
     corpse: usize,
     eaten: usize,
@@ -110,6 +113,7 @@ pub fn run(d: &Design, level: &Level) -> LevelResult {
                     r.spent = result.units_spent;
                     r.bitten = result.units_bitten;
                     r.status = result.units_status;
+                    r.thorns = result.units_thorns;
                     r.grown = result.units_grown;
                     // A death leaves nothing; a timeout leaves what the slime still had.
                     body = volume;
@@ -181,8 +185,9 @@ fn row(stage: usize, s: &Stage, recs: &[Record], seeds: f64) -> StageRow {
         ),
         Stage::Fountain { liquid, units } => ("fountain", format!("{liquid:?} x{units}"), None),
     };
-    let net =
-        |r: &Record| (r.corpse + r.drunk + r.grown) as f64 - (r.spent + r.bitten + r.status) as f64;
+    let net = |r: &Record| {
+        (r.corpse + r.drunk + r.grown) as f64 - (r.spent + r.bitten + r.status + r.thorns) as f64
+    };
     StageRow {
         stage,
         kind,
@@ -193,6 +198,7 @@ fn row(stage: usize, s: &Stage, recs: &[Record], seeds: f64) -> StageRow {
         spent: avg(|r| r.spent),
         bitten: avg(|r| r.bitten),
         status: avg(|r| r.status),
+        thorns: avg(|r| r.thorns),
         grown: avg(|r| r.grown),
         corpse: avg(|r| r.corpse),
         eaten: avg(|r| r.eaten),

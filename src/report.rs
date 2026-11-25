@@ -40,6 +40,8 @@ pub struct CellResult {
     pub avg_units_bitten: f64,
     /// Units lost to the slime's own status pulses.
     pub avg_units_status: f64,
+    /// Units lost to Thorns after melee strikes.
+    pub avg_units_thorns: f64,
     pub avg_enemies_killed: f64,
     /// The most common cause of a loss; `None` when every fight was won.
     pub cause: Option<String>,
@@ -239,12 +241,14 @@ fn summarize(b: &Build, e: &Encounter, results: &[FightResult]) -> CellResult {
         avg_units_spent: avg(|r| r.units_spent as f64),
         avg_units_bitten: avg(|r| r.units_bitten as f64),
         avg_units_status: avg(|r| r.units_status as f64),
+        avg_units_thorns: avg(|r| r.units_thorns as f64),
         avg_enemies_killed: avg(|r| r.enemies_killed as f64),
         cause,
         causes,
         avg_units_grown: avg(|r| r.units_grown as f64),
         avg_net: avg(|r| {
-            r.units_grown as f64 - (r.units_spent + r.units_bitten + r.units_status) as f64
+            r.units_grown as f64
+                - (r.units_spent + r.units_bitten + r.units_status + r.units_thorns) as f64
         }) + 0.0,
         spent_by: avg_map(results, |r| &r.tally.spent_by),
         bitten_by: avg_map(results, |r| &r.tally.bitten_by),

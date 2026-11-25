@@ -37,9 +37,9 @@ defines real ones. Experiments use their own file through `--design`.
 
 ## Ledger per stage
 
-`after = before − spent − bitten − status + grown + eaten + drunk`, where `grown` is the Blood
+`after = before − spent − bitten − status − thorns + grown + eaten + drunk`, where `grown` is the Blood
 added by Regeneration during the fight (counted on each pulse, not derived from the others).
-`net = corpse + drunk + grown − spent − bitten − status`: the stage's own yield, ignoring
+`net = corpse + drunk + grown − spent − bitten − status − thorns`: the stage's own yield, ignoring
 capacity. `corpse` is what the corpses offered (`eaten` plus the part that did not fit). The
 corpse overflow, counted in `wasted` together with a fountain's undrunk rest, is the budget
 available for swapping liquids. A fountain's undrunk

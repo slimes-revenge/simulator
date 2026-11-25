@@ -13,6 +13,8 @@ fn spec(rooms: usize, side: (i32, i32), enemies: (usize, usize), vision: i32) ->
         enemy_kinds: vec!["Mushroom".into(), "Bat".into()],
         corridor: 2,
         vision,
+        blockers: Vec::new(),
+        blockers_per_level: 0,
     }
 }
 
@@ -39,7 +41,7 @@ fn generated_maps_are_walkable_and_fair() {
         });
         assert!(route.is_some(), "seed {seed}:\n{}", map::ascii(&m));
         for (_, cell, room) in &m.enemies {
-            let ((x0, y0), (x1, y1)) = m.rooms[*room];
+            let ((x0, y0), (x1, y1)) = m.rooms[room.unwrap()];
             assert!(cell.0 >= x0 && cell.0 <= x1 && cell.1 >= y0 && cell.1 <= y1);
             assert!(
                 path::chebyshev(*cell, m.start) > s.vision,
@@ -184,7 +186,7 @@ fn calm_enemies_stay_in_their_rooms() {
             let to = &line[line.find("->(").unwrap() + 3..line.find("), slime").unwrap()];
             let (x, y) = to.split_once(", ").unwrap();
             let (x, y): (i32, i32) = (x.parse().unwrap(), y.parse().unwrap());
-            let ((x0, y0), (x1, y1)) = m.rooms[m.enemies[k - 1].2];
+            let ((x0, y0), (x1, y1)) = m.rooms[m.enemies[k - 1].2.unwrap()];
             assert!(
                 x >= x0 && x <= x1 && y >= y0 && y <= y1,
                 "seed {seed}: {line}"
@@ -243,4 +245,63 @@ fn lure_waits_at_most_its_patience_per_approach() {
         // Two rooms: one approach into room 2.
         assert!(waits(6, seed) <= 6, "seed {seed}");
     }
+}
+
+fn level2_map(policy: &str) -> Design {
+    let mut d = design_with(
+        r#"{ rooms = 4, room_side = [5, 7], enemies_per_room = [0, 0], enemy_kinds = ["Mushroom"], corridor = 2, vision = 3, blockers = ["Cactus"], blockers_per_level = 3 }"#,
+    );
+    let c = d.enemies.iter_mut().find(|e| e.name == "Cactus").unwrap();
+    (c.hit_points, c.thorns, c.speed, c.melee_power) = (2, 1, 0, 0);
+    d.levels[0].policy = policy.into();
+    d.matrix.seeds = 10;
+    d
+}
+
+#[test]
+fn blockers_stand_in_passages() {
+    let d = level2_map("strafe");
+    let s = d.levels[0].map.clone().unwrap();
+    for seed in 0..10 {
+        let m = map::generate(&s, seed);
+        let blockers: Vec<_> = m.enemies.iter().filter(|e| e.2.is_none()).collect();
+        assert_eq!(blockers.len(), 3);
+        for (kind, cell, _) in blockers {
+            assert_eq!(kind, "Cactus");
+            assert!(m.board.open(*cell));
+            assert!(m.rooms.iter().all(|&((x0, y0), (x1, y1))| {
+                cell.0 < x0 || cell.0 > x1 || cell.1 < y0 || cell.1 > y1
+            }));
+        }
+    }
+}
+
+#[test]
+fn strafe_pays_thorns_where_lure_spits() {
+    // Three Cactus blockers in the passages and nothing else: strafe pays a thorn per strike,
+    // lure spits and pays none.
+    let thorns = |policy: &str| {
+        let d = level2_map(policy);
+        let level = &d.levels[0];
+        let s = level.map.clone().unwrap();
+        (0..10)
+            .map(|seed| {
+                let (r, _) = map::play(&d, level, &s, &[Liquid::Water; 10], seed);
+                // Each Cactus costs strafe 4 units (2 strikes + 2 thorns): 3 of them kill a
+                // 10-unit slime on the third, as balance counted by hand. Lure always passes.
+                if policy == "lure" {
+                    assert!(r.won, "seed {seed}: {r:?}");
+                } else {
+                    assert_eq!(
+                        r.cause.as_deref(),
+                        Some("thorns:Cactus"),
+                        "seed {seed}: {r:?}"
+                    );
+                }
+                r.units_thorns
+            })
+            .sum::<usize>()
+    };
+    assert_eq!(thorns("lure"), 0);
+    assert!(thorns("strafe") > 0);
 }
