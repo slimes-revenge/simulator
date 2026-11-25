@@ -7,6 +7,7 @@ use crate::data::{Design, Level, Liquid, MapSpec};
 use crate::fight::{Board, Fight, MapState, Rect, in_rect};
 use crate::path::{Cell, chebyshev};
 use crate::rng::Rng;
+use rayon::prelude::*;
 use std::collections::BTreeMap;
 
 /// A generated map: walls, rooms west to east, start and exit, enemies as (kind, cell, room).
@@ -151,8 +152,12 @@ pub fn run(d: &Design, level: &Level) -> MapLevelResult {
     let mut engaged = [0u64; 4];
     let (mut episodes, mut net_sum) = (0u64, 0i64);
     let mut stops = BTreeMap::new();
-    for seed in 0..seeds {
-        let (result, state) = play(&ld, level, spec, &start_body, seed);
+    // Seeds run in parallel; the totals below are folded in seed order.
+    let runs: Vec<_> = (0..seeds)
+        .into_par_iter()
+        .map(|seed| play(&ld, level, spec, &start_body, seed))
+        .collect();
+    for (result, state) in runs {
         ends += u64::from(result.won);
         rooms += state.rooms_entered;
         rounds += u64::from(result.rounds);

@@ -59,6 +59,10 @@ Base branch `dev`; pull requests squash-merge into it.
 - **Hand-checked tests** in `tests/fights.rs` carry their arithmetic in comments. If a rule
   change breaks one, recompute by hand before changing the expected numbers.
 - **Determinism:** randomness goes only through `Rng`; never iterate a `HashMap` where order
-  matters for the outcome.
+  matters for the outcome. Seeds, cells and levels run in parallel (rayon): each fight owns
+  its `Rng`, and results are collected in order before they are summed, so the report is the
+  same on any number of cores.
+- **Pathing cost:** one `path::Tree` (a Dijkstra from the walker) answers routes to every cell;
+  build one per decision instead of calling `path::find` per candidate cell.
 - The `latest` tag and release are moved by CI on every push to `dev`; do not create other
   releases by hand.

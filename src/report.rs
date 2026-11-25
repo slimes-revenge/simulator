@@ -2,6 +2,7 @@
 
 use crate::data::{Design, Liquid};
 use crate::fight::{Fight, FightResult, Policy};
+use rayon::prelude::*;
 use serde::Serialize;
 use std::collections::BTreeMap;
 
@@ -196,6 +197,7 @@ pub fn run_policy(
     for b in &builds {
         for e in &encounters {
             let results: Vec<FightResult> = (0..d.matrix.seeds)
+                .into_par_iter()
                 .map(|seed| {
                     let mut f = fight(d, b, e, actions_per_round, seed);
                     f.policy = p;
