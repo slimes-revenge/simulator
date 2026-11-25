@@ -574,7 +574,7 @@ impl<'a> Fight<'a> {
     }
 
     /// This round's action points: the base, minus 1 per heavy liquid held at its count
-    /// (`rules.heavy`), never below `rules.heavy_min_action_points` (nor the base).
+    /// (`rules.heavy`), never below `rules.heavy_min_action_points`, or the base when lower.
     fn action_points(&self) -> u32 {
         let r = &self.d.rules;
         let heavy = r

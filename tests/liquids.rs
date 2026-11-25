@@ -79,3 +79,24 @@ fn all_18_liquids_are_listed_and_mercury_hits_for_2() {
     assert_eq!(d.liquid(Liquid::Mercury).power, 2);
     assert_eq!(d.liquid(Liquid::Aquavita).power, 1);
 }
+
+#[test]
+fn liquid_rules_are_validated() {
+    let text =
+        std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/data/design.toml")).unwrap();
+    let bad = |from: &str, to: &str| {
+        assert!(text.contains(from), "{from}");
+        Design::parse(&text.replacen(from, to, 1)).unwrap_err()
+    };
+    assert!(
+        bad("heavy_min_action_points = 2", "heavy_min_action_points = 0").contains("heavy_min")
+    );
+    assert!(bad("build_liquids = [\"Water\",", "build_liquids = [\"Oil\",").contains("each once"));
+    assert!(
+        bad(
+            "dominance_basis = \"capacity\"",
+            "dominance_basis = \"body\""
+        )
+        .contains("dominance_basis")
+    );
+}

@@ -160,7 +160,7 @@ pub struct Rules {
     pub retaliation_pulses: i32,
     /// Heavy liquids: holding at least this many units costs 1 action point each (the design).
     pub heavy: BTreeMap<Liquid, usize>,
-    /// Heaviness never lowers the action points below this (nor below the base).
+    /// Heaviness never lowers the action points below this, or below the base when that is lower.
     pub heavy_min_action_points: u32,
     pub pursuit_memory_turns: i32,
     pub max_rounds: u32,
@@ -390,6 +390,13 @@ impl Design {
         }
         if design.rules.heavy.values().any(|&n| n == 0) {
             return Err("rules.heavy: each count must be at least 1".into());
+        }
+        if design.rules.heavy_min_action_points == 0 {
+            return Err("rules.heavy_min_action_points must be at least 1".into());
+        }
+        let b = &design.matrix.build_liquids;
+        if b.is_empty() || (1..b.len()).any(|i| b[..i].contains(&b[i])) {
+            return Err("matrix.build_liquids: list at least one liquid, each once".into());
         }
         if design.rules.spit_range != 1 {
             return Err("rules.spit_range: only 1 is modelled".into());

@@ -68,7 +68,8 @@ truth for how the game behaves today; the simulator mirrors it by hand. Numbers 
 
 **Heavy liquids** (`rules.heavy`, design): each listed liquid the slime holds at least its count
 of (Lava 3, Mercury 2) takes 1 action point off every round, checked at the round's start. The
-points never drop below `rules.heavy_min_action_points` (2), nor below the base.
+points never drop below `rules.heavy_min_action_points` (2), or below the base when that is
+lower.
 
 The matrix builds a pure body only of `matrix.build_liquids`.
 

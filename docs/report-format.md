@@ -44,7 +44,7 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
   - When `--design` was given, the first line is `design.file = <path as given>`.
 - **`[cells]`:** one header line, then one line per cell.
   - Sorted by `ap` (ascending), `policy` (in `matrix.policies` order), then build in design order (`start`, then
-    `[[liquids]]` order), then encounter in design order (roster order, then count). Build and
+    `matrix.build_liquids` order), then encounter in design order (roster order, then count). Build and
     encounter order are not alphabetical.
   - Fixed-width columns, separated by spaces.
   - When difficulty levels arrive, a `difficulty` column goes between `policy` and `build`,
@@ -72,7 +72,7 @@ All averages are over every seed and printed with exactly 2 decimals. Body ledge
 Balance slices, agreed with the balance session. One line per cell, with the same key columns
 and order as `[cells]`: `ap policy build encounter`. All values are averages over all seeds,
 with 2 decimals. A breakdown is written `Name:2.00,Name:1.00`, or `-` when empty. Liquids
-follow their fixed order (Water, Oil, Poison, Acid, Blood, Lava, Mercury); statuses are
+follow their fixed order (the `Liquid` order in `src/data.rs`: Water, Oil, Poison, Acid, Blood, Lava, Mercury, Pus, then the 10 newer ones); statuses are
 alphabetical. A column appears only once its mechanic exists in the model, so no column is a placeholder for a mechanic that is not built yet. Some columns can still be zero everywhere in today's data, for example `status` while no enemy applies statuses to the slime.
 
 ```
@@ -292,7 +292,7 @@ Every report is complete on its own.
 | `policy` | string | How the simulated slime plays: `newcomer`, `arranger` or `kite` |
 | `actionsPerRound` | int | Slime actions per round; enemies always act once |
 | `seeds` | int | Fights per cell; seeds `0 .. seeds-1` |
-| `builds[]` | object | `id` (stable key), `name` (label), `units` (liquid → count). Order: `start`, then one pure build per liquid in `[[liquids]]` order |
+| `builds[]` | object | `id` (stable key), `name` (label), `units` (liquid → count). Order: `start`, then one pure build per liquid in `matrix.build_liquids` order |
 | `encounters[]` | object | `id` = `<enemy lowercase>-<count>`, `enemy`, `enemies` (count). Order: roster order, then count |
 | `cells[]` | object | One per build × encounter, builds outer, encounters inner |
 
