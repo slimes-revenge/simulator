@@ -220,7 +220,13 @@ pub fn summarize(level: &Level, runs: &[(FightResult, MapState)], of: u64) -> Ma
     let (mut hunter_eps, mut hunter_sum) = (0u64, 0i64);
     for (result, state) in runs {
         let t = &result.tally;
-        let counts = [t.reactions, t.react_loss, t.stones, t.elem_plus, t.elem_miss];
+        let counts = [
+            t.reactions,
+            t.react_loss,
+            t.stones,
+            t.elem_plus,
+            t.elem_miss,
+        ];
         for (sum, x) in react.iter_mut().zip(counts) {
             *sum += x;
         }
