@@ -56,7 +56,8 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
      preferred over doorways (a doorway opens onto three room cells). Ties go west.
   3. When calm, advance toward the exit. Standing outside a room, it first checks the next
      step: if two or more calm Aggressive enemies would see the slime there (range and line of
-     sight), it waits. It waits at most `policies.lure_patience` rounds per doorway, then goes.
+     sight), it waits. It waits at most `policies.lure_patience` actions per approach (the count
+     resets when it enters a room or a fight starts), then goes.
   4. When the way is blocked, strike whatever stands next to it.
 - **Episodes (fights).**
   - An episode opens when some living enemy is aggroed on the slime. It includes the action
@@ -74,6 +75,9 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
 
 ## Limits
 
+- `lure` assumes aggro is sticky (Aggressive and Passive enemies). A Cowardly enemy that drops
+  aggro every turn could make it walk back and forth between the spot and the exit until the
+  round limit.
 - `lure` judges watchers by enemy personality: Passive enemies (bats) never count, because
   they do not engage until hit.
 - An enemy killed by a single strike outside an episode opens no episode, so its corpse and

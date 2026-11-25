@@ -143,7 +143,7 @@ enemy_column_offset = 5       # enemies stand in the column slime_cell.x + offse
 enemy_rows = [5, 4, 6]        # the n-th enemy stands on this row
 
 [policies]
-lure_patience = 10            # rounds `lure` waits at a doorway while 2+ calm enemies would see it
+lure_patience = 10            # actions `lure` waits per room approach while 2+ calm enemies would see it
 
 # Level runs. A stage level (`stages`) carries the body through fights and fountains
 # (src/level.rs); a map level (`map`) walks a generated chain of rooms to the exit (src/map.rs).

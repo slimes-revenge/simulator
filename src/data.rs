@@ -119,8 +119,10 @@ pub struct Matrix {
 }
 
 #[derive(Deserialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
 pub struct Policies {
-    /// Rounds the `lure` policy waits at a doorway while 2+ calm enemies would see it.
+    /// Actions the `lure` policy waits on its way into a room while 2+ calm enemies would see
+    /// it there.
     pub lure_patience: u32,
 }
 

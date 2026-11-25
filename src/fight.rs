@@ -172,7 +172,7 @@ pub struct MapState {
     pub exit: Cell,
     /// `lure` instead of `strafe`.
     pub lure: bool,
-    /// Rounds the lure policy has waited at the current doorway.
+    /// Actions the lure policy has waited on its way into the next room.
     waited: u32,
     pub rooms_entered: usize,
     pub episodes: Vec<Episode>,
@@ -703,8 +703,9 @@ impl<'a> Fight<'a> {
     /// - `strafe`: otherwise step toward the exit; when the way is blocked, strike whatever
     ///   stands next to it. Never hunts.
     /// - `lure`: while any enemy is aggroed, hold the nearest corridor cell and let them come
-    ///   one at a time; when calm, advance, but wait at a doorway (up to
-    ///   `policies.lure_patience` rounds) while 2+ calm Aggressive enemies would see the next cell.
+    ///   one at a time; when calm, advance, but wait outside the next room (up to
+    ///   `policies.lure_patience` actions per approach) while 2+ calm Aggressive enemies would
+    ///   see the next cell.
     fn map_act(&mut self) {
         let adjacent = |f: &Fight, aggroed_only: bool| {
             f.enemies.iter().position(|e| {
@@ -717,6 +718,7 @@ impl<'a> Fight<'a> {
         let m = self.map.as_ref().expect("map runs");
         let (lure, exit, waited) = (m.lure, m.exit, m.waited);
         let goal = if lure && self.enemies.iter().any(|e| e.alive() && e.aggroed) {
+            self.map.as_mut().expect("checked").waited = 0;
             match self.fighting_spot() {
                 Some(spot) if spot != self.slime.cell => spot,
                 _ => return self.note(|_| "Slime holds the corridor".into()),
@@ -735,15 +737,15 @@ impl<'a> Fight<'a> {
             let (from, to) = (self.slime.cell, route[0]);
             self.slime.cell = to;
             let m = self.map.as_mut().expect("checked");
-            m.waited = 0;
             if let Some(k) = m.rooms.iter().position(|&r| in_rect(r, to)) {
                 m.rooms_entered = m.rooms_entered.max(k + 1);
+                m.waited = 0;
             }
             self.note(|_| format!("Slime steps {from:?}->{to:?}"));
         } else if let Some(i) = adjacent(self, false) {
             self.strike_or_wait(i);
         } else {
-            self.note(|_| "Slime waits: no free path".into());
+            self.note(|_| "Slime waits: no path to the exit".into());
         }
     }
 

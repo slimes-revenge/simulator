@@ -218,3 +218,29 @@ fn lure_meets_enemies_one_at_a_time_more_often_than_strafe() {
         "lure {lure}% vs strafe {strafe}% of fights with 2+ at once"
     );
 }
+
+#[test]
+fn lure_waits_at_most_its_patience_per_approach() {
+    let waits = |patience: u32, seed: u64| {
+        let mut d = design_with(
+            r#"{ rooms = 2, room_side = [6, 7], enemies_per_room = [0, 2], enemy_kinds = ["Mushroom"], corridor = 2, vision = 4 }"#,
+        );
+        d.levels[0].policy = "lure".into();
+        d.policies.lure_patience = patience;
+        let s = d.levels[0].map.clone().unwrap();
+        let (_, log) = map::fight(&d, &d.levels[0], &s, &[Liquid::Water; 10], seed).run_traced();
+        log.iter()
+            .filter(|l| l.starts_with("Slime waits at the doorway"))
+            .count()
+    };
+    let total: usize = (0..20).map(|seed| waits(6, seed)).sum();
+    assert!(
+        total > 0,
+        "two calm Mushrooms should hold the slime at the doorway sometimes"
+    );
+    for seed in 0..20 {
+        assert_eq!(waits(0, seed), 0);
+        // Two rooms: one approach into room 2.
+        assert!(waits(6, seed) <= 6, "seed {seed}");
+    }
+}
