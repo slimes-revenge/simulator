@@ -1087,3 +1087,14 @@ fn negative_enemy_numbers_are_rejected() {
     );
     assert!(Design::parse(&neg).unwrap_err().contains("speed"));
 }
+
+#[test]
+fn a_thorns_death_stops_a_stage_level() {
+    let mut d = level_design(r#"{ kind = "fight", enemy = "Cactus", enemies = 1 }"#);
+    let c = d.enemies.iter_mut().find(|e| e.name == "Cactus").unwrap();
+    (c.hit_points, c.thorns, c.speed, c.melee_power) = (1, 1, 0, 0);
+    d.levels[0].start = Some(vec![Liquid::Water; 2]);
+    let l = simulator::level::run(&d, &d.levels[0]);
+    assert_eq!((l.end, l.rows[0].after, l.rows[0].eaten), (0.0, 0.0, 0.0));
+    assert_eq!(l.stops.keys().collect::<Vec<_>>(), ["stage1:thorns:Cactus"]);
+}
