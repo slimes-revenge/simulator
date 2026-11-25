@@ -12,9 +12,11 @@ pub enum Liquid {
     Blood,
     Lava,
     Mercury,
+    /// An infected Blood unit (`Infects`): no power, no effect, spat off the edge.
+    Pus,
 }
 
-pub const ALL_LIQUIDS: [Liquid; 7] = [
+pub const ALL_LIQUIDS: [Liquid; 8] = [
     Liquid::Water,
     Liquid::Oil,
     Liquid::Poison,
@@ -22,6 +24,7 @@ pub const ALL_LIQUIDS: [Liquid; 7] = [
     Liquid::Blood,
     Liquid::Lava,
     Liquid::Mercury,
+    Liquid::Pus,
 ];
 
 #[derive(Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
@@ -34,10 +37,23 @@ pub enum Personality {
     Cowardly,
 }
 
+/// Enemy traits. Only `Vampirism` is in the game; the rest are agreed design rules for the
+/// 20-level graph (balance `sim-graph20-spec.md`, `squad.md`).
 #[derive(Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Trait {
     /// Heals `statuses.vampirism_heal` HP when it receives Blood or strikes a Blood unit off the slime.
     Vampirism,
+    /// G1: after a chase move that ends next to the slime, it bites in the same turn.
+    Dash,
+    /// G2: sees the slime 2 cells farther while the slime's edge unit is Blood.
+    SmellsBlood,
+    /// G4: on first sight of the slime, aggroes every living enemy within `radius`
+    /// (Chebyshev, through walls).
+    Alarm { radius: i32 },
+    /// G5: its bite turns the slime's edge-most Blood into Pus.
+    Infects,
+    /// Squad net: its bite also roots the slime for its next turn (no steps, strikes allowed).
+    Nets,
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -122,6 +138,9 @@ pub struct Rules {
     pub last_drop_strike: bool,
     /// Spit range (Chebyshev). Only 1 is modelled: spit replaces a strike on a neighbour.
     pub spit_range: i32,
+    /// G3, an agreed design rule: Regeneration grows Blood only while an enemy is engaged with
+    /// the slime. Not in the game yet.
+    pub regeneration_in_fight_only: bool,
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -168,6 +187,8 @@ pub struct EnemyData {
     /// Thorns: a melee strike on this enemy costs the slime this many edge units (level 2).
     #[serde(default)]
     pub thorns: usize,
+    /// Its own sight range; the level's (or `rules.vision_range`) when absent.
+    pub vision: Option<i32>,
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -256,6 +277,27 @@ pub struct MapSpec {
     /// 0 without sun.
     #[serde(default)]
     pub sun_every: u32,
+    /// G17: an enemy that enters at the exit and comes for the slime.
+    pub hunter: Option<Hunter>,
+    /// Kinds camped in the second-to-last room (the squad), one enemy each.
+    #[serde(default)]
+    pub camp: Vec<String>,
+}
+
+#[derive(Deserialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct Hunter {
+    pub kind: String,
+    /// It enters at the start of this round's enemy phase, or earlier when the slime enters
+    /// the second-to-last room.
+    pub enter_round: u32,
+    /// It learns the slime's cell every this many rounds (1: always knows it).
+    #[serde(default = "one")]
+    pub scent_every: u32,
+}
+
+fn one() -> u32 {
+    1
 }
 
 #[derive(Deserialize, Clone, Copy, Debug)]
@@ -331,6 +373,16 @@ impl Design {
                     e.name
                 ));
             }
+            if e.vision.is_some_and(|v| v < 1)
+                || e.traits
+                    .iter()
+                    .any(|t| matches!(t, Trait::Alarm { radius } if *radius < 1))
+            {
+                return Err(format!(
+                    "enemy {}: vision and Alarm radius must be >= 1",
+                    e.name
+                ));
+            }
         }
         for (i, level) in design.levels.iter().enumerate() {
             let problem = if design.levels[..i].iter().any(|l| l.id == level.id) {
@@ -379,6 +431,10 @@ impl Design {
                     Some("map.enemy_kinds must name at least one enemy".into())
                 } else if m.blockers.is_empty() != (m.blockers_per_level == 0) {
                     Some("map.blockers and map.blockers_per_level go together".into())
+                } else if m.hunter.as_ref().is_some_and(|h| h.scent_every == 0) {
+                    Some("map.hunter.scent_every must be at least 1".into())
+                } else if !m.camp.is_empty() && m.rooms < 2 {
+                    Some("map.camp needs at least 2 rooms".into())
                 } else if m.river_liquids.is_empty() != (m.river == 0) {
                     Some("map.river and map.river_liquids go together".into())
                 } else if m.surface_rooms > m.rooms || (m.surface_rooms == 0) != (m.sun_every == 0)
@@ -388,6 +444,8 @@ impl Design {
                     m.enemy_kinds
                         .iter()
                         .chain(&m.blockers)
+                        .chain(&m.camp)
+                        .chain(m.hunter.as_ref().map(|h| &h.kind))
                         .find(|k| !design.enemies.iter().any(|e| &e.name == *k))
                         .map(|k| format!("no enemy named {k}"))
                 };

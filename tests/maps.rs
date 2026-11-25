@@ -20,6 +20,8 @@ fn spec(rooms: usize, side: (i32, i32), enemies: (usize, usize), vision: i32) ->
         drips: None,
         surface_rooms: 0,
         sun_every: 0,
+        hunter: None,
+        camp: Vec::new(),
     }
 }
 

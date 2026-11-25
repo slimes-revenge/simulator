@@ -299,7 +299,7 @@ fn render_maps(maps: &[MapLevelResult], out: &mut String) {
     *out += "\n[map-levels]\n";
     let _ = writeln!(
         out,
-        "{:<14} {:<10} {:>3} {:>5} {:>7} {:>6} {:>8} {:>8} {:>8} {:>9} {:>13}",
+        "{:<14} {:<10} {:>3} {:>5} {:>7} {:>6} {:>8} {:>8} {:>8} {:>9} {:>13} {:>11} {:>10}",
         "level",
         "policy",
         "end",
@@ -310,7 +310,9 @@ fn render_maps(maps: &[MapLevelResult], out: &mut String) {
         "engaged1",
         "engaged2",
         "engaged3+",
-        "net_per_fight"
+        "net_per_fight",
+        "hunter",
+        "hunter_net"
     );
     for m in maps {
         let net = m
@@ -318,7 +320,7 @@ fn render_maps(maps: &[MapLevelResult], out: &mut String) {
             .map_or("-".to_string(), |v| format!("{v:+.2}"));
         let _ = writeln!(
             out,
-            "{:<14} {:<10} {:>3.0} {:>5.2} {:>7.2} {:>6.2} {:>8.2} {:>8.2} {:>8.2} {:>9.2} {:>13}",
+            "{:<14} {:<10} {:>3.0} {:>5.2} {:>7.2} {:>6.2} {:>8.2} {:>8.2} {:>8.2} {:>9.2} {:>13} {:>11} {:>10}",
             m.id,
             m.policy,
             m.end,
@@ -329,7 +331,9 @@ fn render_maps(maps: &[MapLevelResult], out: &mut String) {
             m.engaged[1],
             m.engaged[2],
             m.engaged[3],
-            net
+            net,
+            hunter_field(m),
+            signed(m.hunter_net)
         );
     }
     *out += "\n[map-level-ends]\n";
@@ -364,7 +368,7 @@ pub fn render_ladder(rows: &[LadderRow], summary: &[SummaryRow]) -> String {
     };
     let _ = writeln!(
         out,
-        "{:<5} {:<10} {:<8} {:<24} {:>5} {:>3} {:>6} {:>13} {:>9} {:>8} {:>8}  stops",
+        "{:<5} {:<10} {:<8} {:<24} {:>5} {:>3} {:>6} {:>13} {:>9} {:>8} {:>8} {:>11} {:>10}  stops",
         "mode",
         "difficulty",
         "policy",
@@ -375,7 +379,9 @@ pub fn render_ladder(rows: &[LadderRow], summary: &[SummaryRow]) -> String {
         "net_per_fight",
         "engaged2+",
         "min_body",
-        "body_out"
+        "body_out",
+        "hunter",
+        "hunter_net"
     );
     for r in rows {
         let m = &r.result;
@@ -384,7 +390,7 @@ pub fn render_ladder(rows: &[LadderRow], summary: &[SummaryRow]) -> String {
             .map_or("-".to_string(), |v| format!("{v:+.2}"));
         let _ = writeln!(
             out,
-            "{:<5} {:<10} {:<8} {:<24} {:>5} {:>3.0} {:>6.2} {:>13} {:>9.2} {:>8.2} {:>8}  {}",
+            "{:<5} {:<10} {:<8} {:<24} {:>5} {:>3.0} {:>6.2} {:>13} {:>9.2} {:>8.2} {:>8} {:>11} {:>10}  {}",
             r.mode,
             r.place.difficulty,
             r.policy,
@@ -396,6 +402,8 @@ pub fn render_ladder(rows: &[LadderRow], summary: &[SummaryRow]) -> String {
             m.engaged[2] + m.engaged[3],
             m.min_body,
             m.body_out.map_or("-".to_string(), |v| format!("{v:.2}")),
+            hunter_field(m),
+            signed(m.hunter_net),
             stops_field(&m.stops)
         );
     }
@@ -421,4 +429,14 @@ pub fn render_ladder(rows: &[LadderRow], summary: &[SummaryRow]) -> String {
         );
     }
     out
+}
+
+/// `killed/alive/killed_slime` percents of the played seeds, `-` without a hunter.
+fn hunter_field(m: &MapLevelResult) -> String {
+    m.hunter
+        .map_or("-".to_string(), |[k, a, s]| format!("{k:.0}/{a:.0}/{s:.0}"))
+}
+
+fn signed(v: Option<f64>) -> String {
+    v.map_or("-".to_string(), |v| format!("{v:+.2}"))
 }

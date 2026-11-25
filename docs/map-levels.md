@@ -26,6 +26,8 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
 | `river`, `river_liquids` | Optional: units the slime can drink at the exit, and their liquids in drinking order (cycling); go together |
 | `drips` | Optional `{ cells, units }`: Water drip cells in passages, `units` each |
 | `surface_rooms`, `sun_every` | Optional: the middle rooms under the sky, and how often the sun dries there (slime rounds; 1 day, 2 night); go together |
+| `hunter` | Optional `{ kind, enter_round, scent_every = 1 }`: the G17 hunter |
+| `camp` | Optional: kinds camped in the second-to-last room (the squad), one enemy each |
 | — | A level may also carry `ladder = { level, difficulty, branch }` ([ladder.md](ladder.md)) |
 
 ## The map (`map::generate`, deterministic per seed)
@@ -42,6 +44,8 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
   dies; one in a doorway may leave a way around through the room.
 - **Drips** stand on random passage cells free of blockers. Every passage lies on the only way
   between two rooms, so the slime crosses each drip on its walk.
+- **The camp** stands on random cells of the second-to-last room, which lies on the way to the
+  exit. Its home room is that room.
 - **Surface rooms** are the `surface_rooms` rooms in the middle of the chain (from index
   `(rooms − surface_rooms) / 2`).
 - `--trace-map LEVEL SEED` prints the map (`#` wall, `S` start, `X` exit, `~` drip, an enemy by
@@ -97,6 +101,13 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
 - **Sun.** After the slime's actions of round `r`, when `r` divides by `sun_every` and the
   slime stands in a surface room, the edge-most Water unit dries. Taking the last unit kills
   (cause `sun`). Sun losses are not part of an episode's `net`.
+- **The hunter (G17).** It enters at the start of the enemy phase of round `enter_round`, or
+  earlier once the slime has entered the second-to-last room, on the exit or the free open
+  cell nearest to it. It enters aggroed. Every `scent_every` rounds it learns the slime's cell
+  (through walls) and chases it by the shortest path; between scents it follows its pursuit
+  memory. Alarms never wake it. An episode it takes part in is a hunter episode. Its outcome
+  per seed: `killed_slime` when the slime died to its bite, else `killed` when it died, else
+  `alive` (also when it never entered).
 - **Min body:** the body at the start and after each closed episode; 0 when the slime dies.
 - **Engagement checks** run after every slime action, every enemy turn and every pulse of the
   slime's statuses.

@@ -11,6 +11,7 @@ pursuit_memory_turns = 3  # Creature.PursuitMemoryTurns
 max_rounds = 200          # simulator only: a fight that lasts longer is a loss with cause "timeout"
 last_drop_strike = true       # agreed design rule (П15): at 1 unit a strike hits and spends nothing; not in the game yet
 spit_range = 1                # level 2: spit reaches this far (Chebyshev); only 1 is modelled
+regeneration_in_fight_only = true  # G3, agreed design rule: Regeneration only while an enemy is engaged; not in the game yet
 
 [slime]
 capacity = 10             # Volume.Capacity
@@ -71,6 +72,12 @@ corrosion = 0
 [[liquids]]
 name = "Mercury"
 power = 1
+corrosion = 0
+
+# G5 (design rule, not in the game yet): an infected Blood unit, no power and no effect.
+[[liquids]]
+name = "Pus"
+power = 0
 corrosion = 0
 
 # The live roster (CreatureCatalog.Opponents). melee_power = Combat.Attack bare hit (1).
