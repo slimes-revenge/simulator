@@ -141,9 +141,11 @@ enemy_counts = [1, 2, 3]
 slime_cell = [1, 5]
 enemy_column_offset = 5       # enemies stand in the column slime_cell.x + offset
 enemy_rows = [5, 4, 6]        # the n-th enemy stands on this row
+policies = ["newcomer", "arranger"]  # slime policies the matrix runs
 
 [policies]
 lure_patience = 10            # actions `lure` waits per room approach while 2+ calm enemies would see it
+arranger_keep = "none"        # the liquid `arranger` keeps deep (a liquid name), or "none"
 
 # Level runs. A stage level (`stages`) carries the body through fights and fountains
 # (src/level.rs); a map level (`map`) walks a generated chain of rooms to the exit (src/map.rs).

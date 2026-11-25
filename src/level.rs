@@ -3,6 +3,7 @@
 //! the balance session; format in `docs/report-format.md`.
 
 use crate::data::{Design, Level, Liquid, Stage};
+use crate::fight::Policy;
 use crate::report::{Build, Encounter, fight};
 use std::collections::BTreeMap;
 
@@ -102,9 +103,9 @@ pub fn run(d: &Design, level: &Level) -> LevelResult {
                         enemies: *enemies,
                     };
                     let stage_seed = seed * 1000 + k as u64;
-                    let (result, volume) =
-                        fight(&ld, &build, &encounter, level.action_points, stage_seed)
-                            .run_with_volume();
+                    let mut f = fight(&ld, &build, &encounter, level.action_points, stage_seed);
+                    f.policy = Policy::from_name(&level.policy, d);
+                    let (result, volume) = f.run_with_volume();
                     r.won = result.won;
                     r.spent = result.units_spent;
                     r.bitten = result.units_bitten;

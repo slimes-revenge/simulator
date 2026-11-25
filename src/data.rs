@@ -116,6 +116,8 @@ pub struct Matrix {
     pub slime_cell: (i32, i32),
     pub enemy_column_offset: i32,
     pub enemy_rows: Vec<i32>,
+    /// Slime policies the matrix runs (`newcomer`, `arranger`).
+    pub policies: Vec<String>,
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -124,6 +126,17 @@ pub struct Policies {
     /// Actions the `lure` policy waits on its way into a room while 2+ calm enemies would see
     /// it there.
     pub lure_patience: u32,
+    /// The liquid `arranger` keeps deep, or `none`.
+    pub arranger_keep: String,
+}
+
+impl Policies {
+    /// `arranger_keep` as a liquid; `None` for "none" (validated in `Design::parse`).
+    pub fn keep(&self) -> Option<Liquid> {
+        toml::Value::String(self.arranger_keep.clone())
+            .try_into()
+            .ok()
+    }
 }
 
 /// A level: stages played in order, the slime's body carried from one to the next.
@@ -199,6 +212,20 @@ impl Design {
                 design.matrix.enemy_rows.len()
             ));
         }
+        if design.policies.arranger_keep != "none" && design.policies.keep().is_none() {
+            return Err(format!(
+                "policies.arranger_keep must be \"none\" or a liquid, not {:?}",
+                design.policies.arranger_keep
+            ));
+        }
+        if let Some(p) = design
+            .matrix
+            .policies
+            .iter()
+            .find(|p| !["newcomer", "arranger"].contains(&p.as_str()))
+        {
+            return Err(format!("matrix.policies: unknown policy {p:?}"));
+        }
         for (i, level) in design.levels.iter().enumerate() {
             let problem = if design.levels[..i].iter().any(|l| l.id == level.id) {
                 Some("duplicate id")
@@ -225,7 +252,7 @@ impl Design {
             let allowed: &[&str] = if level.map.is_some() {
                 &["strafe", "lure"]
             } else {
-                &["newcomer"]
+                &["newcomer", "arranger"]
             };
             if !allowed.contains(&level.policy.as_str()) {
                 return Err(format!(

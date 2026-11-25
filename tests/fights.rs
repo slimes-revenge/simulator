@@ -1,7 +1,7 @@
 //! Acceptance checks for the design guard (docs/design/design-guard.md, first version).
 
 use simulator::data::{Design, Liquid};
-use simulator::fight::{Fight, FightResult, Tally};
+use simulator::fight::{Fight, FightResult, Policy, Tally};
 use simulator::report::{self, Build, Encounter};
 use simulator::text;
 
@@ -667,4 +667,115 @@ fn swap_exchanges_neighbours_counted_from_the_edge() {
     assert_eq!(f.slime.volume, [Liquid::Lava, Liquid::Water, Liquid::Oil]);
     let r = f.run();
     assert_eq!(r.tally.swaps, 2);
+}
+
+/// The first `n` slime actions of a fight against an adjacent Mushroom, with `policy`, at
+/// `ap` actions per round. `body` runs from the centre to the edge.
+fn first_actions(body: &[Liquid], policy: Policy, ap: u32, n: usize) -> Vec<String> {
+    let d = design();
+    let mut f = Fight::new(&d, 0, ap, body.to_vec(), (1, 5), &[("Mushroom", (2, 5))]);
+    f.policy = policy;
+    let (_, log) = f.run_traced();
+    log.into_iter()
+        .filter(|l| l.starts_with("Slime "))
+        .map(|l| l.split(':').next().unwrap().to_string())
+        .take(n)
+        .collect()
+}
+
+const ARRANGER: Policy = Policy::Arranger { keep: None };
+
+#[test]
+fn arranger_keeps_the_kept_liquid_deep() {
+    let keep_lava = Policy::Arranger {
+        keep: Some(Liquid::Lava),
+    };
+    // Lava on the edge, Water under it: swap once, then strike with Water.
+    assert_eq!(
+        first_actions(
+            &[Liquid::Water, Liquid::Water, Liquid::Lava],
+            keep_lava,
+            2,
+            2
+        ),
+        ["Slime swaps", "Slime strikes Mushroom#1 with Water"]
+    );
+    // Lava under Lava: no swap (never a bubble), strike with Lava.
+    assert_eq!(
+        first_actions(
+            &[Liquid::Water, Liquid::Lava, Liquid::Lava],
+            keep_lava,
+            2,
+            1
+        ),
+        ["Slime strikes Mushroom#1 with Lava"]
+    );
+}
+
+#[test]
+fn arranger_keeps_water_off_fire() {
+    // Lava sets the Mushroom burning; Water is now on the edge with Oil under it: swap.
+    assert_eq!(
+        first_actions(
+            &[Liquid::Oil, Liquid::Oil, Liquid::Water, Liquid::Lava],
+            ARRANGER,
+            3,
+            3
+        ),
+        [
+            "Slime strikes Mushroom#1 with Lava",
+            "Slime swaps",
+            "Slime strikes Mushroom#1 with Oil"
+        ]
+    );
+}
+
+#[test]
+fn arranger_brings_lava_to_flammable() {
+    // Oil makes the Mushroom Flammable; Water on the edge, Lava under it: swap, strike Lava.
+    assert_eq!(
+        first_actions(
+            &[Liquid::Water, Liquid::Lava, Liquid::Water, Liquid::Oil],
+            ARRANGER,
+            3,
+            3
+        ),
+        [
+            "Slime strikes Mushroom#1 with Oil",
+            "Slime swaps",
+            "Slime strikes Mushroom#1 with Lava"
+        ]
+    );
+    // The newcomer never swaps.
+    assert_eq!(
+        first_actions(
+            &[Liquid::Water, Liquid::Lava, Liquid::Water, Liquid::Oil],
+            Policy::Newcomer,
+            3,
+            2
+        ),
+        [
+            "Slime strikes Mushroom#1 with Oil",
+            "Slime strikes Mushroom#1 with Water"
+        ]
+    );
+}
+
+#[test]
+fn a_swap_on_the_last_action_feeds_the_bite() {
+    // At 2 actions: strike Oil, swap Lava to the edge as the round's last action; the Mushroom's
+    // bite pops the edge — the Lava — so the next strike is Water.
+    assert_eq!(
+        first_actions(
+            &[Liquid::Water, Liquid::Lava, Liquid::Water, Liquid::Oil],
+            ARRANGER,
+            2,
+            3
+        ),
+        [
+            "Slime strikes Mushroom#1 with Oil",
+            "Slime swaps",
+            "Slime strikes Mushroom#1 with Water"
+        ]
+    );
 }

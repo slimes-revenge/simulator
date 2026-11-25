@@ -93,7 +93,25 @@ into `status` and `retal`.
 
 Target the nearest living enemy (Chebyshev, ties to the earlier one). Adjacent: strike with the
 edge unit, or wait when only one unit is left. Otherwise step one cell along the path toward
-it. It never swaps. With 2 actions the policy strikes
+it. It never swaps.
+
+## Arranger policy (`Policy::Arranger`, `arranger_swap`)
+
+Like the newcomer, but before each strike on an adjacent target it may spend one action on
+`swap(0, 1)` (the edge and the unit under it). It applies the first matching rule, then
+strikes with the edge unit on its next action:
+
+1. **Keep the kept liquid deep** (`policies.arranger_keep`, or `none`): swap when the edge is
+   the kept liquid and the unit under it is not. When both are the kept liquid, it strikes
+   with it (one swap, never a bubble).
+2. **No water on fire:** swap when the edge is Water, the target has Burning or Corroding, and
+   the unit under it is not Water.
+3. **Lava on Flammable:** swap when the unit under the edge is Lava, the edge is not, and the
+   target is Flammable.
+
+When the swap is the round's last action, the enemies act before the strike. An enemy bite pops
+the edge, which is the unit just brought up. At 2 actions per round this wastes many swaps; a
+round needs a third action to swap and strike together. With 2 actions the policy strikes
 twice even when the enemy is already doomed by damage over time: it spends body it did not
 need to.
 

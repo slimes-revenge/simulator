@@ -36,8 +36,9 @@ cargo test
 - **Builds:** the starting mix (2 Water, Oil, Poison, Acid, Lava) and 10 units of each liquid.
 - **Encounters:** 1, 2 and 3 of each live enemy (Bat, Mushroom, Undine, Cactus, Mandragora,
   Eye), in a column 5 cells east of the slime at (1, 5).
-- **Policy:** newcomer — walk to the nearest enemy, strike with the unit on the body's edge,
-  wait when the last unit cannot be spent, never swap.
+- **Policies:** newcomer — walk to the nearest enemy, strike with the unit on the body's edge,
+  wait when the last unit cannot be spent, never swap; arranger — the same with at most one
+  swap of the two edge units before a strike.
 - **Action points:** 1 per round (the game today) and 2 (the design).
 - **Seeds:** 50 per cell; the same seed gives the same fight.
 

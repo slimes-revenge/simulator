@@ -1,12 +1,11 @@
 //! The build × encounter matrix and its JSON report (`docs/report-format.md`).
 
 use crate::data::{Design, Liquid};
-use crate::fight::{Fight, FightResult};
+use crate::fight::{Fight, FightResult, Policy};
 use serde::Serialize;
 use std::collections::BTreeMap;
 
 pub const SCHEMA_VERSION: u32 = 1;
-pub const POLICY: &str = "newcomer";
 
 #[derive(Serialize, Clone, Debug, PartialEq)]
 pub struct Build {
@@ -160,7 +159,7 @@ pub fn play(
     fight(d, build, encounter, actions_per_round, seed).run()
 }
 
-/// Every build × encounter given (normally `builds(d)` × `encounters(d)`), `matrix.seeds` each.
+/// `run_policy` with the `newcomer` policy.
 pub fn run(
     d: &Design,
     actions_per_round: u32,
@@ -169,11 +168,37 @@ pub fn run(
     generated_utc: &str,
     commit: &str,
 ) -> Report {
+    run_policy(
+        d,
+        actions_per_round,
+        "newcomer",
+        builds,
+        encounters,
+        generated_utc,
+        commit,
+    )
+}
+
+/// Every build × encounter given (normally `builds(d)` × `encounters(d)`), `matrix.seeds` each.
+pub fn run_policy(
+    d: &Design,
+    actions_per_round: u32,
+    policy: &str,
+    builds: Vec<Build>,
+    encounters: Vec<Encounter>,
+    generated_utc: &str,
+    commit: &str,
+) -> Report {
+    let p = Policy::from_name(policy, d);
     let mut cells = Vec::new();
     for b in &builds {
         for e in &encounters {
             let results: Vec<FightResult> = (0..d.matrix.seeds)
-                .map(|seed| play(d, b, e, actions_per_round, seed))
+                .map(|seed| {
+                    let mut f = fight(d, b, e, actions_per_round, seed);
+                    f.policy = p;
+                    f.run()
+                })
                 .collect();
             cells.push(summarize(b, e, &results));
         }
@@ -182,7 +207,7 @@ pub fn run(
         schema_version: SCHEMA_VERSION,
         generated_utc: generated_utc.into(),
         commit: commit.into(),
-        policy: POLICY.into(),
+        policy: policy.into(),
         actions_per_round,
         seeds: d.matrix.seeds,
         builds,
