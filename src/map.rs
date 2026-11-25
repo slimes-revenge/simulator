@@ -210,7 +210,9 @@ pub fn fight<'a>(
     f.vision = spec.vision;
     f.max_rounds = d.rules.max_rounds * spec.rooms as u32;
     let homes = map.enemies.iter().map(|e| Some(e.2)).collect();
-    f.map = Some(MapState::new(map.rooms, homes, map.exit, body.len()));
+    let mut state = MapState::new(map.rooms, homes, map.exit, body.len());
+    state.lure = level.policy == "lure";
+    f.map = Some(state);
     f
 }
 

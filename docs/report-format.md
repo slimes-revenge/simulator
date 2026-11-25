@@ -156,6 +156,7 @@ These appear only when the design file has map levels. The rules are in [map-lev
 [map-levels]
 level          policy     end rooms  rounds fights engaged0 engaged1 engaged2 engaged3+ net_per_fight
 map-vision3    strafe       0  1.76   10.22   1.72     0.00    81.40    18.60      0.00         -5.81
+map-lure3      lure         0  1.56   11.24   1.80     0.00    88.89    11.11      0.00         -5.56
 
 [map-level-ends]
 level          end    min worst  stops

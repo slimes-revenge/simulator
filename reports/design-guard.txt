@@ -86,6 +86,7 @@ matrix.enemy_counts = 1 2 3
 matrix.slime_cell = 1 5
 matrix.enemy_column_offset = 5
 matrix.enemy_rows = 5 4 6
+policies.lure_patience = 10
 levels.sample-ap1.capacity = 10
 levels.sample-ap1.action_points = 1
 levels.sample-ap1.policy = face-tank
@@ -149,6 +150,33 @@ levels.map-vision4.map.enemies_per_room = 1 2
 levels.map-vision4.map.enemy_kinds = Bat Mushroom Undine Cactus Mandragora Eye
 levels.map-vision4.map.corridor = 2
 levels.map-vision4.map.vision = 4
+levels.map-lure2.capacity = 10
+levels.map-lure2.action_points = 2
+levels.map-lure2.policy = lure
+levels.map-lure2.map.rooms = 5
+levels.map-lure2.map.room_side = 5 9
+levels.map-lure2.map.enemies_per_room = 1 2
+levels.map-lure2.map.enemy_kinds = Bat Mushroom Undine Cactus Mandragora Eye
+levels.map-lure2.map.corridor = 2
+levels.map-lure2.map.vision = 2
+levels.map-lure3.capacity = 10
+levels.map-lure3.action_points = 2
+levels.map-lure3.policy = lure
+levels.map-lure3.map.rooms = 5
+levels.map-lure3.map.room_side = 5 9
+levels.map-lure3.map.enemies_per_room = 1 2
+levels.map-lure3.map.enemy_kinds = Bat Mushroom Undine Cactus Mandragora Eye
+levels.map-lure3.map.corridor = 2
+levels.map-lure3.map.vision = 3
+levels.map-lure4.capacity = 10
+levels.map-lure4.action_points = 2
+levels.map-lure4.policy = lure
+levels.map-lure4.map.rooms = 5
+levels.map-lure4.map.room_side = 5 9
+levels.map-lure4.map.enemies_per_room = 1 2
+levels.map-lure4.map.enemy_kinds = Bat Mushroom Undine Cactus Mandragora Eye
+levels.map-lure4.map.corridor = 2
+levels.map-lure4.map.vision = 4
 
 [cells]
 ap policy     build      encounter        win  rounds killed   left  spent bitten status  cause
@@ -1046,9 +1074,15 @@ level          policy     end rooms  rounds fights engaged0 engaged1 engaged2 en
 map-vision2    strafe       6  2.18   12.32   1.82     0.00    91.21     8.79      0.00         -5.36
 map-vision3    strafe       0  1.76   10.22   1.72     0.00    81.40    18.60      0.00         -5.81
 map-vision4    strafe       0  1.82   10.38   1.60     0.00    73.75    26.25      0.00         -6.25
+map-lure2      lure         6  2.16   12.40   1.84     0.00    93.48     6.52      0.00         -5.30
+map-lure3      lure         0  1.56   11.24   1.80     0.00    88.89    11.11      0.00         -5.56
+map-lure4      lure         0  1.48   12.60   1.68     0.00    85.71    14.29      0.00         -5.95
 
 [map-level-ends]
 level          end    min worst  stops
 map-vision2      6   0.24     0  room1:melee:Cactus=5 room2:melee:Cactus=5 room1:melee:Mandragora=4 room2:melee:Eye=4 room2:melee:Mandragora=4 room3:melee:Mandragora=4 room1:melee:Eye=3 room2:melee:Undine=3 room3:melee:Mushroom=3 room1:melee:Mushroom=2 room1:melee:Undine=2 room2:melee:Mushroom=2 room4:melee:Mandragora=2 room3:melee:Cactus=1 room3:melee:Eye=1 room3:melee:Undine=1 room4:melee:Cactus=1
 map-vision3      0   0.00     0  room1:melee:Mushroom=8 room1:melee:Mandragora=7 room2:melee:Mandragora=5 room2:melee:Eye=4 room2:melee:Mushroom=4 room3:melee:Mushroom=4 room1:melee:Eye=3 room2:melee:Cactus=3 room2:melee:Undine=3 room1:melee:Cactus=2 room1:melee:Undine=2 room3:melee:Cactus=1 room3:melee:Eye=1 room3:melee:Mandragora=1 room3:melee:Undine=1 room4:melee:Mandragora=1
 map-vision4      0   0.00     0  room1:melee:Mushroom=8 room1:melee:Mandragora=7 room1:melee:Eye=5 room2:melee:Eye=5 room2:melee:Mandragora=4 room2:melee:Undine=4 room2:melee:Mushroom=3 room3:melee:Mandragora=3 room3:melee:Undine=3 room2:melee:Cactus=2 room3:melee:Mushroom=2 room1:melee:Undine=1 room3:melee:Cactus=1 room3:melee:Eye=1 room4:melee:Mushroom=1
+map-lure2        6   0.24     0  room1:melee:Cactus=5 room2:melee:Cactus=5 room1:melee:Eye=4 room1:melee:Mandragora=4 room2:melee:Eye=4 room2:melee:Mandragora=4 room3:melee:Mandragora=4 room2:melee:Undine=3 room3:melee:Mushroom=3 room1:melee:Mushroom=2 room1:melee:Undine=2 room4:melee:Mandragora=2 room2:melee:Mushroom=1 room3:melee:Cactus=1 room3:melee:Eye=1 room3:melee:Undine=1 room4:melee:Cactus=1
+map-lure3        0   0.00     0  room1:melee:Mandragora=8 room1:melee:Mushroom=8 room1:melee:Cactus=5 room1:melee:Eye=5 room1:melee:Undine=4 room2:melee:Mandragora=4 room2:melee:Eye=3 room2:melee:Cactus=2 room2:melee:Mushroom=2 room2:melee:Undine=2 room3:melee:Mushroom=2 room3:melee:Cactus=1 room3:melee:Eye=1 room3:melee:Mandragora=1 room3:melee:Undine=1 room4:melee:Undine=1
+map-lure4        0   0.00     0  room1:melee:Mushroom=9 room1:melee:Eye=8 room1:melee:Mandragora=8 room1:melee:Undine=5 room2:melee:Mandragora=5 room1:melee:Cactus=3 room2:melee:Eye=3 room3:melee:Mushroom=3 room3:melee:Undine=2 room2:melee:Cactus=1 room2:melee:Undine=1 room3:melee:Eye=1 room3:melee:Mandragora=1

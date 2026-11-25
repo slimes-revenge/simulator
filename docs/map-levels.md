@@ -4,13 +4,13 @@ A level as a map: a chain of rooms the slime walks through to the exit. Enemies 
 rooms, and walls block sight. It answers how many enemies engage the slime at once, whether the
 slime reaches the exit, and what each fight nets. Size, doors and vision are the balance levers.
 The spec was agreed with the balance session. Code: `src/map.rs` (generator, level run),
-`src/fight.rs` (`Board`, `MapState`, episodes, the `strafe` policy). Output: `[map-levels]` and
+`src/fight.rs` (`Board`, `MapState`, episodes, the `strafe` and `lure` policies). Output: `[map-levels]` and
 `[map-level-ends]` (`docs/report-format.md`).
 
 ## Input: a `[[levels]]` entry with `map`
 
 `id`, `capacity`, `start` (default: full Water) and `action_points` work as for stage levels
-([level-economy.md](level-economy.md)). `policy = "strafe"`. A level has either `stages` or
+([level-economy.md](level-economy.md)). `policy` is `strafe` or `lure`. A level has either `stages` or
 `map`, never both.
 
 | `map` key | Meaning |
@@ -49,6 +49,16 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
   3. If no path is free, strike any adjacent enemy to clear the way.
 
   It never hunts: a passive enemy it never touches stays behind.
+- **`lure` policy.** It fights in corridors, so enemies reach it one at a time:
+  1. If an aggroed enemy is adjacent, strike it (or wait on the last unit).
+  2. While any enemy is aggroed, go to the fighting spot and wait there. The spot is the
+     nearest open cell outside the rooms. Corridor cells with at most two open neighbours are
+     preferred over doorways (a doorway opens onto three room cells). Ties go west.
+  3. When calm, advance toward the exit. Standing outside a room, it first checks the next
+     step: if two or more calm Aggressive enemies would see the slime there (range and line of
+     sight), it waits. It waits at most `policies.lure_patience` actions per approach (the count
+     resets when it enters a room or a fight starts), then goes.
+  4. When the way is blocked, strike whatever stands next to it.
 - **Episodes (fights).**
   - An episode opens when some living enemy is aggroed on the slime. It includes the action
     that caused it, such as a first strike.
@@ -65,9 +75,13 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
 
 ## Limits
 
-- Only the `strafe` policy exists; `lure` comes next.
+- `lure` assumes aggro is sticky (Aggressive and Passive enemies). A Cowardly enemy that drops
+  aggro every turn could make it walk back and forth between the spot and the exit until the
+  round limit.
+- `lure` judges watchers by enemy personality: Passive enemies (bats) never count, because
+  they do not engage until hit.
 - An enemy killed by a single strike outside an episode opens no episode, so its corpse and
   the spent unit are not counted. Today that cannot happen: no live enemy dies to one strike.
-- An enemy standing on the exit blocks it; `strafe` waits (or strikes it when adjacent).
+- An enemy standing on the exit blocks it; the slime waits (or strikes it when adjacent).
 - No fountains, puddles or spit on map levels yet.
 - One corridor shape: straight, 1 cell wide.
