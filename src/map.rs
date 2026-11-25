@@ -169,6 +169,10 @@ pub struct MapLevelResult {
     pub hunter: Option<[f64; 3]>,
     /// Net summed over the episodes the hunter took part in / those episodes.
     pub hunter_net: Option<f64>,
+    /// R1, averages per played seed: reacting pairs, units they took, stones dropped.
+    pub reactions: f64,
+    pub react_loss: f64,
+    pub stones: f64,
     /// Where runs ended without the exit: `room<k>:<cause>` → seeds.
     pub stops: BTreeMap<String, u64>,
 }
@@ -209,8 +213,13 @@ pub fn summarize(level: &Level, runs: &[(FightResult, MapState)], of: u64) -> Ma
     let mut stops = BTreeMap::new();
     let mut out_sum = 0;
     let mut hunter = [0u64; 3];
+    let mut react = [0usize; 3];
     let (mut hunter_eps, mut hunter_sum) = (0u64, 0i64);
     for (result, state) in runs {
+        let t = &result.tally;
+        for (sum, x) in react.iter_mut().zip([t.reactions, t.react_loss, t.stones]) {
+            *sum += x;
+        }
         if state.hunter.is_some() {
             let k = if state.hunter_killed_slime {
                 2
@@ -270,6 +279,9 @@ pub fn summarize(level: &Level, runs: &[(FightResult, MapState)], of: u64) -> Ma
             .and_then(|m| m.hunter.as_ref())
             .map(|_| hunter.map(|h| pct(h, runs.len() as u64))),
         hunter_net: (hunter_eps > 0).then(|| round2(hunter_sum as f64 / hunter_eps as f64)),
+        reactions: round2(react[0] as f64 / n),
+        react_loss: round2(react[1] as f64 / n),
+        stones: round2(react[2] as f64 / n),
         stops,
     }
 }

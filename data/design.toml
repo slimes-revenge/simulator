@@ -11,6 +11,8 @@ dominance_basis = "capacity"  # share of the capacity (design); "volume" = of th
 retaliation_pulses = 1        # Retaliation statuses last 1 pulse (design); 0 = the liquid's own duration (the game)
 heavy = { Lava = 3, Mercury = 2 }  # holding this many costs 1 action point each (design)
 heavy_min_action_points = 2   # heaviness never takes the slime below this
+reaction_can_kill = true      # R1: a reaction chain may empty the body (balance sim-reactions-spec.md)
+stone_rounds = 4              # a Water + Lava stone stands this many slime rounds
 pursuit_memory_turns = 3  # Creature.PursuitMemoryTurns
 max_rounds = 200          # simulator only: a fight that lasts longer is a loss with cause "timeout"
 last_drop_strike = true       # agreed design rule (П15): at 1 unit a strike hits and spends nothing; not in the game yet
@@ -211,6 +213,32 @@ policies = ["newcomer", "arranger", "kite"]  # slime policies the matrix runs
 [policies]
 lure_patience = 10            # actions `lure` waits per room approach while 2+ calm enemies would see it
 arranger_keep = "none"        # the liquid `arranger` keeps deep (a liquid name), or "none"
+
+# R1/R2 (balance sim-reactions-spec.md, lore forum.md): two circles; each liquid encourages the next.
+[elements]
+circles = [
+  ["Water", "Phosphorus", "Lava", "Mercury", "Aquavita"],
+  ["Vitriol", "Alkali", "Ambrosia", "Acid", "Poison"],
+]
+encouragement_bonus = 1       # once per slime turn: the unit under the edge encourages the edge
+
+# R1: neighbouring units (either order) that react at the end of the slime's turn.
+[[reactions]]
+pair = ["Water", "Lava"]
+makes = []
+stone = true
+
+[[reactions]]
+pair = ["Lava", "Aquavita"]
+makes = []
+
+[[reactions]]
+pair = ["Poison", "Blood"]
+makes = ["Pus", "Pus"]
+
+[[reactions]]
+pair = ["Alkali", "Acid"]
+makes = ["Water"]
 
 # Ladder pass rules (docs/ladder.md): a level passes when its end % is >= min (or <= max).
 [ladder]

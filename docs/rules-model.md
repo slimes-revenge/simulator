@@ -193,6 +193,25 @@ them is in the game yet; only `Vampirism` among the traits is.
 - **G3 `rules.regeneration_in_fight_only`**: the slime's Regeneration grows Blood only while an
   enemy is engaged with it (aggroed and able to come, or adjacent). `false` models the game.
 
+## R1: reactions in the body (`react`, `[[reactions]]`, `[elements]`)
+
+Agreed design rules (balance `sim-reactions-spec.md`); not in the game yet.
+
+- **When:** after the slime's actions each round, before Pus spreads, the sun and the enemies.
+- **Chain:** the reacting pair of neighbours nearest the edge (either order) becomes its
+  `makes` in place; the body closes up; repeat until no neighbours react. Water + Lava and
+  Lava + Aquavita vanish, Poison + Blood become 2 Pus, Alkali + Acid become 1 Water.
+- **Death:** a chain that empties the body kills (cause `reaction`). With
+  `rules.reaction_can_kill = false` a pair that would empty it does not react.
+- **Stone:** a chain with a `stone` pair (Water + Lava) drops one stone on the free open
+  neighbour of the slime nearest the nearest living enemy (ties: row, then column). A stone
+  blocks walking like a creature and crumbles after `rules.stone_rounds` slime rounds.
+- **Losses:** units a reaction takes count as lost in an episode's `net`.
+- **Encouragement:** once per slime turn, a strike with the edge unit hits
+  `elements.encouragement_bonus` harder when the unit under it encourages it (the next liquid
+  in an `elements.circles` circle: Water → Phosphorus → Lava → Mercury → Aquavita → Water;
+  Vitriol → Alkali → Ambrosia → Acid → Poison → Vitriol).
+
 ## Where the docs and the code disagree
 
 Found while building the model (game `dev` at 44018ffe, 2026-11-25). The simulator follows the code.

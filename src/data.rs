@@ -94,6 +94,47 @@ pub struct Design {
     /// Pass rules for the ladder summary (`src/ladder.rs`); none is fine.
     #[serde(default)]
     pub ladder: LadderRules,
+    /// The two element circles (R1 encouragement, R2 suppression); none is fine.
+    #[serde(default)]
+    pub elements: Elements,
+    /// R1: pairs of neighbouring units that react in the body; none is fine.
+    #[serde(default)]
+    pub reactions: Vec<Reaction>,
+}
+
+/// `[elements]` (balance `sim-reactions-spec.md`, lore `forum.md`).
+#[derive(Deserialize, Clone, Debug, Default)]
+#[serde(deny_unknown_fields)]
+pub struct Elements {
+    /// Each circle in order: a unit encourages the next one (A → B).
+    #[serde(default)]
+    pub circles: Vec<Vec<Liquid>>,
+    /// Extra strike damage, once per slime turn, when the unit under the edge encourages the
+    /// edge unit.
+    #[serde(default)]
+    pub encouragement_bonus: i32,
+}
+
+impl Elements {
+    /// `a` encourages `b`: `b` follows `a` in a circle.
+    pub fn encourages(&self, a: Liquid, b: Liquid) -> bool {
+        self.circles.iter().any(|c| {
+            c.iter()
+                .position(|&l| l == a)
+                .is_some_and(|i| c[(i + 1) % c.len()] == b)
+        })
+    }
+}
+
+/// `[[reactions]]`: two neighbouring units (either order) become `makes`.
+#[derive(Deserialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct Reaction {
+    pub pair: (Liquid, Liquid),
+    pub makes: Vec<Liquid>,
+    /// It drops a stone next to the slime (Water + Lava).
+    #[serde(default)]
+    pub stone: bool,
 }
 
 /// `[ladder]`: what counts as passing a ladder level, per difficulty and policy.
@@ -162,6 +203,11 @@ pub struct Rules {
     pub heavy: BTreeMap<Liquid, usize>,
     /// Heaviness never lowers the action points below this, or below the base when that is lower.
     pub heavy_min_action_points: u32,
+    /// R1: a reaction chain may empty the body (the slime dies); `false`: a pair that would
+    /// does not react.
+    pub reaction_can_kill: bool,
+    /// Slime rounds a reaction stone stands before it crumbles.
+    pub stone_rounds: u32,
     pub pursuit_memory_turns: i32,
     pub max_rounds: u32,
     /// П15, an agreed design rule: at 1 unit a strike hits and spends nothing. The game does
@@ -397,6 +443,21 @@ impl Design {
         let b = &design.matrix.build_liquids;
         if b.is_empty() || (1..b.len()).any(|i| b[..i].contains(&b[i])) {
             return Err("matrix.build_liquids: list at least one liquid, each once".into());
+        }
+        if let Some(r) = design.reactions.iter().find(|r| {
+            r.makes.len() > 1
+                && design
+                    .reactions
+                    .iter()
+                    .any(|q| r.makes.contains(&q.pair.0) || r.makes.contains(&q.pair.1))
+        }) {
+            return Err(format!(
+                "reactions {:?}: a product of two or more units must not react again (the chain must end)",
+                r.pair
+            ));
+        }
+        if design.elements.circles.iter().any(|c| c.len() < 3) {
+            return Err("elements.circles: each circle needs at least 3 liquids".into());
         }
         if design.rules.spit_range != 1 {
             return Err("rules.spit_range: only 1 is modelled".into());
