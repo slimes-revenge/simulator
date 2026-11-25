@@ -126,8 +126,29 @@ pub struct Level {
     /// The body at the level start; full Water by default.
     pub start: Option<Vec<Liquid>>,
     pub action_points: u32,
+    /// `face-tank` for a stage level, `strafe` for a map level.
     pub policy: String,
+    /// A stage level: fights and fountains in order (`src/level.rs`).
+    #[serde(default)]
     pub stages: Vec<Stage>,
+    /// A map level: rooms the slime walks through to the exit (`src/map.rs`).
+    pub map: Option<MapSpec>,
+}
+
+/// A generated map: a west-to-east chain of rooms joined by corridors.
+#[derive(Deserialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct MapSpec {
+    pub rooms: usize,
+    /// Room width and height, each random in `[min, max]`, inner cells.
+    pub room_side: (i32, i32),
+    pub enemies_per_room: (usize, usize),
+    /// Each enemy's kind is a random pick from this list.
+    pub enemy_kinds: Vec<String>,
+    /// Corridor cells between the two doorways of neighbouring rooms.
+    pub corridor: i32,
+    /// Enemy sight range (Chebyshev), blocked by walls.
+    pub vision: i32,
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -176,8 +197,10 @@ impl Design {
                 Some("id must be 1..=14 characters (it is a fixed-width column)")
             } else if level.capacity == 0 || level.action_points == 0 {
                 Some("capacity and action_points must be at least 1")
-            } else if level.stages.is_empty() || level.stages.len() >= 1000 {
-                Some("stages must have 1..1000 entries")
+            } else if level.stages.is_empty() == level.map.is_none() {
+                Some("give either stages or map, not both")
+            } else if level.stages.len() >= 1000 {
+                Some("stages must have fewer than 1000 entries")
             } else if level
                 .start
                 .as_ref()
@@ -190,11 +213,37 @@ impl Design {
             if let Some(problem) = problem {
                 return Err(format!("level {:?}: {problem}", level.id));
             }
-            if level.policy != "face-tank" {
+            let policy = if level.map.is_some() {
+                "strafe"
+            } else {
+                "face-tank"
+            };
+            if level.policy != policy {
                 return Err(format!(
-                    "level {}: policy {:?} is not supported (only \"face-tank\")",
+                    "level {}: policy {:?} is not supported here (only {policy:?})",
                     level.id, level.policy
                 ));
+            }
+            if let Some(m) = &level.map {
+                let problem = if m.rooms == 0 {
+                    Some("map.rooms must be at least 1".to_string())
+                } else if m.room_side.0 < 3 || m.room_side.0 > m.room_side.1 {
+                    Some("map.room_side must be [min, max] with 3 <= min <= max".into())
+                } else if m.enemies_per_room.0 > m.enemies_per_room.1 {
+                    Some("map.enemies_per_room must be [min, max] with min <= max".into())
+                } else if m.corridor < 0 || m.vision < 1 {
+                    Some("map.corridor must be >= 0 and map.vision >= 1".into())
+                } else if m.enemy_kinds.is_empty() {
+                    Some("map.enemy_kinds must name at least one enemy".into())
+                } else {
+                    m.enemy_kinds
+                        .iter()
+                        .find(|k| !design.enemies.iter().any(|e| &e.name == *k))
+                        .map(|k| format!("no enemy named {k}"))
+                };
+                if let Some(problem) = problem {
+                    return Err(format!("level {:?}: {problem}", level.id));
+                }
             }
             for stage in &level.stages {
                 if let Stage::Fight { enemy, enemies } = stage {

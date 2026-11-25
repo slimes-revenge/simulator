@@ -105,6 +105,117 @@ impl Creature {
     }
 }
 
+/// The grid a fight is played on: open cells unless `walls` marks them.
+#[derive(Clone, Debug)]
+pub struct Board {
+    pub width: i32,
+    pub height: i32,
+    /// Row-major, `width × height`; empty means no walls.
+    pub walls: Vec<bool>,
+}
+
+impl Board {
+    pub fn inside(&self, c: Cell) -> bool {
+        c.0 >= 0 && c.1 >= 0 && c.0 < self.width && c.1 < self.height
+    }
+
+    pub fn wall(&self, c: Cell) -> bool {
+        !self.walls.is_empty() && self.inside(c) && self.walls[(c.1 * self.width + c.0) as usize]
+    }
+
+    /// Floor: inside and not a wall.
+    pub fn open(&self, c: Cell) -> bool {
+        self.inside(c) && !self.wall(c)
+    }
+
+    /// No wall on the Bresenham line strictly between `a` and `b`.
+    pub fn line_of_sight(&self, a: Cell, b: Cell) -> bool {
+        if self.walls.is_empty() {
+            return true;
+        }
+        let (dx, dy) = ((b.0 - a.0).abs(), -(b.1 - a.1).abs());
+        let (sx, sy) = ((b.0 - a.0).signum(), (b.1 - a.1).signum());
+        let (mut x, mut y, mut err) = (a.0, a.1, dx + dy);
+        loop {
+            if (x, y) == b {
+                return true;
+            }
+            if (x, y) != a && self.wall((x, y)) {
+                return false;
+            }
+            let e2 = 2 * err;
+            if e2 >= dy {
+                err += dy;
+                x += sx;
+            }
+            if e2 <= dx {
+                err += dx;
+                y += sy;
+            }
+        }
+    }
+}
+
+/// An inclusive rectangle of cells: (min corner, max corner).
+pub type Rect = (Cell, Cell);
+
+fn in_rect(r: Rect, c: Cell) -> bool {
+    c.0 >= r.0.0 && c.0 <= r.1.0 && c.1 >= r.0.1 && c.1 <= r.1.1
+}
+
+/// A map run: rooms, the exit to reach, and the fights ("episodes") on the way.
+#[derive(Clone, Debug, Default)]
+pub struct MapState {
+    pub rooms: Vec<Rect>,
+    /// Each enemy's room; it wanders only there until aggroed.
+    pub homes: Vec<Option<usize>>,
+    pub exit: Cell,
+    pub rooms_entered: usize,
+    pub episodes: Vec<Episode>,
+    /// The smallest body at the start and after each closed episode.
+    pub min_body: usize,
+    open: Option<OpenEpisode>,
+    /// Counters and living enemies as of the last check with no episode open: the action that
+    /// opens an episode (a first strike, a first bite) belongs to it.
+    calm: Option<OpenEpisode>,
+}
+
+/// One fight on a map: from the first enemy aggroed on the slime until none is.
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
+pub struct Episode {
+    /// The most aggroed enemies adjacent to the slime at once.
+    pub max_adjacent: usize,
+    /// corpse + grown − spent − bitten − status during the episode, ignoring capacity.
+    pub net: i64,
+    pub corpse: usize,
+    pub eaten: usize,
+    pub wasted: usize,
+}
+
+impl MapState {
+    /// The slime starts in room 1 with a body of `body` units.
+    pub fn new(rooms: Vec<Rect>, homes: Vec<Option<usize>>, exit: Cell, body: usize) -> MapState {
+        MapState {
+            rooms,
+            homes,
+            exit,
+            rooms_entered: 1,
+            episodes: Vec::new(),
+            min_body: body,
+            open: None,
+            calm: None,
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+struct OpenEpisode {
+    max_adjacent: usize,
+    /// spent, bitten, status, grown when the episode opened.
+    counters: (usize, usize, usize, usize),
+    alive_at_open: Vec<bool>,
+}
+
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum Intent {
     Attack,
@@ -157,6 +268,12 @@ pub struct FightResult {
 
 pub struct Fight<'a> {
     d: &'a Design,
+    pub board: Board,
+    /// Enemy sight range (Chebyshev); `rules.vision_range` unless a map level sets it.
+    pub vision: i32,
+    pub max_rounds: u32,
+    /// Set for map levels: the slime walks to the exit (`strafe`) instead of face-tanking.
+    pub map: Option<MapState>,
     rng: Rng,
     actions_per_round: u32,
     pub slime: Creature,
@@ -229,6 +346,14 @@ impl<'a> Fight<'a> {
             .collect();
         let mut fight = Fight {
             d,
+            board: Board {
+                width: d.rules.board_width,
+                height: d.rules.board_height,
+                walls: Vec::new(),
+            },
+            vision: d.rules.vision_range,
+            max_rounds: d.rules.max_rounds,
+            map: None,
             rng: Rng::new(seed),
             actions_per_round,
             slime,
@@ -323,11 +448,12 @@ impl<'a> Fight<'a> {
         if !self.slime.alive() {
             return self.result(false, 0);
         }
-        for round in 1..=self.d.rules.max_rounds {
+        for round in 1..=self.max_rounds {
             self.note(|_| format!("round {round}"));
             for _ in 0..self.actions_per_round {
                 self.slime_act();
-                if self.enemies_dead() {
+                self.track_engagement();
+                if self.goal_reached() {
                     return self.result(true, round);
                 }
             }
@@ -340,11 +466,12 @@ impl<'a> Fight<'a> {
                     continue;
                 }
                 self.enemy_turn(i);
+                self.track_engagement();
                 if !self.slime.alive() {
                     return self.result(false, round);
                 }
             }
-            if self.enemies_dead() {
+            if self.goal_reached() {
                 return self.result(true, round);
             }
             self.pulse(None);
@@ -354,7 +481,103 @@ impl<'a> Fight<'a> {
             self.note(|f| format!("end of round {round}: {}", f.describe_all()));
         }
         self.last_harm = Some("timeout".into());
-        self.result(false, self.d.rules.max_rounds)
+        self.result(false, self.max_rounds)
+    }
+
+    /// Matrix fights end when every enemy is dead; map runs when the slime stands on the exit.
+    fn goal_reached(&self) -> bool {
+        match &self.map {
+            Some(m) => self.slime.alive() && self.slime.cell == m.exit,
+            None => self.enemies_dead(),
+        }
+    }
+
+    /// Map runs only: opens an episode when an enemy is aggroed on the slime, tracks how many
+    /// aggroed enemies stand next to it at once, closes it when none is left.
+    fn track_engagement(&mut self) {
+        let Some(m) = self.map.as_ref() else { return };
+        let engaged = |e: &Creature| e.alive() && e.aggroed;
+        let aggro = self.enemies.iter().any(engaged);
+        let adjacent = self
+            .enemies
+            .iter()
+            .filter(|e| engaged(e) && chebyshev(e.cell, self.slime.cell) == 1)
+            .count();
+        let counters = (
+            self.units_spent,
+            self.units_bitten,
+            self.units_status,
+            self.units_grown,
+        );
+        let alive: Vec<bool> = self.enemies.iter().map(|e| e.alive()).collect();
+        let open = m.open.is_some();
+        let m = self.map.as_mut().expect("checked");
+        let now = OpenEpisode {
+            max_adjacent: adjacent,
+            counters,
+            alive_at_open: alive,
+        };
+        if let Some(o) = m.open.as_mut() {
+            o.max_adjacent = o.max_adjacent.max(adjacent);
+        } else if aggro {
+            let calm = m.calm.take().unwrap_or_else(|| now.clone());
+            m.open = Some(OpenEpisode {
+                max_adjacent: adjacent,
+                ..calm
+            });
+        } else {
+            m.calm = Some(now.clone());
+        }
+        if open && !aggro {
+            self.close_episode();
+            if let Some(m) = self.map.as_mut() {
+                m.calm = Some(now);
+            }
+        }
+    }
+
+    /// Ends the open episode; a living slime eats the corpses of enemies that died in it.
+    fn close_episode(&mut self) {
+        let Some(o) = self.map.as_mut().and_then(|m| m.open.take()) else {
+            return;
+        };
+        let (spent, bitten, status, grown) = o.counters;
+        let mut ep = Episode {
+            max_adjacent: o.max_adjacent,
+            ..Episode::default()
+        };
+        if self.slime.alive() {
+            for (e, &was_alive) in self.enemies.iter().zip(&o.alive_at_open) {
+                if was_alive && !e.alive() {
+                    for &unit in &e.volume {
+                        ep.corpse += 1;
+                        if self.slime.volume.len() < self.d.slime.capacity {
+                            self.slime.volume.push(unit);
+                            ep.eaten += 1;
+                        } else {
+                            ep.wasted += 1;
+                        }
+                    }
+                }
+            }
+            let d = self.d;
+            refresh_dominance(d, &mut self.slime, &mut self.next_status_id);
+        }
+        ep.net = (ep.corpse + self.units_grown - grown) as i64
+            - (self.units_spent - spent + self.units_bitten - bitten + self.units_status - status)
+                as i64;
+        let body = self.slime.volume.len();
+        let m = self.map.as_mut().expect("an episode was open");
+        m.min_body = m.min_body.min(body);
+        m.episodes.push(ep);
+    }
+
+    /// Plays a map run and returns its map state (episodes, rooms entered) as well.
+    pub fn run_map(mut self) -> (FightResult, MapState) {
+        self.track_engagement();
+        let result = self.rounds();
+        self.close_episode();
+        (result, self.map.take().unwrap_or_default())
     }
 
     fn result(&self, won: bool, rounds: u32) -> FightResult {
@@ -385,10 +608,12 @@ impl<'a> Fight<'a> {
     }
 
     fn inside(&self, cell: Cell) -> bool {
-        cell.0 >= 0
-            && cell.1 >= 0
-            && cell.0 < self.d.rules.board_width
-            && cell.1 < self.d.rules.board_height
+        self.board.open(cell)
+    }
+
+    /// What a walker cannot step into: walls and other creatures.
+    fn blocked(&self, occupied: &[Cell], c: Cell) -> bool {
+        occupied.contains(&c) || self.board.wall(c)
     }
 
     /// `CreatureMoves.ApproachCells` → `GridPath.TryWalk`: the cell `speed` steps along the
@@ -405,13 +630,9 @@ impl<'a> Fight<'a> {
         if goals.is_empty() && free(target) {
             goals.push(target);
         }
-        let route = path::find(
-            self.d.rules.board_width,
-            self.d.rules.board_height,
-            from,
-            &goals,
-            |c| occupied.contains(&c),
-        )?;
+        let route = path::find(self.board.width, self.board.height, from, &goals, |c| {
+            self.blocked(&occupied, c)
+        })?;
         Some(route[(speed as usize).min(route.len()) - 1])
     }
 
@@ -420,6 +641,9 @@ impl<'a> Fight<'a> {
     /// Face-tank: walk to the nearest enemy, strike it with the liquid the slime has most of,
     /// wait when the last unit cannot be spent. Uses only player actions (step, attack, wait).
     fn slime_act(&mut self) {
+        if self.map.is_some() {
+            return self.strafe_act();
+        }
         let Some(target) = self
             .enemies
             .iter()
@@ -460,6 +684,48 @@ impl<'a> Fight<'a> {
             self.note(|_| format!("Slime steps {from:?}->{to:?}"));
         } else {
             self.note(|_| "Slime waits: no path".into());
+        }
+    }
+
+    /// Strafe (map runs): strike an aggroed enemy next to the slime, else step toward the exit;
+    /// when the way is blocked, strike whatever stands next to it. Never hunts.
+    fn strafe_act(&mut self) {
+        let adjacent = |f: &Fight, aggroed_only: bool| {
+            f.enemies.iter().position(|e| {
+                e.alive() && chebyshev(e.cell, f.slime.cell) == 1 && (e.aggroed || !aggroed_only)
+            })
+        };
+        if let Some(i) = adjacent(self, true) {
+            return self.strike_or_wait(i);
+        }
+        let exit = self.map.as_ref().expect("strafe runs on a map").exit;
+        let occupied = self.occupied();
+        let from = self.slime.cell;
+        let step = path::find(self.board.width, self.board.height, from, &[exit], |c| {
+            self.blocked(&occupied, c)
+        });
+        if let Some(route) = step {
+            let to = route[0];
+            self.slime.cell = to;
+            let m = self.map.as_mut().expect("checked");
+            if let Some(k) = m.rooms.iter().position(|&r| in_rect(r, to)) {
+                m.rooms_entered = m.rooms_entered.max(k + 1);
+            }
+            self.note(|_| format!("Slime steps {from:?}->{to:?}"));
+        } else if let Some(i) = adjacent(self, false) {
+            self.strike_or_wait(i);
+        } else {
+            self.note(|_| "Slime waits: no path to the exit".into());
+        }
+    }
+
+    fn strike_or_wait(&mut self, target: usize) {
+        if self.slime.volume.len() > 1 {
+            let liquid = self.most_held_liquid();
+            self.slime_strike(target, liquid);
+            self.note(|f| format!("Slime strikes {} with {liquid:?}", f.label(target)));
+        } else {
+            self.note(|_| "Slime waits: the last unit cannot be spent".into());
         }
     }
 
@@ -554,8 +820,11 @@ impl<'a> Fight<'a> {
     }
 
     fn can_see(&self, i: usize) -> bool {
-        chebyshev(self.enemies[i].cell, self.slime.cell) <= self.d.rules.vision_range
+        chebyshev(self.enemies[i].cell, self.slime.cell) <= self.vision
             && self.detected(i)
+            && self
+                .board
+                .line_of_sight(self.enemies[i].cell, self.slime.cell)
     }
 
     fn adjacent_and_detected(&self, i: usize) -> bool {
@@ -662,8 +931,13 @@ impl<'a> Fight<'a> {
             return;
         }
         let occupied = self.occupied();
+        let home = self
+            .map
+            .as_ref()
+            .and_then(|m| m.homes.get(i).copied().flatten().map(|k| m.rooms[k]));
         let mut options: Vec<Cell> = path::neighbours(self.enemies[i].cell)
             .filter(|&c| self.inside(c) && !occupied.contains(&c))
+            .filter(|&c| home.is_none_or(|r| in_rect(r, c)))
             .collect();
         if options.is_empty() {
             return;
@@ -685,10 +959,10 @@ impl<'a> Fight<'a> {
         if !flee_cell_ok {
             // `CreatureHunt.PickFleeCell`: far from the threat, then near to self.
             let mut best = (from, -1);
-            for y in 0..self.d.rules.board_height {
-                for x in 0..self.d.rules.board_width {
+            for y in 0..self.board.height {
+                for x in 0..self.board.width {
                     let c = (x, y);
-                    if occupied.contains(&c) {
+                    if self.blocked(&occupied, c) {
                         continue;
                     }
                     let score = chebyshev(c, threat) * 1000 - chebyshev(c, from);
@@ -704,13 +978,9 @@ impl<'a> Fight<'a> {
             return;
         }
         let distance = chebyshev(from, threat);
-        let route = path::find(
-            self.d.rules.board_width,
-            self.d.rules.board_height,
-            from,
-            &[goal],
-            |c| occupied.contains(&c),
-        );
+        let route = path::find(self.board.width, self.board.height, from, &[goal], |c| {
+            self.blocked(&occupied, c)
+        });
         if let Some(route) = route {
             let to = route[(speed as usize).min(route.len()) - 1];
             if chebyshev(to, threat) > distance {

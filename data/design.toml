@@ -142,6 +142,8 @@ slime_cell = [1, 5]
 enemy_column_offset = 5       # enemies stand in the column slime_cell.x + offset
 enemy_rows = [5, 4, 6]        # the n-th enemy stands on this row
 
+# Level runs. A stage level (`stages`) carries the body through fights and fountains
+# (src/level.rs); a map level (`map`) walks a generated chain of rooms to the exit (src/map.rs).
 # Level runs for the body economy (src/level.rs, docs/report-format.md "[levels]").
 # Placeholders until balance defines real levels: the same stages at 1 and 2 actions per round.
 # `start` defaults to full Water. Stages: kind = "fight" (enemy, enemies at once) or
@@ -171,3 +173,26 @@ stages = [
   { kind = "fight", enemy = "Mushroom", enemies = 1 },
   { kind = "fight", enemy = "Eye", enemies = 2 },
 ]
+
+# Map levels: the balance session's first numbers (5 rooms of 5–9, 1–2 enemies each), one per
+# enemy vision range. Placeholders until balance defines real levels.
+[[levels]]
+id = "map-vision2"
+capacity = 10
+action_points = 2
+policy = "strafe"
+map = { rooms = 5, room_side = [5, 9], enemies_per_room = [1, 2], enemy_kinds = ["Bat", "Mushroom", "Undine", "Cactus", "Mandragora", "Eye"], corridor = 2, vision = 2 }
+
+[[levels]]
+id = "map-vision3"
+capacity = 10
+action_points = 2
+policy = "strafe"
+map = { rooms = 5, room_side = [5, 9], enemies_per_room = [1, 2], enemy_kinds = ["Bat", "Mushroom", "Undine", "Cactus", "Mandragora", "Eye"], corridor = 2, vision = 3 }
+
+[[levels]]
+id = "map-vision4"
+capacity = 10
+action_points = 2
+policy = "strafe"
+map = { rooms = 5, room_side = [5, 9], enemies_per_room = [1, 2], enemy_kinds = ["Bat", "Mushroom", "Undine", "Cactus", "Mandragora", "Eye"], corridor = 2, vision = 4 }

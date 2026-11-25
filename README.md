@@ -43,6 +43,8 @@ cargo test
 
 - **Levels:** `[[levels]]` in the design file run stage by stage (fights, then eating the
   corpses, and fountains) and report the body budget: [`docs/level-economy.md`](docs/level-economy.md).
+  A level with a `map` is a generated chain of rooms with walls and roaming enemies instead:
+  [`docs/map-levels.md`](docs/map-levels.md).
 
 ## Published report
 

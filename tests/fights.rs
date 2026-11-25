@@ -293,8 +293,22 @@ fn text_report_is_stable_and_has_no_run_details() {
             })
             .collect()
     };
-    let a = text::render(&toml, None, &reports("2026-01-01T00:00:00Z", "aaaa"), &[]).unwrap();
-    let b = text::render(&toml, None, &reports("2027-02-02T00:00:00Z", "bbbb"), &[]).unwrap();
+    let a = text::render(
+        &toml,
+        None,
+        &reports("2026-01-01T00:00:00Z", "aaaa"),
+        &[],
+        &[],
+    )
+    .unwrap();
+    let b = text::render(
+        &toml,
+        None,
+        &reports("2027-02-02T00:00:00Z", "bbbb"),
+        &[],
+        &[],
+    )
+    .unwrap();
     assert_eq!(
         a, b,
         "the text report must not depend on the time or the commit"
@@ -304,7 +318,7 @@ fn text_report_is_stable_and_has_no_run_details() {
     assert!(a.contains("\nenemies.Mushroom.traits = \n"));
     assert!(a.contains("\nmatrix.enemy_rows = 5 4 6\n"));
     assert!(a.contains("\nslime.start = Water Water Oil Poison Acid Lava\n"));
-    let with_file = text::render(&toml, Some("x.toml"), &reports("t", "c"), &[]).unwrap();
+    let with_file = text::render(&toml, Some("x.toml"), &reports("t", "c"), &[], &[]).unwrap();
     assert!(with_file.contains("\ndesign.file = x.toml\n"));
 
     let table: Vec<&str> = a
@@ -536,7 +550,7 @@ fn slices_split_the_reference_fight_by_source() {
         "t",
         "c",
     );
-    let text = text::render(&toml, None, &[rep], &[]).unwrap();
+    let text = text::render(&toml, None, &[rep], &[], &[]).unwrap();
     let line = |section: &str| {
         text.split(&format!("[{section}]\n"))
             .nth(1)
