@@ -40,8 +40,9 @@ defines real ones. Experiments use their own file through `--design`.
 `after = before − spent − bitten − status + grown + eaten + drunk`, where `grown` is the Blood
 added by Regeneration during the fight (counted on each pulse, not derived from the others).
 `net = corpse + drunk + grown − spent − bitten − status`: the stage's own yield, ignoring
-capacity. `corpse` is what the corpses offered (`eaten` plus the part that did not fit); that
-overflow, shown in `wasted`, is the budget available for swapping liquids. A fountain's undrunk
+capacity. `corpse` is what the corpses offered (`eaten` plus the part that did not fit). The
+corpse overflow, counted in `wasted` together with a fountain's undrunk rest, is the budget
+available for swapping liquids. A fountain's undrunk
 rest stays out of `net`, because a full slime gains nothing from a fountain it cannot drink.
 
 Every average is over the seeds that **reached** the stage. A stage nobody reached shows
@@ -56,5 +57,5 @@ Every average is over the seeds that **reached** the stage. A stage nobody reach
 - The game's size rule for eating: Devour starts only when the slime's volume is at least the
   corpse's (`Digesting.CanBegin`), and the units arrive all at once at the end. `[levels]` eats
   any corpse unit by unit while there is room. This is a deliberate difference, not a bug; a
-  balance proposal to change the game's rule is with Oleg.
+  balance proposal to change the game's rule is pending.
 - Levels with room shapes.

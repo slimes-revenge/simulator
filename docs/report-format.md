@@ -34,8 +34,8 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 1  face-tank  start      bat-3              0  176.82   0.88   0.88   2.92   2.20   0.00  timeout=44 melee:Bat=6
 ```
 
-- **Header line:** format version. It goes up when an existing section's columns change. No time, commit or seed list. The release notes and the
-  JSON carry the commit.
+- **Header line:** format version. It goes up when an existing section's columns change.
+  No time, commit or seed list. The release notes and the JSON carry the commit.
 - **`[design]`:** every value of the design file the run used, one `key = value` per line, in
   file order. An empty list prints as `key = ` with nothing after it.
   - Tables flatten to dotted keys. Arrays of tables are keyed by their `name`, else their `id`,
