@@ -5,8 +5,12 @@ use simulator::fight::{Fight, FightResult, Policy, Tally};
 use simulator::report::{self, Build, Encounter};
 use simulator::text;
 
+/// The bundled design without R2 elements: these fights are checked by hand against the
+/// game's rules, which have no elements (R2 is tested in `tests/elements.rs`).
 fn design() -> Design {
-    Design::bundled()
+    let mut d = Design::bundled();
+    d.elements = simulator::data::Elements::default();
+    d
 }
 
 fn pure(d: &Design, liquid: Liquid) -> Build {
@@ -397,7 +401,11 @@ fn level_design(stages: &str) -> Design {
         "[[levels]]\nid = \"t\"\ncapacity = 10\nstart = [{}]\naction_points = 1\npolicy = \"newcomer\"\nstages = [{stages}]\n",
         ["\"Lava\""; 10].join(", ")
     );
-    Design::parse(&text).unwrap()
+    // Hand-checked ledgers: no elements, and no reactions (a Lava body eats Water corpses).
+    let mut d = Design::parse(&text).unwrap();
+    d.elements = simulator::data::Elements::default();
+    d.reactions.clear();
+    d
 }
 
 // 10 Lava vs 1 Mushroom (hand-checked above: 2 strikes, 1 bite, 7 left), then the slime eats
@@ -857,7 +865,7 @@ fn policy_settings_are_validated() {
     let wrong = base.replacen("arranger_keep = \"none\"", "arranger_keep = \"Ink\"", 1);
     assert!(Design::parse(&wrong).unwrap_err().contains("arranger_keep"));
     let twice = base.replacen(
-        "policies = [\"newcomer\", \"arranger\", \"kite\"]",
+        "policies = [\"newcomer\", \"arranger\", \"kite\", \"reader\"]",
         "policies = [\"newcomer\", \"newcomer\"]",
         1,
     );

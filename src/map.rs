@@ -173,6 +173,9 @@ pub struct MapLevelResult {
     pub reactions: f64,
     pub react_loss: f64,
     pub stones: f64,
+    /// R2, averages per played seed: slime hits that dominated, suppressed bites that missed.
+    pub elem_plus: f64,
+    pub elem_miss: f64,
     /// Where runs ended without the exit: `room<k>:<cause>` → seeds.
     pub stops: BTreeMap<String, u64>,
 }
@@ -213,11 +216,12 @@ pub fn summarize(level: &Level, runs: &[(FightResult, MapState)], of: u64) -> Ma
     let mut stops = BTreeMap::new();
     let mut out_sum = 0;
     let mut hunter = [0u64; 3];
-    let mut react = [0usize; 3];
+    let mut react = [0usize; 5];
     let (mut hunter_eps, mut hunter_sum) = (0u64, 0i64);
     for (result, state) in runs {
         let t = &result.tally;
-        for (sum, x) in react.iter_mut().zip([t.reactions, t.react_loss, t.stones]) {
+        let counts = [t.reactions, t.react_loss, t.stones, t.elem_plus, t.elem_miss];
+        for (sum, x) in react.iter_mut().zip(counts) {
             *sum += x;
         }
         if state.hunter.is_some() {
@@ -282,6 +286,8 @@ pub fn summarize(level: &Level, runs: &[(FightResult, MapState)], of: u64) -> Ma
         reactions: round2(react[0] as f64 / n),
         react_loss: round2(react[1] as f64 / n),
         stones: round2(react[2] as f64 / n),
+        elem_plus: round2(react[3] as f64 / n),
+        elem_miss: round2(react[4] as f64 / n),
         stops,
     }
 }
@@ -336,8 +342,8 @@ pub fn fight<'a>(
     state.surface = surface;
     state.sun_every = spec.sun_every;
     state.hunter = spec.hunter.clone();
-    // `kite` walks and holds corridors like `lure`; next to enemies it kites (src/fight.rs).
-    state.lure = level.policy == "lure" || level.policy == "kite";
+    // `kite` and `reader` walk and hold corridors like `lure`; next to enemies they kite.
+    state.lure = ["lure", "kite", "reader"].contains(&level.policy.as_str());
     f.policy = crate::fight::Policy::from_name(&level.policy, d);
     f.map = Some(state);
     f

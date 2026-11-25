@@ -60,7 +60,9 @@ fn main() -> ExitCode {
                 trace = Some(args[i + 1..i + 5].to_vec());
                 5
             }
-            ("--policy", Some(p)) if ["newcomer", "arranger", "kite"].contains(&p.as_str()) => {
+            ("--policy", Some(p))
+                if ["newcomer", "arranger", "kite", "reader"].contains(&p.as_str()) =>
+            {
                 trace_policy = p;
                 2
             }

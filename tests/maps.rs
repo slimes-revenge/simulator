@@ -5,6 +5,12 @@ use simulator::fight::Board;
 use simulator::map;
 use simulator::path;
 
+/// The design without R2 elements: these tests check other mechanics (R2: `tests/elements.rs`).
+fn no_elements(mut d: Design) -> Design {
+    d.elements = simulator::data::Elements::default();
+    d
+}
+
 fn spec(rooms: usize, side: (i32, i32), enemies: (usize, usize), vision: i32) -> MapSpec {
     MapSpec {
         rooms,
@@ -32,7 +38,7 @@ fn design_with(level_map: &str) -> Design {
     text += &format!(
         "[[levels]]\nid = \"t\"\ncapacity = 10\naction_points = 1\npolicy = \"strafe\"\nmap = {level_map}\n"
     );
-    Design::parse(&text).unwrap()
+    no_elements(Design::parse(&text).unwrap())
 }
 
 #[test]

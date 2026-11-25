@@ -218,6 +218,44 @@ Agreed design rules (balance `sim-reactions-spec.md`); not in the game yet.
   in an `elements.circles` circle: Water → Phosphorus → Lava → Mercury → Aquavita → Water;
   Vitriol → Alkali → Ambrosia → Acid → Poison → Vitriol).
 
+## R2: elements in combat (`[elements]`, `hit`, `enemy_melee`)
+
+Agreed design rules (balance `sim-reactions-spec.md`, `bestiary-numbers.md`); not in the game.
+
+- **Elements.** The 10 circle liquids are their own element; the other 8 have none. An enemy's
+  element is its `element`, else its corpse's most common liquid (the first on a tie), as its
+  own element or through `elements.corpse` (Blood, Fat → Alkali; Pus → Poison; Oil → Lava;
+  Sulfur → Acid; Resin, Tar → Ambrosia). A ⊣ B (A suppresses B): B is two places after A in a
+  circle (Water ⊣ Lava ⊣ Aquavita ⊣ Phosphorus ⊣ Mercury ⊣ Water; Vitriol ⊣ Ambrosia ⊣ Poison ⊣
+  Alkali ⊣ Acid ⊣ Vitriol).
+- **The slime's hit** (strike or spit; its element is the edge unit's):
+  - dominates the target: +1 damage (`suppress = "plus1"`; `"double"`: ×2), counted `elem_plus`;
+  - suppressed by the target: plain damage and no encouragement bonus;
+  - same element: no damage, no status, the unit is kept (the target is aggroed).
+- **An enemy's bite** (its element against the slime's edge unit's):
+  - dominates: +1 (or ×2);
+  - suppressed: it lands `suppressed_hit_percent` (25) of the time; a miss costs the enemy
+    `miss_self_damage` (1) HP, counted `elem_miss`;
+  - same element: no bite.
+- **Status immunity** (`status_immune`): a status does not take on enemies of the listed
+  elements; the hit still hurts. `status_double`: it takes twice (two copies) instead.
+- **Ambrosia** heals a Living target (`elements.living` = Alkali) by 1 instead of hurting it.
+- **Strike rows of the new liquids** (balance `liquids.md`, final list): Vitriol — Corroding
+  (at least 1 armor per pulse; the strike strips none); Alkali — Instability for its `pulses`
+  (2); Sulfur — Flammable. Liquids whose status is not modelled yet hit with no status.
+
+## R3: policies and reactions (`reader`, careful drinking)
+
+- **`reader`** = `kite`, and before a strike, when the edge does not dominate the target and a
+  unit 1 or 2 places under it does, it moves that unit to the edge (one action, counted as a
+  swap) unless the move makes reacting neighbours; then it strikes. On maps it walks like
+  `kite`.
+- **Careful map policies** (`lure`, `kite`, `reader`; not `strafe`, the newcomer of maps): an
+  edge unit that reacts with the unit under it is spat away (one action); a unit they would
+  drink onto an edge it reacts with is poured away instead (one action, the source loses it).
+- **`arranger`** skips a swap that would make reacting neighbours.
+- `newcomer` and `strafe` do none of this: their reactions are the measured mistakes.
+
 ## Where the docs and the code disagree
 
 Found while building the model (game `dev` at 44018ffe, 2026-11-25). The simulator follows the code.

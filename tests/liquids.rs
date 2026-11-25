@@ -32,6 +32,8 @@ fn retaliation_lasts_retaliation_pulses() {
     // A Lava slime is bitten: the biter burns for `rules.retaliation_pulses`.
     let mut d = Design::bundled();
     d.rules.retaliation_pulses = 2;
+    // No elements: a Water Mushroom is immune to Burning (R2).
+    d.elements = simulator::data::Elements::default();
     let mut f = Fight::new(
         &d,
         0,

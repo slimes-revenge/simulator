@@ -72,6 +72,8 @@ pub struct Creature {
     pub statuses: Vec<Status>,
     pub personality: Personality,
     pub vampirism: bool,
+    /// R2: the creature's element (enemies; `None` for the slime and element-less kinds).
+    pub element: Option<Liquid>,
     pub traits: Vec<Trait>,
     /// Its own sight range (enemies); the fight's `vision` when `None`.
     pub vision: Option<i32>,
@@ -269,6 +271,9 @@ pub enum Policy {
     Arranger { keep: Option<Liquid> },
     /// Strike, then step out of reach on the round's last action (`kite_adjacent`).
     Kite,
+    /// R3: `kite`, and before a strike it brings a unit that dominates the target's element
+    /// from at most 2 places under the edge up to the edge (one action).
+    Reader,
 }
 
 impl Policy {
@@ -278,6 +283,7 @@ impl Policy {
                 keep: d.policies.keep(),
             },
             "kite" => Policy::Kite,
+            "reader" => Policy::Reader,
             _ => Policy::Newcomer,
         }
     }
@@ -317,6 +323,9 @@ pub struct Tally {
     pub swaps: usize,
     /// Spits (strikes without melee contact).
     pub spits: usize,
+    /// R2: slime hits that dominated the target's element; suppressed enemy bites that missed.
+    pub elem_plus: usize,
+    pub elem_miss: usize,
     /// R1: reacting pairs, units they took off the body, stones they dropped.
     pub reactions: usize,
     pub react_loss: usize,
@@ -403,6 +412,7 @@ impl<'a> Fight<'a> {
             statuses: Vec::new(),
             personality: Personality::Aggressive,
             vampirism: false,
+            element: None,
             traits: Vec::new(),
             vision: None,
             hunter: false,
@@ -620,9 +630,25 @@ impl<'a> Fight<'a> {
         self.note(|_| "The sun dries a Water unit".into());
     }
 
+    /// What `drink` would take where the slime stands, if anything.
+    fn next_drink(&self) -> Option<Liquid> {
+        let cell = self.slime.cell;
+        let m = self.map.as_ref()?;
+        if self.slime.volume.len() >= self.d.slime.capacity {
+            return None;
+        }
+        if m.drips.iter().any(|(c, n)| *c == cell && *n > 0) {
+            Some(Liquid::Water)
+        } else if cell == m.exit && m.river > 0 {
+            m.river_liquids.first().copied()
+        } else {
+            None
+        }
+    }
+
     /// Drinks one unit where the slime stands: a drip cell's Water, or the river at the exit.
-    /// `false` when full or nothing is here.
-    fn drink(&mut self) -> bool {
+    /// `false` when full or nothing is here. `keep = false` pours the unit away instead (R3).
+    fn drink(&mut self, keep: bool) -> bool {
         let cell = self.slime.cell;
         let full = self.slime.volume.len() >= self.d.slime.capacity;
         let Some(m) = self.map.as_mut().filter(|_| !full) else {
@@ -638,6 +664,10 @@ impl<'a> Fight<'a> {
         } else {
             return false;
         };
+        if !keep {
+            self.note(|_| format!("Slime pours {liquid:?} away: it would react"));
+            return true;
+        }
         self.slime.volume.push(liquid);
         let d = self.d;
         refresh_dominance(d, &mut self.slime, &mut self.next_status_id);
@@ -857,7 +887,7 @@ impl<'a> Fight<'a> {
         if self.map.is_some() {
             return self.map_act();
         }
-        if self.policy == Policy::Kite {
+        if self.kites() {
             if !self.enemies.iter().any(|e| self.engaging(e)) {
                 return self.note(|_| "Slime waits for the enemy".into());
             }
@@ -887,7 +917,11 @@ impl<'a> Fight<'a> {
         };
         if chebyshev(self.slime.cell, self.enemies[target].cell) == 1 {
             // `Volume.CanSpend`: the last unit is the slime's life.
-            if self.can_strike() && !self.swapped && self.arranger_swap(target) {
+            if self.can_strike()
+                && !self.swapped
+                && self.arranger_swap(target)
+                && !self.would_react(self.slime.volume.len() - 1, self.slime.volume.len() - 2)
+            {
                 self.slime_swap(0);
                 self.swapped = true;
                 self.note(|f| format!("Slime swaps: {:?} to the edge", f.edge()));
@@ -944,13 +978,28 @@ impl<'a> Fight<'a> {
             })
         };
         let aggro = self.enemies.iter().any(|e| self.engaging(e));
-        if self.policy == Policy::Kite && aggro && self.kite_adjacent() {
+        if self.kites() && aggro && self.kite_adjacent() {
             return;
         }
         if let Some(i) = adjacent(self, true) {
             return self.strike_or_wait(i);
         }
-        if self.drink() {
+        // R3: careful map policies (`lure`, `kite`, `reader`; not `strafe`) spit off an edge
+        // unit that would react with the one under it, and pour away (one action) a unit
+        // they would drink onto an edge it reacts with.
+        let careful = self.map.as_ref().is_some_and(|m| m.lure);
+        let v = &self.slime.volume;
+        if careful && v.len() >= 2 && self.pair_reacts(v[v.len() - 1], v[v.len() - 2]) {
+            let unit = self.slime.volume.pop().expect("two units");
+            return self.note(|_| format!("Slime spits {unit:?} away: it would react"));
+        }
+        let reacts = self.next_drink().is_some_and(|l| {
+            self.slime
+                .volume
+                .last()
+                .is_some_and(|&e| self.pair_reacts(e, l))
+        });
+        if self.drink(!(careful && reacts)) {
             return;
         }
         let m = self.map.as_ref().expect("map runs");
@@ -1158,7 +1207,17 @@ impl<'a> Fight<'a> {
     /// Strikes `target` with the edge unit, or spits it when the policy spits at Thorns
     /// (`lure`, `kite`) and the target has them; waits when the last unit cannot be spent.
     fn strike_or_wait(&mut self, target: usize) {
-        let spits = self.policy == Policy::Kite || self.map.as_ref().is_some_and(|m| m.lure);
+        if self.policy == Policy::Reader && self.can_strike() && !self.swapped {
+            if let Some(k) = self.reader_pick(target) {
+                let unit = self.slime.volume.remove(k);
+                self.slime.volume.push(unit);
+                self.tally.swaps += 1;
+                self.swapped = true;
+                return self.note(|_| format!("Slime brings {unit:?} to the edge"));
+            }
+        }
+        self.swapped = false;
+        let spits = self.kites() || self.map.as_ref().is_some_and(|m| m.lure);
         if self.can_strike() && self.edge() == Liquid::Pus {
             self.slime_spit(target);
             self.note(|_| "Slime spits Pus off its edge".into());
@@ -1199,6 +1258,49 @@ impl<'a> Fight<'a> {
             || (next == Liquid::Lava
                 && edge != Liquid::Lava
                 && has(|k| *k == StatusKind::Flammable))
+    }
+
+    /// `kite` or `reader`.
+    fn kites(&self) -> bool {
+        matches!(self.policy, Policy::Kite | Policy::Reader)
+    }
+
+    /// `reader`: the index (1 or 2 under the edge) of a unit whose element dominates the
+    /// target's, when the edge does not already and the move makes no reacting neighbours.
+    fn reader_pick(&self, target: usize) -> Option<usize> {
+        let el = &self.d.elements;
+        let theirs = self.enemies[target].element?;
+        let v = &self.slime.volume;
+        let n = v.len();
+        let dominates = |l: Liquid| el.of(l).is_some_and(|a| el.suppresses(a, theirs));
+        if n < 2 || dominates(v[n - 1]) {
+            return None;
+        }
+        (n.saturating_sub(3)..n - 1).rev().find(|&k| {
+            let mut after = v.clone();
+            let unit = after.remove(k);
+            after.push(unit);
+            dominates(unit) && !self.reacts_anywhere(&after)
+        })
+    }
+
+    /// Whether any two neighbours of `body` react (R1).
+    fn reacts_anywhere(&self, body: &[Liquid]) -> bool {
+        body.windows(2).any(|w| self.pair_reacts(w[0], w[1]))
+    }
+
+    fn pair_reacts(&self, a: Liquid, b: Liquid) -> bool {
+        self.d
+            .reactions
+            .iter()
+            .any(|r| r.pair == (a, b) || r.pair == (b, a))
+    }
+
+    /// Whether swapping the units at body indices `i` and `j` makes reacting neighbours.
+    fn would_react(&self, i: usize, j: usize) -> bool {
+        let mut after = self.slime.volume.clone();
+        after.swap(i, j);
+        self.reacts_anywhere(&after) && !self.reacts_anywhere(&self.slime.volume)
     }
 
     /// The unit a strike spends: the edge of the body (the end bites pop too).
@@ -1259,8 +1361,19 @@ impl<'a> Fight<'a> {
         if self.slime.volume.len() == 1 && !d.rules.last_drop_strike {
             return;
         }
+        // R2: the edge unit's element against the target's.
+        let el = &d.elements;
+        let (mine, theirs) = (el.of(liquid), self.enemies[target].element);
+        let dominates = mine.zip(theirs).is_some_and(|(a, b)| el.suppresses(a, b));
+        let suppressed = mine.zip(theirs).is_some_and(|(a, b)| el.suppresses(b, a));
+        if mine.is_some() && mine == theirs {
+            // Same element: no harm, no effect, the unit is kept.
+            self.enemies[target].aggroed = true;
+            return self.note(|f| format!("{} shrugs off its own element", f.label(target)));
+        }
         let n = self.slime.volume.len();
         let bonus = if !self.encouraged
+            && !suppressed
             && at + 1 == n
             && n >= 2
             && d.elements.encourages(self.slime.volume[n - 2], liquid)
@@ -1282,12 +1395,27 @@ impl<'a> Fight<'a> {
         if pending_status_damage(d, enemy) >= enemy.hit_points {
             self.tally.doomed_strikes += 1;
         }
+        if liquid == Liquid::Ambrosia && enemy.element.is_some() && enemy.element == el.living {
+            // Ambrosia heals the Living (lore forum.md) instead of hurting them.
+            heal(enemy, 1);
+            enemy.aggroed = true;
+            return;
+        }
         enemy.armor = (enemy.armor - stats.corrosion).max(0);
-        let power = if liquid == Liquid::Lava {
+        let mut power = if liquid == Liquid::Lava {
             modify_incoming_harm(d, enemy, stats.power)
         } else {
             stats.power
-        } + bonus;
+        };
+        if dominates {
+            power = if el.suppress == "double" {
+                power * 2
+            } else {
+                power + 1
+            };
+            self.tally.elem_plus += 1;
+        }
+        let power = power + bonus;
         let hp = enemy.hit_points;
         damage(d, enemy, power, true, &mut self.next_status_id);
         let applied = (hp - enemy.hit_points) as usize;
@@ -1568,9 +1696,35 @@ impl<'a> Fight<'a> {
             return;
         }
         let d = self.d;
+        // R2: the enemy's element against the slime's edge unit's.
+        let el = &d.elements;
+        let (theirs, mine) = (
+            self.enemies[i].element,
+            self.slime.volume.last().and_then(|&l| el.of(l)),
+        );
+        if theirs.is_some() && theirs == mine {
+            return self.note(|f| format!("{} cannot hurt its own element", f.label(i)));
+        }
+        let mut power = self.enemies[i].melee_power;
+        if theirs.zip(mine).is_some_and(|(a, b)| el.suppresses(b, a))
+            && self.rng.pick(100) >= el.suppressed_hit_percent
+        {
+            // A suppressed attacker misses and hurts itself.
+            let e = &mut self.enemies[i];
+            e.hit_points -= el.miss_self_damage;
+            e.aggroed = true;
+            self.tally.elem_miss += 1;
+            return self.note(|f| format!("{} misses and hurts itself", f.label(i)));
+        }
+        if theirs.zip(mine).is_some_and(|(a, b)| el.suppresses(a, b)) {
+            power = if el.suppress == "double" {
+                power * 2
+            } else {
+                power + 1
+            };
+        }
         // Retaliation is captured before the hit: the hit may end dominance.
         let retort = self.slime.dominant;
-        let power = self.enemies[i].melee_power;
         let before = self.slime.volume.clone();
         let tip = damage(d, &mut self.slime, power, true, &mut self.next_status_id);
         self.units_bitten += before.len() - self.slime.volume.len();
@@ -1955,13 +2109,29 @@ fn apply_liquid(d: &Design, target: &mut Creature, liquid: Liquid, from: Source,
     let s = &d.statuses;
     // `rules.retaliation_pulses` (design): Retaliation statuses are short.
     let pulses = d.rules.retaliation_pulses;
-    let mut add = |kind, duration| {
+    let own = d.liquid(liquid).pulses;
+    let element = target.element;
+    let has = |table: &BTreeMap<String, Vec<Liquid>>, kind: StatusKind| {
+        element.is_some_and(|e| table.get(kind.name()).is_some_and(|l| l.contains(&e)))
+    };
+    let mut add = |kind: StatusKind, duration| {
+        // R2 immunity by the target's element: the strike hurt, the status does not take.
+        if has(&d.elements.status_immune, kind) {
+            return;
+        }
         let duration = if from == Source::Retaliation && pulses > 0 {
             pulses
         } else {
-            duration
+            own.unwrap_or(duration)
         };
-        add_status(target, kind, duration, from, ids)
+        let copies = if has(&d.elements.status_double, kind) {
+            2
+        } else {
+            1
+        };
+        for _ in 0..copies {
+            add_status(target, kind, duration, from, ids);
+        }
     };
     match liquid {
         Liquid::Water => add(StatusKind::Wet, s.wet),
@@ -1975,17 +2145,22 @@ fn apply_liquid(d: &Design, target: &mut Creature, liquid: Liquid, from: Source,
             add(StatusKind::Corroding { corrosion }, s.corroding);
         }
         Liquid::Lava => add(StatusKind::Burning, s.burning),
+        Liquid::Vitriol => {
+            // Its Corroding strips at least 1 armor per pulse; the strike itself strips none.
+            let corrosion = d.liquid(Liquid::Vitriol).corrosion.max(1);
+            add(StatusKind::Corroding { corrosion }, s.corroding);
+        }
+        Liquid::Alkali => add(StatusKind::Instability, s.instability),
+        Liquid::Sulfur => add(StatusKind::Flammable, s.flammable),
+        // No status in the model yet (Cold fire, Greased, Rooted, Charmed, Infected), or none.
         Liquid::Blood
         | Liquid::Mercury
         | Liquid::Pus
         | Liquid::Phosphorus
         | Liquid::Aquavita
-        | Liquid::Vitriol
-        | Liquid::Alkali
         | Liquid::Ambrosia
         | Liquid::Fat
         | Liquid::Resin
-        | Liquid::Sulfur
         | Liquid::Tar
         | Liquid::Aphrodisiac => {}
     }
@@ -2084,6 +2259,7 @@ fn enemy_creature(d: &Design, kind: &str, cell: Cell) -> Creature {
         statuses: Vec::new(),
         personality: e.personality,
         vampirism: e.traits.contains(&Trait::Vampirism),
+        element: d.elements.of_enemy(e),
         traits: e.traits.clone(),
         vision: e.vision,
         hunter: false,
