@@ -1207,14 +1207,16 @@ impl<'a> Fight<'a> {
     /// Strikes `target` with the edge unit, or spits it when the policy spits at Thorns
     /// (`lure`, `kite`) and the target has them; waits when the last unit cannot be spent.
     fn strike_or_wait(&mut self, target: usize) {
-        if self.policy == Policy::Reader && self.can_strike() && !self.swapped {
-            if let Some(k) = self.reader_pick(target) {
-                let unit = self.slime.volume.remove(k);
-                self.slime.volume.push(unit);
-                self.tally.swaps += 1;
-                self.swapped = true;
-                return self.note(|_| format!("Slime brings {unit:?} to the edge"));
-            }
+        if self.policy == Policy::Reader
+            && self.can_strike()
+            && !self.swapped
+            && let Some(k) = self.reader_pick(target)
+        {
+            let unit = self.slime.volume.remove(k);
+            self.slime.volume.push(unit);
+            self.tally.swaps += 1;
+            self.swapped = true;
+            return self.note(|_| format!("Slime brings {unit:?} to the edge"));
         }
         self.swapped = false;
         let spits = self.kites() || self.map.as_ref().is_some_and(|m| m.lure);
