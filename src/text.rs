@@ -16,7 +16,7 @@ pub fn render(
     maps: &[MapLevelResult],
 ) -> Result<String, String> {
     let design: toml::Table = toml::from_str(design_toml).map_err(|e| e.to_string())?;
-    let mut out = String::from("# Slime's Revenge design guard — plain-text report, format 3\n");
+    let mut out = String::from("# Slime's Revenge design guard — plain-text report, format 4\n");
     out += "\n[design]\n";
     if let Some(file) = design_file {
         let _ = writeln!(out, "design.file = {file}");
@@ -83,7 +83,7 @@ fn render_levels(levels: &[LevelResult], out: &mut String) {
     *out += "\n[levels]\n";
     let _ = writeln!(
         out,
-        "{:<14} {:>5} {:<8} {:<14} {:>7} {:>3} {:>6} {:>6} {:>6} {:>6} {:>6} {:>6} {:>6} {:>6} {:>6} {:>6} {:>7}",
+        "{:<14} {:>5} {:<8} {:<14} {:>7} {:>3} {:>6} {:>6} {:>6} {:>6} {:>6} {:>6} {:>6} {:>6} {:>6} {:>6} {:>6} {:>7}",
         "level",
         "stage",
         "kind",
@@ -94,6 +94,7 @@ fn render_levels(levels: &[LevelResult], out: &mut String) {
         "spent",
         "bitten",
         "status",
+        "thorns",
         "grown",
         "corpse",
         "eaten",
@@ -107,7 +108,7 @@ fn render_levels(levels: &[LevelResult], out: &mut String) {
             let win = r.win.map_or("-".to_string(), |w| format!("{w:.0}"));
             let _ = writeln!(
                 out,
-                "{:<14} {:>5} {:<8} {:<14} {:>7.0} {:>3} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>+7.2}",
+                "{:<14} {:>5} {:<8} {:<14} {:>7.0} {:>3} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>+7.2}",
                 l.id,
                 r.stage,
                 r.kind,
@@ -118,6 +119,7 @@ fn render_levels(levels: &[LevelResult], out: &mut String) {
                 r.spent,
                 r.bitten,
                 r.status,
+                r.thorns,
                 r.grown,
                 r.corpse,
                 r.eaten,
@@ -208,18 +210,29 @@ fn render_economy(reports: &[Report], out: &mut String) {
     *out += "\n[economy]\n";
     let _ = writeln!(
         out,
-        "{:<2} {:<10} {:<10} {:<16} {:>6} {:>6} {:>6} {:>6} {:>6} {:>7}  by",
-        "ap", "policy", "build", "encounter", "spent", "bitten", "status", "grown", "swaps", "net"
+        "{:<2} {:<10} {:<10} {:<16} {:>6} {:>6} {:>6} {:>6} {:>6} {:>6} {:>7}  by",
+        "ap",
+        "policy",
+        "build",
+        "encounter",
+        "spent",
+        "bitten",
+        "status",
+        "thorns",
+        "grown",
+        "swaps",
+        "net"
     );
     for r in reports {
         for c in &r.cells {
             let _ = writeln!(
                 out,
-                "{} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>+7.2}  spent={} bitten={} status={}",
+                "{} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>+7.2}  spent={} bitten={} status={}",
                 key(r, c),
                 c.avg_units_spent,
                 c.avg_units_bitten,
                 c.avg_units_status,
+                c.avg_units_thorns,
                 c.avg_units_grown,
                 c.avg_swaps,
                 c.avg_net,

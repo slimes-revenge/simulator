@@ -33,6 +33,7 @@ fn won(rounds: u32, left: usize, spent: usize, bitten: usize) -> FightResult {
         units_spent: spent,
         units_bitten: bitten,
         units_status: 0,
+        units_thorns: 0,
         units_grown: 0,
         enemies_killed: 1,
         cause: None,
@@ -473,7 +474,8 @@ fn level_ledger_adds_up() {
         .chain([("blood".to_string(), l)]);
     for (id, run) in runs {
         for r in &run.rows {
-            let expected = r.before - r.spent - r.bitten - r.status + r.grown + r.eaten + r.drunk;
+            let expected =
+                r.before - r.spent - r.bitten - r.status - r.thorns + r.grown + r.eaten + r.drunk;
             assert!(
                 (r.after - expected).abs() < 0.05,
                 "{id} stage {}: {r:?}",
@@ -569,7 +571,7 @@ fn slices_split_the_reference_fight_by_source() {
     };
     assert_eq!(
         line("economy"),
-        "2.00 1.00 0.00 0.00 0.00 -3.00 spent=Lava:2.00 bitten=Lava:1.00 status=-"
+        "2.00 1.00 0.00 0.00 0.00 0.00 -3.00 spent=Lava:2.00 bitten=Lava:1.00 status=-"
     );
     assert_eq!(line("damage"), "2.00 2.00 1.00 0.00 1.00 2.50 Burning:3.00");
 }
@@ -954,4 +956,79 @@ fn kite_strikes_the_weakest_when_it_cannot_step_away() {
     let (_, log) = f.run_traced();
     let first = log.iter().find(|l| l.starts_with("Slime ")).unwrap();
     assert!(first.starts_with("Slime strikes Mushroom#2"), "{first}");
+}
+
+/// The design with the level-2 Cactus: 2 HP, Thorns 1, speed 0, no bite, a 3-Water corpse.
+fn level2() -> Design {
+    let mut d = design();
+    let c = d.enemies.iter_mut().find(|e| e.name == "Cactus").unwrap();
+    (c.hit_points, c.thorns, c.speed, c.melee_power) = (2, 1, 0, 0);
+    c.volume = vec![Liquid::Water; 3];
+    d
+}
+
+// A melee strike on a thorny Cactus costs the strike and 1 more unit, also on the killing
+// strike: 2 HP = 4 units (balance's hand count). The Cactus never moves and never bites.
+#[test]
+fn thorns_answer_melee_strikes() {
+    let d = level2();
+    let mut f = Fight::new(
+        &d,
+        0,
+        2,
+        vec![Liquid::Water; 10],
+        (1, 5),
+        &[("Cactus", (2, 5))],
+    );
+    f.policy = Policy::Newcomer;
+    let (r, log) = f.run_traced();
+    assert!(r.won);
+    assert_eq!(
+        (r.units_spent, r.units_thorns, r.units_bitten, r.units_left),
+        (2, 2, 0, 6)
+    );
+    assert_eq!(r.cause, None);
+    assert!(
+        log.iter()
+            .all(|l| !l.starts_with("Cactus#1 Chase: (2, 5)->(1,"))
+    );
+}
+
+#[test]
+fn kite_spits_at_thorns() {
+    // Spit hits like a strike without contact: 2 spits, no thorns, nothing bitten.
+    let d = level2();
+    let mut f = Fight::new(
+        &d,
+        0,
+        2,
+        vec![Liquid::Water; 10],
+        (1, 5),
+        &[("Cactus", (2, 5))],
+    );
+    f.policy = Policy::Kite;
+    let r = f.run();
+    assert!(r.won, "{r:?}");
+    assert_eq!((r.units_spent, r.units_thorns, r.tally.spits), (2, 0, 2));
+}
+
+#[test]
+fn stationary_enemies_stay_put() {
+    let d = level2();
+    let mut f = Fight::new(
+        &d,
+        0,
+        1,
+        vec![Liquid::Water; 10],
+        (1, 5),
+        &[("Cactus", (6, 5))],
+    );
+    f.max_rounds = 20;
+    let (_, log) = f.run_traced();
+    for line in log
+        .iter()
+        .filter(|l| l.starts_with("Cactus#1 ") && l.contains("->("))
+    {
+        assert!(line.contains("(6, 5)->(6, 5)"), "{line}");
+    }
 }

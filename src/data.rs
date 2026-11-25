@@ -64,6 +64,8 @@ pub struct Rules {
     pub max_rounds: u32,
     /// П15: at 1 unit a strike hits and spends nothing. `false` is the game today.
     pub last_drop_strike: bool,
+    /// Spit range (Chebyshev). Only 1 is modelled: spit replaces a strike on a neighbour.
+    pub spit_range: i32,
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -107,6 +109,9 @@ pub struct EnemyData {
     pub volume: Vec<Liquid>,
     pub personality: Personality,
     pub traits: Vec<Trait>,
+    /// Thorns: a melee strike on this enemy costs the slime this many edge units (level 2).
+    #[serde(default)]
+    pub thorns: usize,
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -173,6 +178,11 @@ pub struct MapSpec {
     pub corridor: i32,
     /// Enemy sight range (Chebyshev), blocked by walls.
     pub vision: i32,
+    /// Kinds placed in doorways and corridors instead of rooms (a random pick each).
+    #[serde(default)]
+    pub blockers: Vec<String>,
+    #[serde(default)]
+    pub blockers_per_level: usize,
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -213,6 +223,9 @@ impl Design {
                 "matrix.enemy_rows has {} rows, encounters need {max_count}",
                 design.matrix.enemy_rows.len()
             ));
+        }
+        if design.rules.spit_range != 1 {
+            return Err("rules.spit_range: only 1 is modelled".into());
         }
         if design.policies.arranger_keep != "none" && design.policies.keep().is_none() {
             return Err(format!(
@@ -275,9 +288,12 @@ impl Design {
                     Some("map.corridor must be >= 0 and map.vision >= 1".into())
                 } else if m.enemy_kinds.is_empty() {
                     Some("map.enemy_kinds must name at least one enemy".into())
+                } else if m.blockers.is_empty() != (m.blockers_per_level == 0) {
+                    Some("map.blockers and map.blockers_per_level go together".into())
                 } else {
                     m.enemy_kinds
                         .iter()
+                        .chain(&m.blockers)
                         .find(|k| !design.enemies.iter().any(|e| &e.name == *k))
                         .map(|k| format!("no enemy named {k}"))
                 };

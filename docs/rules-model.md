@@ -140,6 +140,19 @@ as usual and the unit is not spent. It applies to every policy. `false` is the g
 the last unit cannot be spent (`Volume.CanSpend`). Damage from free last-drop strikes counts in
 `[damage]`, so `per_unit` (damage per unit spent) reads higher with the flag on.
 
+## Level 2: spit, Thorns, stationary enemies
+
+- **Spit** (`slime_spit`, `rules.spit_range` = 1): the edge unit hits a neighbour like a strike
+  (damage, effect, aggro) without melee contact, so Thorns do not answer. One action. `lure`
+  and `kite` spit at targets with Thorns; `newcomer`, `arranger` and `strafe` strike in melee.
+- **Thorns** (`[[enemies]] thorns`): each melee strike on the creature, the killing one included,
+  costs the slime `thorns` more edge units after the strike (`thorns` in the reports). A death
+  this way has the cause `thorns:<Enemy>`.
+- **Speed 0** (`[[enemies]] speed = 0`): the creature never moves or wanders. The game clamps
+  speed to at least 1 (`Creature.SetSpeed`); level 2's stationary Cactus is a design change.
+- **No bite** (`melee_power = 0`): its Attack does nothing and does not count as an attack (no
+  aggro from it, no Retaliation). `kite` does not step away from such a neighbour; it hits it.
+
 ## Where the docs and the code disagree
 
 Found while building the model (game `dev` at 44018ffe, 2026-11-25). The simulator follows the code.
