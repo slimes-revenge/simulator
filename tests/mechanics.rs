@@ -302,28 +302,40 @@ fn only_the_hunters_own_bite_counts_as_its_kill() {
 }
 
 #[test]
-fn a_dead_hunters_corpse_is_eaten() {
-    // A 1-HP hunter dies to the first strike; its episode eats the corpse.
-    let mut d = map_design(", hunter = { kind = \"Eye\", enter_round = 1 }");
-    d.enemies
-        .iter_mut()
-        .find(|e| e.name == "Eye")
-        .unwrap()
-        .hit_points = 1;
+fn a_hunter_that_dies_out_of_sight_is_still_eaten() {
+    // Once the hunter has seen the slime it stays in the fight until it dies, so a hunter
+    // that dies of a status after the slime stepped out of its sight is eaten too. A Poison body: kite poisons the hunter and steps away, and the hunter often dies of it
+    // out of sight.
+    let d = map_design(", hunter = { kind = \"Eye\", enter_round = 1 }");
     let level = &d.levels[0];
-    let r = map::run(&d, level);
-    assert_eq!(r.hunter.unwrap()[0], 100.0, "{r:?}");
-    for seed in 0..5 {
-        let (_, state) = map::play(
-            &d,
-            level,
-            level.map.as_ref().unwrap(),
-            &map::start_body(level),
-            seed,
-        );
-        assert!(
-            state.episodes.iter().any(|e| e.hunter && e.corpse > 0),
-            "seed {seed}"
-        );
+    let body = vec![Liquid::Poison; 10];
+    let mut checked = 0;
+    for seed in 0..200 {
+        let (_, state) = map::play(&d, level, level.map.as_ref().unwrap(), &body, seed);
+        if state.hunter_dead && !state.body.is_empty() {
+            checked += 1;
+            assert!(
+                state.episodes.iter().any(|e| e.hunter && e.corpse > 0),
+                "seed {seed}: the dead hunter's corpse was never counted"
+            );
+        }
     }
+    assert!(checked > 0);
+}
+
+#[test]
+fn a_hunter_must_move() {
+    let text =
+        std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/data/design.toml")).unwrap();
+    let mut text = text[..text.find("[[levels]]").unwrap()].to_string();
+    text += "[[levels]]\nid = \"m\"\ncapacity = 10\naction_points = 2\npolicy = \"kite\"\n\
+             map = { rooms = 3, room_side = [5, 7], enemies_per_room = [0, 0], \
+             enemy_kinds = [\"Mushroom\"], corridor = 2, vision = 3, \
+             hunter = { kind = \"Mushroom\", enter_round = 1 } }\n";
+    let text = text.replacen(
+        "name = \"Mushroom\"\nhit_points = 5\narmor = 0\nspeed = 1",
+        "name = \"Mushroom\"\nhit_points = 5\narmor = 0\nspeed = 0",
+        1,
+    );
+    assert!(Design::parse(&text).unwrap_err().contains("must move"));
 }
