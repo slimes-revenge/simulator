@@ -773,10 +773,11 @@ fn arranger_brings_lava_to_flammable() {
 #[test]
 fn a_swap_on_the_last_action_feeds_the_bite() {
     // At 2 actions: strike Oil, swap Lava to the edge as the round's last action; the Mushroom's
-    // bite pops the edge — the Lava — so the next strike is Water.
+    // bite pops the edge — the Lava — so the next strike is Poison. (Poison, not Water, beside
+    // the Lava: Water and Lava would react, R1.)
     assert_eq!(
         first_actions(
-            &[Liquid::Water, Liquid::Lava, Liquid::Water, Liquid::Oil],
+            &[Liquid::Poison, Liquid::Lava, Liquid::Poison, Liquid::Oil],
             ARRANGER,
             2,
             3
@@ -784,7 +785,7 @@ fn a_swap_on_the_last_action_feeds_the_bite() {
         [
             "Slime strikes Mushroom#1 with Oil",
             "Slime swaps",
-            "Slime strikes Mushroom#1 with Water"
+            "Slime strikes Mushroom#1 with Poison"
         ]
     );
 }

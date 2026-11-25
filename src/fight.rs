@@ -317,6 +317,10 @@ pub struct Tally {
     pub swaps: usize,
     /// Spits (strikes without melee contact).
     pub spits: usize,
+    /// R1: reacting pairs, units they took off the body, stones they dropped.
+    pub reactions: usize,
+    pub react_loss: usize,
+    pub stones: usize,
 }
 
 #[derive(Clone, Debug, PartialEq, Default)]
@@ -354,6 +358,10 @@ pub struct Fight<'a> {
     last_action: bool,
     /// Slime turns left in a net (`Nets`): no steps, strikes allowed.
     rooted: u32,
+    /// R1 stones: cells and the slime rounds they still stand.
+    stones: Vec<(Cell, u32)>,
+    /// This slime turn's encouragement bonus is used.
+    encouraged: bool,
     round: u32,
     rng: Rng,
     actions_per_round: u32,
@@ -425,6 +433,8 @@ impl<'a> Fight<'a> {
             swapped: false,
             last_action: false,
             rooted: 0,
+            stones: Vec::new(),
+            encouraged: false,
             round: 0,
             rng: Rng::new(seed),
             actions_per_round,
@@ -525,6 +535,7 @@ impl<'a> Fight<'a> {
         for round in 1..=self.max_rounds {
             self.round = round;
             self.note(|_| format!("round {round}"));
+            self.encouraged = false;
             let actions = self.action_points();
             for k in 0..actions {
                 self.last_action = k + 1 == actions;
@@ -539,8 +550,10 @@ impl<'a> Fight<'a> {
                 }
             }
             self.rooted = self.rooted.saturating_sub(1);
+            self.react();
             self.fester();
             self.sun(round);
+            self.track_engagement();
             if !self.slime.alive() {
                 return self.result(false, round);
             }
@@ -728,8 +741,19 @@ impl<'a> Fight<'a> {
     /// Plays a map run and returns its map state (episodes, rooms entered) as well.
     pub fn run_map(mut self) -> (FightResult, MapState) {
         self.track_engagement();
-        let result = self.rounds();
+        let mut result = self.rounds();
         self.close_episode();
+        // Units that met at the exit (the last turn, eaten corpses) react before the body
+        // leaves the level.
+        if self.slime.alive() {
+            self.react();
+            result.units_left = self.slime.volume.len();
+            result.tally = self.tally.clone();
+            if !self.slime.alive() {
+                result.won = false;
+                result.cause = Some("reaction".into());
+            }
+        }
         let mut state = self.map.take().unwrap_or_default();
         state.body = self.slime.volume.clone();
         state.hunter_dead = state.hunter_at.is_some_and(|h| !self.enemies[h].alive());
@@ -775,18 +799,24 @@ impl<'a> Fight<'a> {
 
     /// Every unit the slime has lost so far: spent, bitten, to statuses, to thorns.
     fn units_lost(&self) -> usize {
-        self.units_spent + self.units_bitten + self.units_status + self.units_thorns
+        self.units_spent
+            + self.units_bitten
+            + self.units_status
+            + self.units_thorns
+            + self.tally.react_loss
     }
 
     fn enemies_dead(&self) -> bool {
         self.enemies.iter().all(|e| !e.alive())
     }
 
+    /// Cells a walker cannot enter: living creatures and reaction stones.
     fn occupied(&self) -> Vec<Cell> {
         std::iter::once(&self.slime)
             .chain(&self.enemies)
             .filter(|c| c.alive())
             .map(|c| c.cell)
+            .chain(self.stones.iter().map(|s| s.0))
             .collect()
     }
 
@@ -1229,6 +1259,17 @@ impl<'a> Fight<'a> {
         if self.slime.volume.len() == 1 && !d.rules.last_drop_strike {
             return;
         }
+        let n = self.slime.volume.len();
+        let bonus = if !self.encouraged
+            && at + 1 == n
+            && n >= 2
+            && d.elements.encourages(self.slime.volume[n - 2], liquid)
+        {
+            self.encouraged = true;
+            d.elements.encouragement_bonus
+        } else {
+            0
+        };
         if self.slime.volume.len() > 1 {
             self.slime.volume.remove(at);
             self.units_spent += 1;
@@ -1246,7 +1287,7 @@ impl<'a> Fight<'a> {
             modify_incoming_harm(d, enemy, stats.power)
         } else {
             stats.power
-        };
+        } + bonus;
         let hp = enemy.hit_points;
         damage(d, enemy, power, true, &mut self.next_status_id);
         let applied = (hp - enemy.hit_points) as usize;
@@ -1373,6 +1414,74 @@ impl<'a> Fight<'a> {
         m.homes.push(None);
         m.hunter_at = Some(self.enemies.len() - 1);
         self.note(|f| format!("{} enters at {cell:?}", f.label(f.enemies.len() - 1)));
+    }
+
+    /// R1: at the end of the slime's actions, the reacting pair nearest the edge becomes its
+    /// product, the body closes up, and so on until no neighbours react. A chain with a stone
+    /// reaction drops one stone next to the slime. Old stones crumble first.
+    fn react(&mut self) {
+        for s in &mut self.stones {
+            s.1 -= 1;
+        }
+        self.stones.retain(|s| s.1 > 0);
+        let d = self.d;
+        let mut stone = false;
+        for _ in 0..1000 {
+            let v = &self.slime.volume;
+            let pair = (0..v.len().saturating_sub(1)).rev().find_map(|k| {
+                d.reactions
+                    .iter()
+                    .find(|r| {
+                        (r.pair == (v[k], v[k + 1]) || r.pair == (v[k + 1], v[k]))
+                            && (d.rules.reaction_can_kill || v.len() > 2 || !r.makes.is_empty())
+                    })
+                    .map(|r| (k, r))
+            });
+            let Some((k, r)) = pair else {
+                if stone {
+                    self.drop_stone();
+                }
+                let d = self.d;
+                refresh_dominance(d, &mut self.slime, &mut self.next_status_id);
+                return;
+            };
+            let (a, b) = (self.slime.volume[k], self.slime.volume[k + 1]);
+            self.slime.volume.splice(k..k + 2, r.makes.iter().copied());
+            self.tally.reactions += 1;
+            self.tally.react_loss += 2 - r.makes.len();
+            stone |= r.stone;
+            self.note(|_| format!("Slime's {a:?} and {b:?} react: {:?}", r.makes));
+            if !self.slime.alive() {
+                self.last_harm = Some("reaction".into());
+                return;
+            }
+        }
+        panic!("a reaction chain did not end (data/design.toml [[reactions]])");
+    }
+
+    /// A stone on the free open neighbour of the slime nearest the nearest living enemy.
+    fn drop_stone(&mut self) {
+        let occupied = self.occupied();
+        let enemy = self
+            .enemies
+            .iter()
+            .filter(|e| e.alive())
+            .min_by_key(|e| chebyshev(e.cell, self.slime.cell))
+            .map(|e| e.cell);
+        let cell = path::neighbours(self.slime.cell)
+            // Never on the exit or a drip: a stone must not close the way out or a source.
+            .filter(|&c| self.inside(c) && !occupied.contains(&c))
+            .filter(|&c| {
+                self.map
+                    .as_ref()
+                    .is_none_or(|m| c != m.exit && m.drips.iter().all(|d| d.0 != c))
+            })
+            .min_by_key(|&c| (enemy.map_or(0, |e| chebyshev(c, e)), c.1, c.0));
+        if let Some(cell) = cell {
+            self.stones.push((cell, self.d.rules.stone_rounds));
+            self.tally.stones += 1;
+            self.note(|_| format!("A stone falls at {cell:?}"));
+        }
     }
 
     /// G5: at the end of the slime's actions, while an enemy is engaged, each Pus unit turns
