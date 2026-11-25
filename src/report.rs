@@ -250,7 +250,11 @@ fn summarize(b: &Build, e: &Encounter, results: &[FightResult]) -> CellResult {
         avg_units_grown: avg(|r| r.units_grown as f64),
         avg_net: avg(|r| {
             r.units_grown as f64
-                - (r.units_spent + r.units_bitten + r.units_status + r.units_thorns) as f64
+                - (r.units_spent
+                    + r.units_bitten
+                    + r.units_status
+                    + r.units_thorns
+                    + r.tally.react_loss) as f64
         }) + 0.0,
         spent_by: avg_map(results, |r| &r.tally.spent_by),
         bitten_by: avg_map(results, |r| &r.tally.bitten_by),

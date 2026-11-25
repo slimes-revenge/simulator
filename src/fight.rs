@@ -553,6 +553,7 @@ impl<'a> Fight<'a> {
             self.react();
             self.fester();
             self.sun(round);
+            self.track_engagement();
             if !self.slime.alive() {
                 return self.result(false, round);
             }
@@ -740,8 +741,19 @@ impl<'a> Fight<'a> {
     /// Plays a map run and returns its map state (episodes, rooms entered) as well.
     pub fn run_map(mut self) -> (FightResult, MapState) {
         self.track_engagement();
-        let result = self.rounds();
+        let mut result = self.rounds();
         self.close_episode();
+        // Units that met at the exit (the last turn, eaten corpses) react before the body
+        // leaves the level.
+        if self.slime.alive() {
+            self.react();
+            result.units_left = self.slime.volume.len();
+            result.tally = self.tally.clone();
+            if !self.slime.alive() {
+                result.won = false;
+                result.cause = Some("reaction".into());
+            }
+        }
         let mut state = self.map.take().unwrap_or_default();
         state.body = self.slime.volume.clone();
         state.hunter_dead = state.hunter_at.is_some_and(|h| !self.enemies[h].alive());
@@ -1457,7 +1469,13 @@ impl<'a> Fight<'a> {
             .min_by_key(|e| chebyshev(e.cell, self.slime.cell))
             .map(|e| e.cell);
         let cell = path::neighbours(self.slime.cell)
+            // Never on the exit or a drip: a stone must not close the way out or a source.
             .filter(|&c| self.inside(c) && !occupied.contains(&c))
+            .filter(|&c| {
+                self.map
+                    .as_ref()
+                    .is_none_or(|m| c != m.exit && m.drips.iter().all(|d| d.0 != c))
+            })
             .min_by_key(|&c| (enemy.map_or(0, |e| chebyshev(c, e)), c.1, c.0));
         if let Some(cell) = cell {
             self.stones.push((cell, self.d.rules.stone_rounds));

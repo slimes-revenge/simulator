@@ -79,3 +79,42 @@ fn an_encouraged_edge_strikes_one_harder_once_per_turn() {
     let hit = log.iter().find(|l| l.starts_with("Slime strikes")).unwrap();
     assert!(hit.contains("HP 5->4"), "{hit}");
 }
+
+#[test]
+fn units_that_meet_at_the_exit_react_before_leaving() {
+    // The river's Lava lands on the Water at the exit as the run ends: they react there.
+    let text =
+        std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/data/design.toml")).unwrap();
+    let mut text = text[..text.find("[[levels]]").unwrap()].to_string();
+    text += "[[levels]]\nid = \"x\"\ncapacity = 3\nstart = [\"Oil\", \"Water\"]\naction_points = 1\n\
+             policy = \"strafe\"\nmap = { rooms = 2, room_side = [5, 5], enemies_per_room = [0, 0], \
+             enemy_kinds = [\"Mushroom\"], corridor = 1, vision = 2, river = 1, \
+             river_liquids = [\"Lava\"] }\n";
+    let d = Design::parse(&text).unwrap();
+    let level = &d.levels[0];
+    let ld = simulator::map::level_design(&d, level);
+    let (r, state) = simulator::map::play(
+        &ld,
+        level,
+        level.map.as_ref().unwrap(),
+        &simulator::map::start_body(level),
+        0,
+    );
+    assert!(r.won);
+    assert_eq!(state.body, vec![Liquid::Oil]);
+    assert_eq!(r.tally.react_loss, 2);
+}
+
+#[test]
+fn reaction_data_is_validated() {
+    let text =
+        std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/data/design.toml")).unwrap();
+    let three = text.replacen(
+        "makes = [\"Pus\", \"Pus\"]",
+        "makes = [\"Pus\", \"Pus\", \"Pus\"]",
+        1,
+    );
+    assert!(Design::parse(&three).unwrap_err().contains("at most 2"));
+    let stone = text.replacen("stone_rounds = 4", "stone_rounds = 0", 1);
+    assert!(Design::parse(&stone).unwrap_err().contains("stone_rounds"));
+}

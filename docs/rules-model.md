@@ -205,10 +205,15 @@ Agreed design rules (balance `sim-reactions-spec.md`); not in the game yet.
 - **Death:** a chain that empties the body kills (cause `reaction`). With
   `rules.reaction_can_kill = false` a pair that would empty it does not react.
 - **Stone:** a chain with a `stone` pair (Water + Lava) drops one stone on the free open
-  neighbour of the slime nearest the nearest living enemy (ties: row, then column). A stone
+  neighbour of the slime nearest the nearest living enemy (ties: row, then column), never on
+  the exit or a drip. A stone
   blocks walking like a creature and crumbles after `rules.stone_rounds` slime rounds.
-- **Losses:** units a reaction takes count as lost in an episode's `net`.
-- **Encouragement:** once per slime turn, a strike with the edge unit hits
+- **Losses:** units a reaction takes count as lost in an episode's `net` and in `[economy]`
+  `net`.
+- **At the exit:** when a map run ends, units that met in its last turn or through eaten
+  corpses react once more before the body leaves the level (`body_out`, the next ladder level).
+  A reaction that empties the body there is a loss (cause `reaction`).
+- **Encouragement:** once per slime turn, a strike or spit with the edge unit hits
   `elements.encouragement_bonus` harder when the unit under it encourages it (the next liquid
   in an `elements.circles` circle: Water → Phosphorus → Lava → Mercury → Aquavita → Water;
   Vitriol → Alkali → Ambrosia → Acid → Poison → Vitriol).

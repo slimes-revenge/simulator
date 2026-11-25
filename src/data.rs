@@ -456,6 +456,11 @@ impl Design {
                 r.pair
             ));
         }
+        if design.reactions.iter().any(|r| r.makes.len() > 2) || design.rules.stone_rounds == 0 {
+            return Err(
+                "reactions make at most 2 units, and rules.stone_rounds must be >= 1".into(),
+            );
+        }
         if design.elements.circles.iter().any(|c| c.len() < 3) {
             return Err("elements.circles: each circle needs at least 3 liquids".into());
         }
