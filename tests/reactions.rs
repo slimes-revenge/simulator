@@ -124,3 +124,13 @@ fn reaction_data_is_validated() {
     let stone = text.replacen("stone_rounds = 4", "stone_rounds = 0", 1);
     assert!(Design::parse(&stone).unwrap_err().contains("stone_rounds"));
 }
+
+#[test]
+fn resin_burns_off_lava_leaving_amber_and_the_chain_goes_on() {
+    use Liquid::*;
+    // Resin + Lava (edge) -> Lava, amber; then Water + Lava -> nothing, a stone.
+    let (r, body, _) = round(&Design::bundled(), vec![Oil, Water, Lava, Resin]);
+    assert_eq!(body, vec![Oil]);
+    let t = &r.tally;
+    assert_eq!((t.reactions, t.react_loss, t.stones), (2, 3, 2));
+}

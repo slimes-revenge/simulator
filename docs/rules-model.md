@@ -202,10 +202,12 @@ Agreed design rules (balance `sim-reactions-spec.md`); not in the game yet.
 - **When:** after the slime's actions each round, before Pus spreads, the sun and the enemies.
 - **Chain:** the reacting pair of neighbours nearest the edge (either order) becomes its
   `makes` in place; the body closes up; repeat until no neighbours react. Water + Lava and
-  Lava + Aquavita vanish, Poison + Blood become 2 Pus, Alkali + Acid become 1 Water.
+  Lava + Aquavita vanish, Poison + Blood become 2 Pus, Alkali + Acid become 1 Water, Resin +
+  Lava leave the Lava (the chain goes on from it).
 - **Death:** a chain that empties the body kills (cause `reaction`). With
   `rules.reaction_can_kill = false` a pair that would empty it does not react.
-- **Stone:** a chain with a `stone` pair (Water + Lava) drops one stone on the free open
+- **Stone:** a chain drops one blocker per `stone` pair that reacted in it (Water + Lava: a
+  stone; Resin + Lava: amber), each on the free open
   neighbour of the slime nearest the nearest living enemy (ties: row, then column), never on
   the exit or a drip. A stone
   blocks walking like a creature and crumbles after `rules.stone_rounds` slime rounds.
@@ -267,6 +269,40 @@ Agreed design rules (balance `sim-reactions-spec.md`, `bestiary-numbers.md`); no
   its statuses) ends at once the same way. `lure` and `kite` hold for an enemy only while it
   has a way to the slime past walls, stones and given-up enemies. `arranger` never swaps the
   target's own element up. A bring-up never raises the number of reacting pairs.
+
+## D1, D3: puddles, Pus burps, Infected (`[pus]`, balance `sim-3d-spec.md`)
+
+Agreed design rules; not in the game.
+
+- **Puddles** (`Fight::puddles`): one per cell, 1–2 units, for the whole fight. An enemy that
+  steps into one (any move that ends there) gets the liquid's effect without damage, as from a
+  strike (`Source::Puddle`, counted in the status damage); a Pus puddle gives Infected instead.
+  On a sun tick (slime in a surface room) every Water puddle in a surface room loses 1 unit.
+- **Pus as a bad affinity:** Pus at least `pus.affinity_percent` (60) of the body now. While
+  it holds, every `pus.burp_every`-th (3rd) slime round is a burp: the slime takes no actions
+  and `pus.burp_puddles` (2) new 1-unit Pus puddles fall on free neighbouring cells (empty
+  cells first, then 1-unit Pus puddles; row-major), from nothing, in or out of a fight.
+- **Infected** (Living enemies only, `elements.living`): `pus.infected_damage` HP per pulse
+  and a bite `pus.infected_bite` weaker (a bite of 0 does nothing), for
+  `pus.infected_pulses`; it refreshes, never stacks. From Pus puddles always; from a Pus hit
+  (strike or spit) only on levels with `pus_infects = true`.
+- **`pus` policy** (D5): `kite` until Pus is a bad affinity (matrix: always `kite`). Then on
+  maps:
+  1. a non-Living neighbour, or any time once the hunter is in (Hard): `kite`, which never
+     strikes the Living with Pus before `pus_infects` levels;
+  2. a Living enemy next to it: strike it on `pus_infects` levels (or with the last drop);
+     else step back out of its reach (so it comes again across the puddles the burps laid),
+     or stand when it cannot;
+  3. a Living enemy coming: hold among the puddles;
+  4. calm and not full: gather its Pus puddles (stand on one: 1 unit per action; or step onto
+     a neighbouring one), else wait for a burp — so it reaches the exit full;
+  5. otherwise walk on like `kite`; it drinks a drip or the river only while Pus stays a bad
+     affinity, and at the exit it leaves the rest of the river once a drink would end it.
+- Infected lasts `infected_pulses` (4) pulses; the last one ends before that turn's bite, so it
+  weakens 3 bites. A Dash bite on arrival lands before the puddle infects (the step-in follows
+  the whole move); a fast walk infects only on the cell it ends on.
+- **Dross:** dead cargo a stop leaves (no power, no effect, a cell). Bites take it like any
+  unit, but it is not life: a body of nothing but Dross is dead.
 
 ## Where the docs and the code disagree
 

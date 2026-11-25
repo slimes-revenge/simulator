@@ -2,7 +2,7 @@
 //! two ways — each level from its own start (`level` mode) and as one run from the first level
 //! up, the body carried from exit to entrance (`run` mode). Rules in `docs/ladder.md`.
 
-use crate::data::{Design, LadderPlace, Level, Liquid, Threshold};
+use crate::data::{Design, LadderPlace, Level, Liquid, Stop, Threshold};
 use crate::map::{self, MapLevelResult};
 use rayon::prelude::*;
 
@@ -83,7 +83,13 @@ pub fn run(d: &Design) -> (Vec<LadderRow>, Vec<SummaryRow>) {
                 let spec = level.map.as_ref().expect("checked in parse");
                 let ld = map::level_design(d, level);
                 let start: Bodies = match parent(&rows, i) {
-                    Some(j) => bodies[j].clone(),
+                    Some(j) => match d.ladder.stops.iter().find(|s| s.after == rows[j].1.level) {
+                        Some(stop) => bodies[j]
+                            .iter()
+                            .map(|b| b.as_ref().map(|b| at_stop(b, stop, level.capacity)))
+                            .collect(),
+                        None => bodies[j].clone(),
+                    },
                     None => vec![Some(map::start_body(level)); seeds as usize],
                 };
                 let runs: Vec<Option<_>> = start
@@ -129,6 +135,32 @@ pub fn run(d: &Design) -> (Vec<LadderRow>, Vec<SummaryRow>) {
     out.sort_by_key(order);
     let summary = summarize(&rows, &out, &d.ladder.thresholds);
     (out, summary)
+}
+
+/// D4: a stop between maps. Each reset turns its `from` units into `to` (or drops them),
+/// edge-most first, at most `max_percent` of the body; then the empty cells up to `capacity`
+/// fill with Water. Units are never pushed out, so Pus held as a bad affinity stays.
+pub fn at_stop(body: &[Liquid], stop: &Stop, capacity: usize) -> Vec<Liquid> {
+    let mut b = body.to_vec();
+    for r in &stop.resets {
+        let limit = r.max_percent.map_or(usize::MAX, |p| b.len() * p / 100);
+        let mut changed = 0;
+        for k in (0..b.len()).rev() {
+            if b[k] == r.from && changed < limit {
+                changed += 1;
+                match r.to {
+                    Some(to) => b[k] = to,
+                    None => {
+                        b.remove(k);
+                    }
+                }
+            }
+        }
+    }
+    while b.len() < capacity {
+        b.insert(0, Liquid::Water);
+    }
+    b
 }
 
 /// For each mode and threshold, one row per leaf (a ladder row no other row continues as its

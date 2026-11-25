@@ -28,7 +28,7 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
 | `surface_rooms`, `sun_every` | Optional: the middle rooms under the sky, and how often the sun dries there (slime rounds; 1 day, 2 night); go together |
 | `hunter` | Optional `{ kind, enter_round, scent_every = 1 }`: the G17 hunter |
 | `camp` | Optional: kinds camped in the second-to-last room (the squad), one enemy each |
-| — | A level may also carry `ladder = { level, difficulty, branch }` ([ladder.md](ladder.md)) |
+| — | A level may also carry `pus_infects = true` (Pus hits infect, D3) and `ladder = { level, difficulty, branch }` ([ladder.md](ladder.md)) |
 
 ## The map (`map::generate`, deterministic per seed)
 

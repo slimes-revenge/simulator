@@ -140,6 +140,12 @@ name = "Aphrodisiac"
 power = 1
 corrosion = 0
 
+# D4: dead cargo a stop leaves behind (spent Phosphorus, Fat).
+[[liquids]]
+name = "Dross"
+power = 0
+corrosion = 0
+
 # The live roster (CreatureCatalog.Opponents). melee_power = Combat.Attack bare hit (1).
 [[enemies]]
 name = "Bat"
@@ -252,12 +258,26 @@ pair = ["Lava", "Aquavita"]
 makes = []
 
 [[reactions]]
+pair = ["Resin", "Lava"]
+makes = ["Lava"]              # the Resin burns away; the Lava stays and the chain goes on
+stone = true                  # amber: a blocker like the stone
+
+[[reactions]]
 pair = ["Poison", "Blood"]
 makes = ["Pus", "Pus"]
 
 [[reactions]]
 pair = ["Alkali", "Acid"]
 makes = ["Water"]
+
+# D3 (balance sim-3d-spec.md): Pus as a bad affinity, burps, Infected. Design, not in the game.
+[pus]
+affinity_percent = 60         # bad affinity: Pus >= this % of the body now (Oleg: every affinity)
+burp_every = 3                # while it holds, every 3rd slime round: skip the turn and burp
+burp_puddles = 2              # new 1-unit Pus puddles on free neighbouring cells (from nothing)
+infected_pulses = 4           # Infected (Living enemies): 4 pulses = 3 of its turns (balance)...
+infected_bite = 1             # ...bite -1...
+infected_damage = 1           # ...and 1 HP per pulse; refreshes, never stacks
 
 # Ladder pass rules (docs/ladder.md): a level passes when its end % is >= min (or <= max).
 [ladder]
@@ -266,6 +286,13 @@ thresholds = [
   { difficulty = "N", policy = "lure", min = 90 },
   { difficulty = "H", policy = "kite", min = 70 },
   { difficulty = "H", policy = "strafe", max = 10 },
+]
+# D4 stops between maps (run mode): resets of the carried body, then a Water refill.
+stops = [
+  { after = 4, resets = [{ from = "Blood", to = "Pus" }, { from = "Poison", to = "Water" }] },
+  { after = 8, resets = [{ from = "Water", to = "Poison", max_percent = 50 }, { from = "Aquavita" }] },
+  { after = 12, resets = [{ from = "Phosphorus", to = "Dross" }, { from = "Alkali", to = "Water" }] },
+  { after = 16, resets = [{ from = "Fat", to = "Dross" }, { from = "Oil" }] },
 ]
 
 # Level runs. A stage level (`stages`) carries the body through fights and fountains

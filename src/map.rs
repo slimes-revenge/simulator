@@ -176,6 +176,10 @@ pub struct MapLevelResult {
     /// R2, averages per played seed: slime hits that dominated, suppressed bites that missed.
     pub elem_plus: f64,
     pub elem_miss: f64,
+    /// D6, over the played seeds: puddles left at the end (average); percent ending with Pus
+    /// as a bad affinity.
+    pub puddles: f64,
+    pub pus_aff: f64,
     /// Where runs ended without the exit: `room<k>:<cause>` → seeds.
     pub stops: BTreeMap<String, u64>,
 }
@@ -217,8 +221,11 @@ pub fn summarize(level: &Level, runs: &[(FightResult, MapState)], of: u64) -> Ma
     let mut out_sum = 0;
     let mut hunter = [0u64; 3];
     let mut react = [0usize; 5];
+    let (mut puddles, mut pus_aff) = (0usize, 0u64);
     let (mut hunter_eps, mut hunter_sum) = (0u64, 0i64);
     for (result, state) in runs {
+        puddles += state.puddles_left;
+        pus_aff += u64::from(state.pus_affinity);
         let t = &result.tally;
         let counts = [
             t.reactions,
@@ -294,6 +301,8 @@ pub fn summarize(level: &Level, runs: &[(FightResult, MapState)], of: u64) -> Ma
         stones: round2(react[2] as f64 / n),
         elem_plus: round2(react[3] as f64 / n),
         elem_miss: round2(react[4] as f64 / n),
+        puddles: round2(puddles as f64 / n),
+        pus_aff: pct(pus_aff, runs.len() as u64),
         stops,
     }
 }
@@ -349,7 +358,8 @@ pub fn fight<'a>(
     state.sun_every = spec.sun_every;
     state.hunter = spec.hunter.clone();
     // `kite` and `reader` walk and hold corridors like `lure`; next to enemies they kite.
-    state.lure = ["lure", "kite", "reader"].contains(&level.policy.as_str());
+    state.lure = ["lure", "kite", "reader", "pus"].contains(&level.policy.as_str());
+    f.pus_infects = level.pus_infects;
     f.policy = crate::fight::Policy::from_name(&level.policy, d);
     f.map = Some(state);
     f
