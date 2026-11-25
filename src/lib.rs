@@ -3,6 +3,7 @@
 
 pub mod data;
 pub mod fight;
+pub mod ladder;
 pub mod level;
 pub mod map;
 pub mod path;

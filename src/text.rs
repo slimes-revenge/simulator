@@ -1,6 +1,7 @@
 //! The plain-text report (`design-guard.txt`, `docs/report-format.md`) for the balance
 //! session: no timestamps, stable order, fixed columns, so two versions compare with `diff`.
 
+use crate::ladder::{LadderRow, SummaryRow};
 use crate::level::LevelResult;
 use crate::map::MapLevelResult;
 use crate::report::Report;
@@ -348,4 +349,74 @@ fn render_maps(maps: &[MapLevelResult], out: &mut String) {
             stops_field(&m.stops)
         );
     }
+}
+
+/// `[ladder]` and `[ladder-summary]`, appended after the other sections when the design has
+/// ladder rows.
+pub fn render_ladder(rows: &[LadderRow], summary: &[SummaryRow]) -> String {
+    let mut out = String::from("\n[ladder]\n");
+    let branch = |b: &str| {
+        if b.is_empty() {
+            "-".to_string()
+        } else {
+            b.to_string()
+        }
+    };
+    let _ = writeln!(
+        out,
+        "{:<5} {:<10} {:<8} {:<24} {:>5} {:>3} {:>6} {:>13} {:>9} {:>8}  stops",
+        "mode",
+        "difficulty",
+        "policy",
+        "branch",
+        "level",
+        "end",
+        "fights",
+        "net_per_fight",
+        "engaged2+",
+        "min_body"
+    );
+    for r in rows {
+        let m = &r.result;
+        let net = m
+            .net_per_fight
+            .map_or("-".to_string(), |v| format!("{v:+.2}"));
+        let _ = writeln!(
+            out,
+            "{:<5} {:<10} {:<8} {:<24} {:>5} {:>3.0} {:>6.2} {:>13} {:>9.2} {:>8.2}  {}",
+            r.mode,
+            r.place.difficulty,
+            r.policy,
+            branch(&r.place.branch),
+            r.place.level,
+            m.end,
+            m.fights,
+            net,
+            m.engaged[2] + m.engaged[3],
+            m.min_body,
+            stops_field(&m.stops)
+        );
+    }
+    out += "\n[ladder-summary]\n";
+    let _ = writeln!(
+        out,
+        "{:<5} {:<10} {:<8} {:<24} {:<6} {:>14} {:>16}  cause",
+        "mode", "difficulty", "policy", "branch", "rule", "furthest_level", "first_fail_level"
+    );
+    let level = |l: Option<u32>| l.map_or("-".to_string(), |l| l.to_string());
+    for s in summary {
+        let _ = writeln!(
+            out,
+            "{:<5} {:<10} {:<8} {:<24} {:<6} {:>14} {:>16}  {}",
+            s.mode,
+            s.difficulty,
+            s.policy,
+            branch(&s.branch),
+            s.rule,
+            level(s.furthest),
+            level(s.first_fail),
+            s.cause.as_deref().unwrap_or("-")
+        );
+    }
+    out
 }

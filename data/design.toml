@@ -149,6 +149,15 @@ policies = ["newcomer", "arranger", "kite"]  # slime policies the matrix runs
 lure_patience = 10            # actions `lure` waits per room approach while 2+ calm enemies would see it
 arranger_keep = "none"        # the liquid `arranger` keeps deep (a liquid name), or "none"
 
+# Ladder pass rules (docs/ladder.md): a level passes when its end % is >= min (or <= max).
+[ladder]
+thresholds = [
+  { difficulty = "E", policy = "strafe", min = 90 },
+  { difficulty = "N", policy = "lure", min = 90 },
+  { difficulty = "H", policy = "kite", min = 70 },
+  { difficulty = "H", policy = "strafe", max = 10 },
+]
+
 # Level runs. A stage level (`stages`) carries the body through fights and fountains
 # (src/level.rs); a map level (`map`) walks a generated chain of rooms to the exit (src/map.rs).
 # Level runs for the body economy (src/level.rs, docs/report-format.md "[levels]").
@@ -231,3 +240,29 @@ capacity = 10
 action_points = 2
 policy = "kite"
 map = { rooms = 5, room_side = [5, 9], enemies_per_room = [1, 2], enemy_kinds = ["Bat", "Mushroom", "Undine", "Cactus", "Mandragora", "Eye"], corridor = 2, vision = 3 }
+
+# A sample ladder (format and mechanics check; the balance session generates the real one):
+# level 1 with a river and a middle room under the night sun, level 2 dry with drips, two city branches.
+[[levels]]
+id = "ladder-1"
+capacity = 10
+action_points = 2
+policy = "strafe"
+ladder = { level = 1, difficulty = "E" }
+map = { rooms = 5, room_side = [5, 9], enemies_per_room = [1, 2], enemy_kinds = ["Bat", "Mushroom", "Undine"], corridor = 2, vision = 2, river = 6, river_liquids = ["Water"], surface_rooms = 1, sun_every = 2 }
+
+[[levels]]
+id = "ladder-2-lava"
+capacity = 10
+action_points = 2
+policy = "strafe"
+ladder = { level = 2, difficulty = "E", branch = "Lava" }
+map = { rooms = 5, room_side = [5, 9], enemies_per_room = [1, 2], enemy_kinds = ["Cactus", "Mandragora", "Eye"], corridor = 2, vision = 2, drips = { cells = 3, units = 2 } }
+
+[[levels]]
+id = "ladder-2-acid"
+capacity = 10
+action_points = 2
+policy = "strafe"
+ladder = { level = 2, difficulty = "E", branch = "Acid" }
+map = { rooms = 5, room_side = [5, 9], enemies_per_room = [1, 2], enemy_kinds = ["Cactus", "Mandragora", "Eye"], corridor = 2, vision = 2, river = 6, river_liquids = ["Water", "Acid"] }

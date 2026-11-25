@@ -4,7 +4,7 @@
 //! `docs/map-levels.md`, format in `docs/report-format.md`.
 
 use crate::data::{Design, Level, Liquid, MapSpec};
-use crate::fight::{Board, Fight, MapState, Rect, in_rect};
+use crate::fight::{Board, Fight, FightResult, MapState, Rect, in_rect};
 use crate::path::{Cell, chebyshev};
 use crate::rng::Rng;
 use rayon::prelude::*;
@@ -19,6 +19,8 @@ pub struct Map {
     pub exit: Cell,
     /// (kind, cell, home room); blockers have no room.
     pub enemies: Vec<(String, Cell, Option<usize>)>,
+    /// Water drip cells, in corridors and doorways free of blockers.
+    pub drips: Vec<Cell>,
 }
 
 fn between(rng: &mut Rng, (min, max): (i32, i32)) -> i32 {
@@ -103,6 +105,13 @@ pub fn generate(m: &MapSpec, seed: u64) -> Map {
         let kind = m.blockers[rng.pick(m.blockers.len())].clone();
         enemies.push((kind, cell, None));
     }
+    let mut drips = Vec::new();
+    for _ in 0..m.drips.map_or(0, |d| d.cells) {
+        if passages.is_empty() {
+            break;
+        }
+        drips.push(passages.remove(rng.pick(passages.len())));
+    }
     Map {
         board: Board {
             width,
@@ -113,6 +122,7 @@ pub fn generate(m: &MapSpec, seed: u64) -> Map {
         start,
         exit,
         enemies,
+        drips,
     }
 }
 
@@ -141,22 +151,38 @@ pub struct MapLevelResult {
 
 pub fn run(d: &Design, level: &Level) -> MapLevelResult {
     let spec = level.map.as_ref().expect("a map level");
+    let ld = level_design(d, level);
+    let body = start_body(level);
+    // Seeds run in parallel and are collected in seed order.
+    let runs: Vec<_> = (0..d.matrix.seeds)
+        .into_par_iter()
+        .map(|seed| play(&ld, level, spec, &body, seed))
+        .collect();
+    summarize(level, &runs, d.matrix.seeds)
+}
+
+/// The design with the slime's capacity set to the level's.
+pub fn level_design(d: &Design, level: &Level) -> Design {
     let mut ld = d.clone();
     ld.slime.capacity = level.capacity;
-    let start_body = level
+    ld
+}
+
+/// The level's `start`, or full Water.
+pub fn start_body(level: &Level) -> Vec<Liquid> {
+    level
         .start
         .clone()
-        .unwrap_or_else(|| vec![Liquid::Water; level.capacity]);
-    let seeds = d.matrix.seeds;
+        .unwrap_or_else(|| vec![Liquid::Water; level.capacity])
+}
+
+/// Totals over the seeds that played; `end` is a percent of `of` seeds (a ladder run counts
+/// the seeds that died on earlier levels too).
+pub fn summarize(level: &Level, runs: &[(FightResult, MapState)], of: u64) -> MapLevelResult {
     let (mut ends, mut rooms, mut rounds, mut min_sum, mut worst) = (0, 0, 0u64, 0, usize::MAX);
     let mut engaged = [0u64; 4];
     let (mut episodes, mut net_sum) = (0u64, 0i64);
     let mut stops = BTreeMap::new();
-    // Seeds run in parallel; the totals below are folded in seed order.
-    let runs: Vec<_> = (0..seeds)
-        .into_par_iter()
-        .map(|seed| play(&ld, level, spec, &start_body, seed))
-        .collect();
     for (result, state) in runs {
         ends += u64::from(result.won);
         rooms += state.rooms_entered;
@@ -169,12 +195,12 @@ pub fn run(d: &Design, level: &Level) -> MapLevelResult {
         }
         episodes += state.episodes.len() as u64;
         if !result.won {
-            let cause = result.cause.unwrap_or_else(|| "unknown".into());
+            let cause = result.cause.clone().unwrap_or_else(|| "unknown".into());
             let room = state.rooms_entered.max(1);
             *stops.entry(format!("room{room}:{cause}")).or_insert(0) += 1;
         }
     }
-    let n = seeds as f64;
+    let n = runs.len().max(1) as f64;
     let pct = |x: u64, of: u64| {
         if of == 0 {
             0.0
@@ -185,14 +211,14 @@ pub fn run(d: &Design, level: &Level) -> MapLevelResult {
     MapLevelResult {
         id: level.id.clone(),
         policy: level.policy.clone(),
-        end: pct(ends, seeds),
+        end: pct(ends, of),
         rooms: round2(rooms as f64 / n),
         rounds: round2(rounds as f64 / n),
         fights: round2(episodes as f64 / n),
         engaged: engaged.map(|e| pct(e, episodes)),
         net_per_fight: (episodes > 0).then(|| round2(net_sum as f64 / episodes as f64)),
         min_body: round2(min_sum as f64 / n),
-        worst_body: worst,
+        worst_body: if runs.is_empty() { 0 } else { worst },
         stops,
     }
 }
@@ -204,7 +230,7 @@ pub fn play(
     spec: &MapSpec,
     body: &[Liquid],
     seed: u64,
-) -> (crate::fight::FightResult, MapState) {
+) -> (FightResult, MapState) {
     fight(d, level, spec, body, seed).run_map()
 }
 
@@ -234,7 +260,18 @@ pub fn fight<'a>(
     f.vision = spec.vision;
     f.max_rounds = d.rules.max_rounds * spec.rooms as u32;
     let homes = map.enemies.iter().map(|e| e.2).collect();
+    let first = (spec.rooms - spec.surface_rooms) / 2;
+    let surface = map.rooms[first..first + spec.surface_rooms].to_vec();
     let mut state = MapState::new(map.rooms, homes, map.exit, body.len());
+    state.river = spec.river;
+    state.river_liquids = spec.river_liquids.clone();
+    state.drips = map
+        .drips
+        .iter()
+        .map(|&c| (c, spec.drips.map_or(0, |d| d.units)))
+        .collect();
+    state.surface = surface;
+    state.sun_every = spec.sun_every;
     // `kite` walks and holds corridors like `lure`; next to enemies it kites (src/fight.rs).
     state.lure = level.policy == "lure" || level.policy == "kite";
     f.policy = crate::fight::Policy::from_name(&level.policy, d);
@@ -247,7 +284,7 @@ fn round2(x: f64) -> f64 {
     (x * 100.0).round() / 100.0 + 0.0
 }
 
-/// The map as text: `#` wall, `.` floor, `S` start, `X` exit, an enemy by its kind's first letter.
+/// The map as text: `#` wall, `.` floor, `S` start, `X` exit, `~` drip, an enemy by its kind's first letter.
 pub fn ascii(map: &Map) -> String {
     let mut out = String::new();
     for y in 0..map.board.height {
@@ -257,6 +294,8 @@ pub fn ascii(map: &Map) -> String {
                 e.0.chars().next().unwrap_or('?')
             } else if c == map.start {
                 'S'
+            } else if map.drips.contains(&c) {
+                '~'
             } else if c == map.exit {
                 'X'
             } else if map.board.wall(c) {

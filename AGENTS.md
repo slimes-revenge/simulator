@@ -22,6 +22,7 @@ src/rng.rs           # seeded SplitMix64
 src/report.rs        # builds, encounters, the matrix, JSON report
 src/level.rs         # stage levels: body carried through fights and fountains
 src/map.rs           # map levels: generated rooms, walls, the strafe walk, episodes
+src/ladder.rs        # the ladder: level and run modes (body carried), pass summary
 src/text.rs          # plain-text report (design-guard.txt)
 src/main.rs          # CLI (USAGE): --design, --out, --no-json, --out-txt, --only-*, --trace
 reports/             # design-guard.txt committed; CI fails when it is stale

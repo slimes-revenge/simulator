@@ -91,6 +91,18 @@ matrix.enemy_rows = 5 4 6
 matrix.policies = newcomer arranger kite
 policies.lure_patience = 10
 policies.arranger_keep = none
+ladder.thresholds.1.difficulty = E
+ladder.thresholds.1.policy = strafe
+ladder.thresholds.1.min = 90
+ladder.thresholds.2.difficulty = N
+ladder.thresholds.2.policy = lure
+ladder.thresholds.2.min = 90
+ladder.thresholds.3.difficulty = H
+ladder.thresholds.3.policy = kite
+ladder.thresholds.3.min = 70
+ladder.thresholds.4.difficulty = H
+ladder.thresholds.4.policy = strafe
+ladder.thresholds.4.max = 10
 levels.sample-ap1.capacity = 10
 levels.sample-ap1.action_points = 1
 levels.sample-ap1.policy = newcomer
@@ -190,6 +202,49 @@ levels.map-kite3.map.enemies_per_room = 1 2
 levels.map-kite3.map.enemy_kinds = Bat Mushroom Undine Cactus Mandragora Eye
 levels.map-kite3.map.corridor = 2
 levels.map-kite3.map.vision = 3
+levels.ladder-1.capacity = 10
+levels.ladder-1.action_points = 2
+levels.ladder-1.policy = strafe
+levels.ladder-1.ladder.level = 1
+levels.ladder-1.ladder.difficulty = E
+levels.ladder-1.map.rooms = 5
+levels.ladder-1.map.room_side = 5 9
+levels.ladder-1.map.enemies_per_room = 1 2
+levels.ladder-1.map.enemy_kinds = Bat Mushroom Undine
+levels.ladder-1.map.corridor = 2
+levels.ladder-1.map.vision = 2
+levels.ladder-1.map.river = 6
+levels.ladder-1.map.river_liquids = Water
+levels.ladder-1.map.surface_rooms = 1
+levels.ladder-1.map.sun_every = 2
+levels.ladder-2-lava.capacity = 10
+levels.ladder-2-lava.action_points = 2
+levels.ladder-2-lava.policy = strafe
+levels.ladder-2-lava.ladder.level = 2
+levels.ladder-2-lava.ladder.difficulty = E
+levels.ladder-2-lava.ladder.branch = Lava
+levels.ladder-2-lava.map.rooms = 5
+levels.ladder-2-lava.map.room_side = 5 9
+levels.ladder-2-lava.map.enemies_per_room = 1 2
+levels.ladder-2-lava.map.enemy_kinds = Cactus Mandragora Eye
+levels.ladder-2-lava.map.corridor = 2
+levels.ladder-2-lava.map.vision = 2
+levels.ladder-2-lava.map.drips.cells = 3
+levels.ladder-2-lava.map.drips.units = 2
+levels.ladder-2-acid.capacity = 10
+levels.ladder-2-acid.action_points = 2
+levels.ladder-2-acid.policy = strafe
+levels.ladder-2-acid.ladder.level = 2
+levels.ladder-2-acid.ladder.difficulty = E
+levels.ladder-2-acid.ladder.branch = Acid
+levels.ladder-2-acid.map.rooms = 5
+levels.ladder-2-acid.map.room_side = 5 9
+levels.ladder-2-acid.map.enemies_per_room = 1 2
+levels.ladder-2-acid.map.enemy_kinds = Cactus Mandragora Eye
+levels.ladder-2-acid.map.corridor = 2
+levels.ladder-2-acid.map.vision = 2
+levels.ladder-2-acid.map.river = 6
+levels.ladder-2-acid.map.river_liquids = Water Acid
 
 [cells]
 ap policy     build      encounter        win  rounds killed   left  spent bitten status  cause
@@ -2829,3 +2884,19 @@ map-lure2        6   0.24     0  room1:melee:Mandragora=5 room2:melee:Cactus=5 r
 map-lure3        0   0.00     0  room1:melee:Mandragora=8 room1:melee:Mushroom=8 room1:melee:Eye=6 room1:melee:Cactus=5 room1:melee:Undine=4 room2:melee:Mandragora=4 room2:melee:Eye=3 room2:melee:Cactus=2 room2:melee:Undine=2 room3:melee:Mushroom=2 room2:melee:Mushroom=1 room3:melee:Cactus=1 room3:melee:Eye=1 room3:melee:Mandragora=1 room3:melee:Undine=1 room4:melee:Undine=1
 map-lure4        0   0.00     0  room1:melee:Mushroom=9 room1:melee:Eye=8 room1:melee:Mandragora=8 room1:melee:Undine=5 room2:melee:Mandragora=5 room1:melee:Cactus=3 room3:melee:Mushroom=3 room2:melee:Cactus=2 room2:melee:Eye=2 room3:melee:Undine=2 room2:melee:Undine=1 room3:melee:Eye=1 room3:melee:Mandragora=1
 map-kite3       52   1.04     0  room1:melee:Mandragora=3 room1:melee:Mushroom=3 room1:melee:Cactus=2 room2:melee:Cactus=2 room2:melee:Mandragora=2 room3:melee:Mandragora=2 room5:melee:Mushroom=2 room1:melee:Eye=1 room1:melee:Undine=1 room2:melee:Bat=1 room2:melee:Eye=1 room3:melee:Mushroom=1 room3:melee:Undine=1 room4:melee:Cactus=1 room5:melee:Eye=1
+
+[ladder]
+mode  difficulty policy   branch                   level end fights net_per_fight engaged2+ min_body  stops
+level E          strafe   -                            1   8   1.74         -5.14      9.20     0.24  room3:sun=11 room2:melee:Mushroom=7 room2:melee:Undine=7 room1:melee:Undine=6 room1:melee:Mushroom=5 room3:melee:Undine=3 room4:melee:Mushroom=3 room3:melee:Mushroom=2 room5:melee:Mushroom=2
+level E          strafe   Acid                         2   0   1.80         -5.56     15.56     0.00  room2:melee:Cactus=9 room1:melee:Mandragora=8 room1:melee:Cactus=7 room1:melee:Eye=6 room2:melee:Eye=6 room2:melee:Mandragora=4 room3:melee:Mandragora=3 room3:melee:Eye=2 room4:melee:Mandragora=2 room3:melee:Cactus=1 room4:melee:Cactus=1 room4:melee:Eye=1
+level E          strafe   Lava                         2   2   1.88         -6.00     14.89     0.04  room1:melee:Cactus=7 room1:melee:Mandragora=7 room2:melee:Eye=7 room1:melee:Eye=6 room2:melee:Cactus=6 room2:melee:Mandragora=5 room3:melee:Eye=4 room3:melee:Mandragora=2 room4:melee:Eye=2 room3:melee:Cactus=1 room4:melee:Cactus=1 room4:melee:Mandragora=1
+run   E          strafe   -                            1   8   1.74         -5.14      9.20     0.24  room3:sun=11 room2:melee:Mushroom=7 room2:melee:Undine=7 room1:melee:Undine=6 room1:melee:Mushroom=5 room3:melee:Undine=3 room4:melee:Mushroom=3 room3:melee:Mushroom=2 room5:melee:Mushroom=2
+run   E          strafe   Acid                         2   0   2.00         -3.88      0.00     0.00  room2:melee:Cactus=2 room3:melee:Eye=1 room4:melee:Cactus=1
+run   E          strafe   Lava                         2   0   2.25         -4.67      0.00     0.00  room3:melee:Eye=2 room2:melee:Cactus=1 room4:melee:Cactus=1
+
+[ladder-summary]
+mode  difficulty policy   branch                   rule   furthest_level first_fail_level  cause
+level E          strafe   Acid                     min90               -                1  room3:sun
+level E          strafe   Lava                     min90               -                1  room3:sun
+run   E          strafe   Acid                     min90               -                1  room3:sun
+run   E          strafe   Lava                     min90               -                1  room3:sun
