@@ -1,6 +1,6 @@
-//! `simulator [--design data/design.toml] [--out design-guard.json]`
+//! `simulator [--design data/design.toml] [--out design-guard.json] [--out-txt design-guard.txt]`
 //! Runs the matrix once per `matrix.action_points` value and writes the reports as one JSON
-//! array (`docs/report-format.md`).
+//! array for the site and one plain-text file for the balance session (`docs/report-format.md`).
 
 use simulator::data::Design;
 use simulator::report;
@@ -11,18 +11,29 @@ use std::time::{SystemTime, UNIX_EPOCH};
 fn main() -> ExitCode {
     let mut design = PathBuf::from("data/design.toml");
     let mut out = PathBuf::from("design-guard.json");
+    let mut out_txt = PathBuf::from("design-guard.txt");
     let mut args = std::env::args().skip(1);
     while let Some(arg) = args.next() {
         match (arg.as_str(), args.next()) {
             ("--design", Some(v)) => design = v.into(),
             ("--out", Some(v)) => out = v.into(),
+            ("--out-txt", Some(v)) => out_txt = v.into(),
             _ => {
-                eprintln!("usage: simulator [--design data/design.toml] [--out design-guard.json]");
+                eprintln!(
+                    "usage: simulator [--design data/design.toml] [--out design-guard.json] [--out-txt design-guard.txt]"
+                );
                 return ExitCode::from(2);
             }
         }
     }
-    let d = match Design::load(&design) {
+    let text = match std::fs::read_to_string(&design) {
+        Ok(t) => t,
+        Err(e) => {
+            eprintln!("cannot read {}: {e}", design.display());
+            return ExitCode::FAILURE;
+        }
+    };
+    let d = match Design::parse(&text) {
         Ok(d) => d,
         Err(e) => {
             eprintln!("{e}");
@@ -37,15 +48,15 @@ fn main() -> ExitCode {
         .iter()
         .map(|&ap| report::run(&d, ap, &generated, &commit))
         .collect();
-    for r in &reports {
-        println!("{}", report::table(r));
+    let json = serde_json::to_string_pretty(&reports).expect("reports serialize") + "\n";
+    let txt = simulator::text::render(&text, &reports).expect("the design file parsed above");
+    for (path, content) in [(&out, json), (&out_txt, txt)] {
+        if let Err(e) = std::fs::write(path, content) {
+            eprintln!("cannot write {}: {e}", path.display());
+            return ExitCode::FAILURE;
+        }
+        println!("wrote {}", path.display());
     }
-    let json = serde_json::to_string_pretty(&reports).expect("reports serialize");
-    if let Err(e) = std::fs::write(&out, json + "\n") {
-        eprintln!("cannot write {}: {e}", out.display());
-        return ExitCode::FAILURE;
-    }
-    println!("wrote {}", out.display());
     ExitCode::SUCCESS
 }
 

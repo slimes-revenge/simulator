@@ -182,28 +182,3 @@ fn summarize(b: &Build, e: &Encounter, results: &[FightResult]) -> CellResult {
 fn round2(x: f64) -> f64 {
     (x * 100.0).round() / 100.0
 }
-
-/// A plain-text matrix for the console: win rate in percent per build × encounter.
-pub fn table(report: &Report) -> String {
-    let mut out = format!(
-        "actionsPerRound = {}, policy = {}, seeds = {}\n{:<10}",
-        report.actions_per_round, report.policy, report.seeds, "build"
-    );
-    for e in &report.encounters {
-        out += &format!("{:>14}", e.id);
-    }
-    out += "\n";
-    for b in &report.builds {
-        out += &format!("{:<10}", b.id);
-        for e in &report.encounters {
-            let c = report
-                .cells
-                .iter()
-                .find(|c| c.build == b.id && c.encounter == e.id)
-                .expect("every build × encounter has a cell");
-            out += &format!("{:>13}%", (c.win_rate * 100.0).round());
-        }
-        out += "\n";
-    }
-    out
-}
