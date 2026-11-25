@@ -38,8 +38,9 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
   JSON carry the commit.
 - **`[design]`:** every value of the design file the run used, one `key = value` per line, in
   file order. An empty list prints as `key = ` with nothing after it.
-  - Tables flatten to dotted keys. Arrays of tables are keyed by their `name`
-    (`liquids.Lava.power`, `enemies.Bat.hit_points`). Lists are joined by spaces.
+  - Tables flatten to dotted keys. Arrays of tables are keyed by their `name`, else their `id`,
+    else their 1-based position (`liquids.Lava.power`, `levels.sample-ap1.stages.3.units`).
+    Lists are joined by spaces.
   - When `--design` was given, the first line is `design.file = <path as given>`.
 - **`[cells]`:** one header line, then one line per cell.
   - Sorted by `ap` (ascending), `policy`, then build in design order (`start`, then
@@ -90,7 +91,7 @@ the seeds that reached the stage, with 2 decimals; `net` carries a sign.
 | `kind`, `detail` | `fight` with `<enemy>-<count>`, or `fountain` with `<Liquid> x<units>` |
 | `reached` | Percent of seeds that started this stage |
 | `win` | Percent of those that won the fight; `-` for a fountain or a stage nobody reached |
-| `before`, `after` | Body at the stage start and end (after eating or drinking; 0 after a loss) |
+| `before`, `after` | Body at the stage start and end (after eating or drinking; 0 after a death, what was left after a timeout) |
 | `spent`, `bitten`, `status` | Units lost to strikes, bites, the slime's own status pulses |
 | `grown` | Blood grown by Regeneration during the fight |
 | `eaten`, `drunk` | Units gained from corpses and from the fountain |

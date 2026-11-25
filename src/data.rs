@@ -119,6 +119,7 @@ pub struct Matrix {
 
 /// A level: stages played in order, the slime's body carried from one to the next.
 #[derive(Deserialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
 pub struct Level {
     pub id: String,
     pub capacity: usize,
@@ -168,7 +169,27 @@ impl Design {
                 design.matrix.enemy_rows.len()
             ));
         }
-        for level in &design.levels {
+        for (i, level) in design.levels.iter().enumerate() {
+            let problem = if design.levels[..i].iter().any(|l| l.id == level.id) {
+                Some("duplicate id")
+            } else if level.id.is_empty() || level.id.len() > 14 {
+                Some("id must be 1..=14 characters (it is a fixed-width column)")
+            } else if level.capacity == 0 || level.action_points == 0 {
+                Some("capacity and action_points must be at least 1")
+            } else if level.stages.is_empty() || level.stages.len() >= 1000 {
+                Some("stages must have 1..1000 entries")
+            } else if level
+                .start
+                .as_ref()
+                .is_some_and(|s| s.is_empty() || s.len() > level.capacity)
+            {
+                Some("start must have 1..=capacity units")
+            } else {
+                None
+            };
+            if let Some(problem) = problem {
+                return Err(format!("level {:?}: {problem}", level.id));
+            }
             if level.policy != "face-tank" {
                 return Err(format!(
                     "level {}: policy {:?} is not supported (only \"face-tank\")",

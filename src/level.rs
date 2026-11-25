@@ -74,7 +74,7 @@ pub fn run(d: &Design, level: &Level) -> LevelResult {
     let (mut ends, mut min_sum, mut worst, mut wasted_sum) = (0, 0, usize::MAX, 0);
     let mut stops = BTreeMap::new();
     for seed in 0..d.matrix.seeds {
-        let mut body: Vec<Liquid> = start.iter().copied().take(level.capacity).collect();
+        let mut body = start.clone();
         let mut min_body = body.len();
         let mut wasted = 0;
         let mut finished = true;
@@ -105,9 +105,9 @@ pub fn run(d: &Design, level: &Level) -> LevelResult {
                     r.spent = result.units_spent;
                     r.bitten = result.units_bitten;
                     r.status = result.units_status;
-                    r.grown =
-                        (volume.len() + r.spent + r.bitten + r.status).saturating_sub(r.before);
-                    body = if result.won { volume } else { Vec::new() };
+                    r.grown = result.units_grown;
+                    // A death leaves nothing; a timeout leaves what the slime still had.
+                    body = volume;
                     if result.won {
                         for _ in 0..*enemies {
                             for &unit in &d.enemy(enemy).volume {

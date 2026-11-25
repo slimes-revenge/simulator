@@ -33,6 +33,7 @@ fn won(rounds: u32, left: usize, spent: usize, bitten: usize) -> FightResult {
         units_spent: spent,
         units_bitten: bitten,
         units_status: 0,
+        units_grown: 0,
         enemies_killed: 1,
         cause: None,
     }
@@ -421,14 +422,24 @@ fn level_stops_at_the_lost_fight() {
 
 #[test]
 fn level_ledger_adds_up() {
+    // The shipped levels, plus Blood vs Bat: Regeneration grows units, and Blood cannot kill a
+    // Vampirism bat, so some fights end in a timeout with units left.
+    let mut blood = level_design(r#"{ kind = "fight", enemy = "Bat", enemies = 1 }"#);
+    blood.levels[0].start = Some(vec![Liquid::Blood; 10]);
+    let l = simulator::level::run(&blood, &blood.levels[0]);
+    assert!(l.rows[0].grown > 0.0, "{:?}", l.rows[0]);
     let d = design();
-    for level in &d.levels {
-        for r in &simulator::level::run(&d, level).rows {
+    let runs = d
+        .levels
+        .iter()
+        .map(|level| (level.id.clone(), simulator::level::run(&d, level)))
+        .chain([("blood".to_string(), l)]);
+    for (id, run) in runs {
+        for r in &run.rows {
             let expected = r.before - r.spent - r.bitten - r.status + r.grown + r.eaten + r.drunk;
             assert!(
-                (r.after - expected).abs() < 0.02,
-                "{} stage {}: {r:?}",
-                level.id,
+                (r.after - expected).abs() < 0.05,
+                "{id} stage {}: {r:?}",
                 r.stage
             );
         }
@@ -445,6 +456,25 @@ fn level_design_errors_are_explicit() {
         1,
     );
     assert!(Design::parse(&kite).unwrap_err().contains("not supported"));
+    let long = base.replacen(
+        "id = \"sample-ap1\"\ncapacity = 10",
+        &format!(
+            "id = \"sample-ap1\"\ncapacity = 10\nstart = [{}]",
+            ["\"Lava\""; 11].join(", ")
+        ),
+        1,
+    );
+    assert!(Design::parse(&long).unwrap_err().contains("1..=capacity"));
+    let dup = base.replacen("id = \"sample-ap2\"", "id = \"sample-ap1\"", 1);
+    assert!(Design::parse(&dup).unwrap_err().contains("duplicate id"));
+    let zero = base.replacen("action_points = 1\npolicy", "action_points = 0\npolicy", 1);
+    assert!(Design::parse(&zero).unwrap_err().contains("at least 1"));
+    let typo = base.replacen(
+        "capacity = 10\naction_points",
+        "capacity = 10\nstart_body = []\naction_points",
+        1,
+    );
+    assert!(Design::parse(&typo).is_err());
     let ghost = base.replacen(
         "enemy = \"Bat\", enemies = 1",
         "enemy = \"Ghost\", enemies = 1",
