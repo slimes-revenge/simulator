@@ -1020,6 +1020,8 @@ impl<'a> Fight<'a> {
         let v = &self.slime.volume;
         if careful && v.len() >= 2 && self.pair_reacts(v[v.len() - 1], v[v.len() - 2]) {
             let unit = self.slime.volume.pop().expect("two units");
+            self.units_spent += 1;
+            *self.tally.spent_by.entry(unit).or_insert(0) += 1;
             return self.note(|_| format!("Slime spits {unit:?} away: it would react"));
         }
         let reacts = self.next_drink().is_some_and(|l| {
@@ -1199,6 +1201,8 @@ impl<'a> Fight<'a> {
             && let Some(to) = self.kite_step()
         {
             let from = self.slime.cell;
+            // A pending bring-up belongs to the strike it preceded.
+            self.swapped = false;
             if self.move_slime(to) {
                 self.note(|_| format!("Slime steps back {from:?}->{to:?}"));
             }
@@ -1318,7 +1322,7 @@ impl<'a> Fight<'a> {
             let mut after = v.clone();
             let unit = after.remove(k);
             after.push(unit);
-            el.of(unit) != theirs && !self.reacts_anywhere(&after)
+            el.of(unit) != theirs && (!self.reacts_anywhere(&after) || self.reacts_anywhere(v))
         })
     }
 
@@ -1374,7 +1378,7 @@ impl<'a> Fight<'a> {
             let mut after = v.clone();
             let unit = after.remove(k);
             after.push(unit);
-            dominates(unit) && !self.reacts_anywhere(&after)
+            dominates(unit) && (!self.reacts_anywhere(&after) || self.reacts_anywhere(v))
         })
     }
 
@@ -1419,6 +1423,11 @@ impl<'a> Fight<'a> {
 
     /// A melee strike: `hit`, then the target's Thorns take that many units off the edge.
     pub fn slime_strike(&mut self, target: usize, liquid: Liquid) {
+        let el = &self.d.elements;
+        if el.of(liquid).is_some() && el.of(liquid) == self.enemies[target].element {
+            // Same element (R2): nothing happens, Thorns included.
+            return self.hit(target, liquid);
+        }
         self.hit(target, liquid);
         let thorns = self.enemies[target].thorns;
         if thorns > 0 && self.slime.alive() {
@@ -1572,6 +1581,10 @@ impl<'a> Fight<'a> {
                 e.hit_points
             )
         });
+        // A miss can kill a suppressed attacker (R2): a dead enemy does nothing more.
+        if !self.enemies[i].alive() {
+            return;
+        }
         self.after_act(i, intent);
         if self.enemies[i].hunter && self.can_see(i) {
             self.enemies[i].met = true;
@@ -1801,11 +1814,12 @@ impl<'a> Fight<'a> {
         }
         let mut power = self.enemies[i].melee_power;
         if theirs.zip(mine).is_some_and(|(a, b)| el.suppresses(b, a))
+            && el.suppressed_hit_percent < 100
             && self.rng.pick(100) >= el.suppressed_hit_percent
         {
             // A suppressed attacker misses and hurts itself.
             let e = &mut self.enemies[i];
-            e.hit_points -= el.miss_self_damage;
+            e.hit_points = (e.hit_points - el.miss_self_damage).max(0);
             e.aggroed = true;
             self.tally.elem_miss += 1;
             return self.note(|f| format!("{} misses and hurts itself", f.label(i)));

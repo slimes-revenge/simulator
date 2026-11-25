@@ -47,8 +47,9 @@ truth for how the game behaves today; the simulator mirrors it by hand. Numbers 
   that many pulses (the design: 3, a full status like a strike; the fallback 2 lasts through
   the enemy's next turn, since statuses pulse at the start of their owner's turn); 0 keeps the liquid's usual duration (the game).
 - Dominance (affinity): one liquid with at least `rules.dominance_percent` of the basis.
-  `rules.dominance_basis = "capacity"` (the design: 60 % of the capacity, so a bitten body does
-  not fall into an affinity) or `"volume"` (the game: 80 % of the body now).
+  `rules.dominance_basis = "current"` (the body now: the design's 60 %, the game's 80 %) or
+  `"capacity"` (the fallback: a share of the capacity, so a bitten body does not fall into an
+  affinity).
   Water: blocks and removes Burning. Oil: the slime is Flammable. Blood: Regeneration
   (`statuses.regeneration_growth` Blood per pulse up to capacity, queued first, removed when
   dominance changes). Mercury: Invisible — an enemy that is not aggroed cannot see, chase or

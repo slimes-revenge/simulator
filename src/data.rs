@@ -258,7 +258,8 @@ pub struct Rules {
     pub board_height: i32,
     pub vision_range: i32,
     pub dominance_percent: usize,
-    /// What `dominance_percent` is a share of: `capacity` (the design) or `volume` (the game).
+    /// What `dominance_percent` is a share of: `current` (the body now; the design and the game)
+    /// or `capacity` (fallback).
     pub dominance_basis: String,
     /// Retaliation statuses last this many pulses (the game: the liquid's usual duration, 0).
     pub retaliation_pulses: i32,
@@ -317,6 +318,7 @@ pub struct LiquidData {
 }
 
 #[derive(Deserialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
 pub struct EnemyData {
     pub name: String,
     pub hit_points: i32,
@@ -496,8 +498,8 @@ impl Design {
                 design.matrix.enemy_rows.len()
             ));
         }
-        if !["capacity", "volume"].contains(&design.rules.dominance_basis.as_str()) {
-            return Err("rules.dominance_basis must be \"capacity\" or \"volume\"".into());
+        if !["capacity", "current"].contains(&design.rules.dominance_basis.as_str()) {
+            return Err("rules.dominance_basis must be \"current\" or \"capacity\"".into());
         }
         if design.rules.retaliation_pulses < 0 {
             return Err(

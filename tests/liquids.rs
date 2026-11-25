@@ -12,19 +12,28 @@ fn fight(d: &Design, body: Vec<Liquid>, ap: u32) -> Fight<'_> {
 }
 
 #[test]
-fn affinity_is_a_share_of_the_capacity() {
+fn affinity_is_a_share_of_the_body_now_or_of_the_capacity() {
     use Liquid::*;
     let d = Design::bundled();
     assert_eq!(
         (d.rules.dominance_percent, d.rules.dominance_basis.as_str()),
-        (60, "capacity")
+        (60, "current")
     );
-    // Capacity 10: 6 Lava are 60 %, 5 Lava alone (100 % of the body) are not.
-    assert_eq!(fight(&d, vec![Lava; 6], 1).slime.dominant, Some(Lava));
-    assert_eq!(fight(&d, vec![Lava; 5], 1).slime.dominant, None);
-    let mut game = Design::bundled();
-    (game.rules.dominance_percent, game.rules.dominance_basis) = (80, "volume".into());
-    assert_eq!(fight(&game, vec![Lava; 5], 1).slime.dominant, Some(Lava));
+    // Capacity 10. Current body: 3 Lava of 5 units are 60 %; 3 of 6 are not.
+    let mut three = vec![Water, Water];
+    three.extend([Lava; 3]);
+    assert_eq!(fight(&d, three.clone(), 1).slime.dominant, Some(Lava));
+    assert_eq!(
+        fight(&d, [vec![Water], three.clone()].concat(), 1)
+            .slime
+            .dominant,
+        None
+    );
+    // Fallback: a share of the capacity (60 % of 10 = 6).
+    let mut cap = Design::bundled();
+    cap.rules.dominance_basis = "capacity".into();
+    assert_eq!(fight(&cap, three, 1).slime.dominant, None);
+    assert_eq!(fight(&cap, vec![Lava; 6], 1).slime.dominant, Some(Lava));
 }
 
 #[test]
@@ -99,7 +108,7 @@ fn liquid_rules_are_validated() {
     assert!(bad("build_liquids = [\"Water\",", "build_liquids = [\"Oil\",").contains("each once"));
     assert!(
         bad(
-            "dominance_basis = \"capacity\"",
+            "dominance_basis = \"current\"",
             "dominance_basis = \"body\""
         )
         .contains("dominance_basis")
