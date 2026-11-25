@@ -43,8 +43,11 @@ truth for how the game behaves today; the simulator mirrors it by hand. Numbers 
 - Enemy melee is a bare hit of `melee_power`. It pops the edge unit (the "tip"): the starting
   mix (Water, Water, Oil, Poison, Acid, Lava from the centre out) has Lava on the edge.
 - Retaliation: when the slime has a dominant liquid before the hit and survives it, the
-  attacker receives that liquid's effect.
-- Dominance: one liquid with at least `rules.dominance_percent` of the volume.
+  attacker receives that liquid's effect. Under `rules.retaliation_pulses` > 0 (the design: 1)
+  its statuses last that many pulses; 0 keeps the liquid's usual duration (the game).
+- Dominance (affinity): one liquid with at least `rules.dominance_percent` of the basis.
+  `rules.dominance_basis = "capacity"` (the design: 60 % of the capacity, so a bitten body does
+  not fall into an affinity) or `"volume"` (the game: 80 % of the body now).
   Water: blocks and removes Burning. Oil: the slime is Flammable. Blood: Regeneration
   (`statuses.regeneration_growth` Blood per pulse up to capacity, queued first, removed when
   dominance changes). Mercury: Invisible — an enemy that is not aggroed cannot see, chase or
@@ -60,7 +63,14 @@ truth for how the game behaves today; the simulator mirrors it by hand. Numbers 
 | Acid | Corroding: strips `corrosion` armor per pulse, else `statuses.corroding_pulse` HP |
 | Lava | Burning: `statuses.burning_pulse` HP per pulse × Flammable |
 | Blood | Nothing; a Vampirism creature heals `statuses.vampirism_heal` |
-| Mercury | Nothing |
+| Mercury | Nothing (power 2 in the design; the game's is 1) |
+| Pus, Phosphorus, Aquavita, Vitriol, Alkali, Ambrosia, Fat, Resin, Sulfur, Tar, Aphrodisiac | Nothing yet: a hit for the liquid's `power`; their rows come from the balance session |
+
+**Heavy liquids** (`rules.heavy`, design): each listed liquid the slime holds at least its count
+of (Lava 3, Mercury 2) takes 1 action point off every round, checked at the round's start. The
+points never drop below `rules.heavy_min_action_points` (2), nor below the base.
+
+The matrix builds a pure body only of `matrix.build_liquids`.
 
 ## Statuses (`StatusQueue`)
 

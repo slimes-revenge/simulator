@@ -6,7 +6,11 @@
 board_width = 10          # RunConfig: 10x10 grass
 board_height = 10
 vision_range = 5          # Creature.visionRange (Chebyshev, no walls)
-dominance_percent = 80    # Volume.DominantPercent
+dominance_percent = 60        # affinity threshold (balance liquids.md); the game uses 80 of the volume
+dominance_basis = "capacity"  # share of the capacity (design); "volume" = of the body now (the game)
+retaliation_pulses = 1        # Retaliation statuses last 1 pulse (design); 0 = the liquid's own duration (the game)
+heavy = { Lava = 3, Mercury = 2 }  # holding this many costs 1 action point each (design)
+heavy_min_action_points = 2   # heaviness never takes the slime below this
 pursuit_memory_turns = 3  # Creature.PursuitMemoryTurns
 max_rounds = 200          # simulator only: a fight that lasts longer is a loss with cause "timeout"
 last_drop_strike = true       # agreed design rule (П15): at 1 unit a strike hits and spends nothing; not in the game yet
@@ -71,13 +75,64 @@ corrosion = 0
 
 [[liquids]]
 name = "Mercury"
-power = 1
+power = 2                     # design (liquids.md); the game's Mercury hits for 1
 corrosion = 0
 
 # G5 (design rule, not in the game yet): an infected Blood unit, no power and no effect.
 [[liquids]]
 name = "Pus"
 power = 0
+corrosion = 0
+
+# The rest of the 18 liquids (lore forum.md): a strike for `power`, no status yet.
+[[liquids]]
+name = "Phosphorus"
+power = 1
+corrosion = 0
+
+[[liquids]]
+name = "Aquavita"
+power = 1
+corrosion = 0
+
+[[liquids]]
+name = "Vitriol"
+power = 1
+corrosion = 0
+
+[[liquids]]
+name = "Alkali"
+power = 1
+corrosion = 0
+
+[[liquids]]
+name = "Ambrosia"
+power = 1
+corrosion = 0
+
+[[liquids]]
+name = "Fat"
+power = 1
+corrosion = 0
+
+[[liquids]]
+name = "Resin"
+power = 1
+corrosion = 0
+
+[[liquids]]
+name = "Sulfur"
+power = 1
+corrosion = 0
+
+[[liquids]]
+name = "Tar"
+power = 1
+corrosion = 0
+
+[[liquids]]
+name = "Aphrodisiac"
+power = 1
 corrosion = 0
 
 # The live roster (CreatureCatalog.Opponents). melee_power = Combat.Attack bare hit (1).
@@ -145,7 +200,8 @@ traits = []
 [matrix]
 seeds = 50                    # seeds 0..seeds-1 per cell
 action_points = [1, 2]        # 1 = the game today, 2 = the design (turn-structure.md)
-pure_build_units = 10         # one pure build per liquid
+pure_build_units = 10         # one pure build per build liquid
+build_liquids = ["Water", "Oil", "Poison", "Acid", "Blood", "Lava", "Mercury"]
 enemy_counts = [1, 2, 3]
 slime_cell = [1, 5]
 enemy_column_offset = 5       # enemies stand in the column slime_cell.x + offset
