@@ -23,12 +23,15 @@ pub struct StageRow {
     pub status: f64,
     /// Blood grown by Regeneration during the fight.
     pub grown: f64,
+    /// Units the corpses offered (eaten + what did not fit).
+    pub corpse: f64,
     pub eaten: f64,
     pub drunk: f64,
     /// Corpse or fountain units that did not fit into capacity.
     pub wasted: f64,
     pub after: f64,
-    /// eaten + drunk + grown − spent − bitten − status, ignoring capacity.
+    /// corpse + drunk + grown − spent − bitten − status: the stage's own yield, ignoring
+    /// capacity. A fountain's undrunk rest stays out: a full slime gains nothing from it.
     pub net: f64,
 }
 
@@ -56,6 +59,7 @@ struct Record {
     bitten: usize,
     status: usize,
     grown: usize,
+    corpse: usize,
     eaten: usize,
     drunk: usize,
     wasted: usize,
@@ -111,6 +115,7 @@ pub fn run(d: &Design, level: &Level) -> LevelResult {
                     if result.won {
                         for _ in 0..*enemies {
                             for &unit in &d.enemy(enemy).volume {
+                                r.corpse += 1;
                                 if body.len() < level.capacity {
                                     body.push(unit);
                                     r.eaten += 1;
@@ -176,7 +181,7 @@ fn row(stage: usize, s: &Stage, recs: &[Record], seeds: f64) -> StageRow {
         Stage::Fountain { liquid, units } => ("fountain", format!("{liquid:?} x{units}"), None),
     };
     let net =
-        |r: &Record| (r.eaten + r.drunk + r.grown) as f64 - (r.spent + r.bitten + r.status) as f64;
+        |r: &Record| (r.corpse + r.drunk + r.grown) as f64 - (r.spent + r.bitten + r.status) as f64;
     StageRow {
         stage,
         kind,
@@ -188,6 +193,7 @@ fn row(stage: usize, s: &Stage, recs: &[Record], seeds: f64) -> StageRow {
         bitten: avg(|r| r.bitten),
         status: avg(|r| r.status),
         grown: avg(|r| r.grown),
+        corpse: avg(|r| r.corpse),
         eaten: avg(|r| r.eaten),
         drunk: avg(|r| r.drunk),
         wasted: avg(|r| r.wasted),
