@@ -5,16 +5,34 @@ use crate::report::Report;
 use std::fmt::Write;
 
 /// `design_toml` is the design file the reports were built from; its numbers open the report.
-pub fn render(design_toml: &str, reports: &[Report]) -> Result<String, String> {
+/// `design_file` is the `--design` path when one was given.
+pub fn render(
+    design_toml: &str,
+    design_file: Option<&str>,
+    reports: &[Report],
+) -> Result<String, String> {
     let design: toml::Table = toml::from_str(design_toml).map_err(|e| e.to_string())?;
     let mut out = String::from("# Slime's Revenge design guard — plain-text report, format 1\n");
     out += "\n[design]\n";
+    if let Some(file) = design_file {
+        let _ = writeln!(out, "design.file = {file}");
+    }
     flatten("", &toml::Value::Table(design), &mut out);
     out += "\n[cells]\n";
     let _ = writeln!(
         out,
-        "{:<2} {:<8} {:<13} {:>3} {:>7} {:>5} {:>5}  cause",
-        "ap", "build", "encounter", "win", "rounds", "left", "spent"
+        "{:<2} {:<10} {:<8} {:<13} {:>3} {:>7} {:>6} {:>5} {:>5} {:>6} {:>6}  cause",
+        "ap",
+        "policy",
+        "build",
+        "encounter",
+        "win",
+        "rounds",
+        "killed",
+        "left",
+        "spent",
+        "bitten",
+        "status"
     );
     for r in reports {
         for c in &r.cells {
@@ -31,14 +49,18 @@ pub fn render(design_toml: &str, reports: &[Report]) -> Result<String, String> {
             };
             let _ = writeln!(
                 out,
-                "{:<2} {:<8} {:<13} {:>3} {:>7.2} {:>5.2} {:>5.2}  {cause}",
+                "{:<2} {:<10} {:<8} {:<13} {:>3} {:>7.2} {:>6.2} {:>5.2} {:>5.2} {:>6.2} {:>6.2}  {cause}",
                 r.actions_per_round,
+                r.policy,
                 c.build,
                 c.encounter,
                 (c.win_rate * 100.0).round(),
                 c.avg_rounds,
+                c.avg_enemies_killed,
                 c.avg_units_left,
                 c.avg_units_spent,
+                c.avg_units_bitten,
+                c.avg_units_status,
             );
         }
     }

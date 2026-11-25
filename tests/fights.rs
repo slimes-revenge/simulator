@@ -3,6 +3,7 @@
 use simulator::data::{Design, Liquid};
 use simulator::fight::{Fight, FightResult};
 use simulator::report::{self, Build, Encounter};
+use simulator::text;
 
 fn design() -> Design {
     Design::bundled()
@@ -23,13 +24,17 @@ fn one(enemy: &str) -> Encounter {
     }
 }
 
-fn result(won: bool, rounds: u32, left: usize, spent: usize, cause: Option<&str>) -> FightResult {
+/// A won fight against one enemy.
+fn won(rounds: u32, left: usize, spent: usize, bitten: usize) -> FightResult {
     FightResult {
-        won,
+        won: true,
         rounds,
         units_left: left,
         units_spent: spent,
-        cause: cause.map(String::from),
+        units_bitten: bitten,
+        units_status: 0,
+        enemies_killed: 1,
+        cause: None,
     }
 }
 
@@ -73,7 +78,7 @@ fn seeds_change_fights_with_wandering_enemies() {
 fn ten_lava_vs_one_mushroom_one_action() {
     let d = design();
     let r = report::play(&d, &pure(&d, Liquid::Lava), &one("Mushroom"), 1, 0);
-    assert_eq!(r, result(true, 4, 7, 2, None));
+    assert_eq!(r, won(4, 7, 2, 1));
 }
 
 // With two actions: round 1 two steps, the Mushroom steps (distance 2); round 2 step + strike
@@ -83,7 +88,7 @@ fn ten_lava_vs_one_mushroom_one_action() {
 fn ten_lava_vs_one_mushroom_two_actions() {
     let d = design();
     let r = report::play(&d, &pure(&d, Liquid::Lava), &one("Mushroom"), 2, 0);
-    assert_eq!(r, result(true, 3, 6, 3, None));
+    assert_eq!(r, won(3, 6, 3, 1));
 }
 
 // Water deals 1 per strike and nothing over time: from round 3 each round is one strike and
@@ -92,7 +97,7 @@ fn ten_lava_vs_one_mushroom_two_actions() {
 fn ten_water_vs_one_mushroom_one_action() {
     let d = design();
     let r = report::play(&d, &pure(&d, Liquid::Water), &one("Mushroom"), 1, 0);
-    assert_eq!(r, result(true, 7, 1, 5, None));
+    assert_eq!(r, won(7, 1, 5, 4));
 }
 
 #[test]
@@ -109,7 +114,7 @@ fn blood_cannot_kill_a_vampire_bat() {
     );
     f.slime_strike(0, Liquid::Blood);
     assert_eq!(f.enemies[0].hit_points, 3);
-    let cell = report::run(&d, 1, "t", "c")
+    let cell = report::run(&d, 1, report::builds(&d), report::encounters(&d), "t", "c")
         .cells
         .into_iter()
         .find(|c| c.build == "blood" && c.encounter == "bat-1")
@@ -159,7 +164,7 @@ fn report_covers_every_build_and_encounter() {
     assert_eq!(builds.len(), 1 + 7);
     assert_eq!(encounters.len(), 6 * 3);
     for ap in d.matrix.action_points.clone() {
-        let r = report::run(&d, ap, "t", "c");
+        let r = report::run(&d, ap, builds.clone(), encounters.clone(), "t", "c");
         assert_eq!(r.cells.len(), builds.len() * encounters.len());
         for b in &builds {
             for e in &encounters {
@@ -185,7 +190,7 @@ fn a_basic_number_changes_the_report() {
         .unwrap()
         .power = 2;
     let cell = |d: &Design| {
-        report::run(d, 1, "t", "c")
+        report::run(d, 1, report::builds(d), report::encounters(d), "t", "c")
             .cells
             .into_iter()
             .find(|c| c.build == "water" && c.encounter == "mushroom-2")
@@ -197,7 +202,15 @@ fn a_basic_number_changes_the_report() {
 #[test]
 fn report_json_has_the_contract_fields() {
     let d = design();
-    let json = serde_json::to_value(report::run(&d, 2, "2026-01-01T00:00:00Z", "abc")).unwrap();
+    let json = serde_json::to_value(report::run(
+        &d,
+        2,
+        report::builds(&d),
+        report::encounters(&d),
+        "2026-01-01T00:00:00Z",
+        "abc",
+    ))
+    .unwrap();
     for key in [
         "schemaVersion",
         "generatedUtc",
@@ -226,4 +239,105 @@ fn report_json_has_the_contract_fields() {
     ] {
         assert!(cell.get(key).is_some(), "cell missing {key}");
     }
+}
+
+#[test]
+fn the_body_ledger_adds_up_without_regeneration() {
+    // Only Blood dominance grows the body; every other unit is left, spent, bitten or burned.
+    let d = design();
+    for b in report::builds(&d).iter().filter(|b| b.id != "blood") {
+        for e in report::encounters(&d) {
+            for ap in [1, 2] {
+                let r = report::play(&d, b, &e, ap, 3);
+                assert_eq!(
+                    r.units_left + r.units_spent + r.units_bitten + r.units_status,
+                    b.volume.len(),
+                    "{} vs {} ap {ap}: {r:?}",
+                    b.id,
+                    e.id
+                );
+                assert!(r.enemies_killed <= e.enemies);
+                assert_eq!(r.won, r.enemies_killed == e.enemies);
+            }
+        }
+    }
+}
+
+#[test]
+fn text_report_is_stable_and_has_no_run_details() {
+    let d = design();
+    let toml =
+        std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/data/design.toml")).unwrap();
+    let reports = |when: &str, sha: &str| -> Vec<report::Report> {
+        [1, 2]
+            .into_iter()
+            .map(|ap| {
+                report::run(
+                    &d,
+                    ap,
+                    report::builds(&d),
+                    report::encounters(&d),
+                    when,
+                    sha,
+                )
+            })
+            .collect()
+    };
+    let a = text::render(&toml, None, &reports("2026-01-01T00:00:00Z", "aaaa")).unwrap();
+    let b = text::render(&toml, None, &reports("2027-02-02T00:00:00Z", "bbbb")).unwrap();
+    assert_eq!(
+        a, b,
+        "the text report must not depend on the time or the commit"
+    );
+    assert!(!a.contains("design.file"));
+    assert!(a.contains("\nliquids.Lava.power = 1\n"));
+    assert!(a.contains("\nmatrix.enemy_rows = 5 4 6\n"));
+    assert!(a.contains("\nslime.start = Water Water Oil Poison Acid Lava\n"));
+    let with_file = text::render(&toml, Some("x.toml"), &reports("t", "c")).unwrap();
+    assert!(with_file.contains("\ndesign.file = x.toml\n"));
+
+    let table: Vec<&str> = a.split("[cells]\n").nth(1).unwrap().lines().collect();
+    let (header, cells) = (table[0], &table[1..]);
+    assert_eq!(cells.len(), 2 * 8 * 18);
+    assert_eq!(
+        cells[0].split_whitespace().take(4).collect::<Vec<_>>(),
+        ["1", "face-tank", "start", "bat-1"]
+    );
+    assert!(
+        cells
+            .last()
+            .unwrap()
+            .starts_with("2  face-tank  mercury  eye-3")
+    );
+    // Fixed columns: the cause starts under the header's "cause" in every line.
+    let cause_at = header.find("cause").unwrap();
+    for l in cells {
+        assert_eq!(&l[cause_at - 2..cause_at], "  ", "{l}");
+        assert_ne!(&l[cause_at..cause_at + 1], " ", "{l}");
+    }
+    let lava = cells
+        .iter()
+        .find(|l| l.starts_with("1  face-tank  lava     mushroom-1 "))
+        .unwrap();
+    assert_eq!(
+        lava.split_whitespace().skip(4).collect::<Vec<_>>(),
+        ["100", "4.00", "1.00", "7.00", "2.00", "1.00", "0.00", "-"]
+    );
+}
+
+#[test]
+fn trace_logs_the_fight_turn_by_turn() {
+    let d = design();
+    let (r, log) = report::fight(&d, &pure(&d, Liquid::Lava), &one("Mushroom"), 1, 0).run_traced();
+    assert_eq!(r, won(4, 7, 2, 1));
+    assert!(log.iter().any(|l| l == "round 4"));
+    assert!(
+        log.iter()
+            .any(|l| l.starts_with("Slime strikes Mushroom#1 with Lava: HP 5->4"))
+    );
+    assert!(
+        log.iter()
+            .any(|l| l.starts_with("Mushroom#1 pulse Burning: HP 1->0"))
+    );
+    assert!(log.last().unwrap().starts_with("result:"));
 }

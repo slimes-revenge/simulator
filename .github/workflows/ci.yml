@@ -21,15 +21,24 @@ jobs:
       - run: cargo clippy --all-targets -- -D warnings
       - run: cargo test
       - name: Run the design guard
-        run: cargo run --release -- --out design-guard.json
+        run: cargo run --release -- --out design-guard.json --out-txt reports/design-guard.txt
+      - name: The committed text report is up to date
+        run: |
+          git diff --exit-code reports/design-guard.txt || {
+            echo "::error::reports/design-guard.txt is stale: run 'cargo run --release -- --no-json --out-txt reports/design-guard.txt' and commit it"
+            exit 1
+          }
       - uses: actions/upload-artifact@v4
         with:
           name: design-guard
-          path: design-guard.json
+          path: |
+            design-guard.json
+            reports/design-guard.txt
 
   publish:
     # The rolling `latest` release: the site downloads
-    # https://github.com/slimes-revenge/simulator/releases/download/latest/design-guard.json
+    # https://github.com/slimes-revenge/simulator/releases/download/latest/design-guard.json,
+    # the balance session .../latest/design-guard.txt
     if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
     needs: check
     runs-on: ubuntu-latest
@@ -43,16 +52,17 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: design-guard
-      - name: Move the latest tag and upload the report
+      - name: Move the latest tag and upload the reports
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           git tag -f latest "$GITHUB_SHA"
           git push -f origin refs/tags/latest
+          cp reports/design-guard.txt design-guard.txt
           notes="design-guard.json for dev at $GITHUB_SHA"
           if gh release view latest >/dev/null 2>&1; then
             gh release edit latest --notes "$notes"
-            gh release upload latest design-guard.json --clobber
+            gh release upload latest design-guard.json design-guard.txt --clobber
           else
-            gh release create latest design-guard.json --title "Design guard (dev)" --notes "$notes"
+            gh release create latest design-guard.json design-guard.txt --title "Design guard (dev)" --notes "$notes"
           fi

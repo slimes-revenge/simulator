@@ -95,6 +95,11 @@ pub struct FightResult {
     pub rounds: u32,
     pub units_left: usize,
     pub units_spent: usize,
+    /// Units the slime lost to enemy bites.
+    pub units_bitten: usize,
+    /// Units the slime lost to its own status pulses.
+    pub units_status: usize,
+    pub enemies_killed: usize,
     /// Why the slime lost: `melee:<Enemy>`, `status:<Status>` or `timeout`. `None` on a win.
     pub cause: Option<String>,
 }
@@ -107,8 +112,12 @@ pub struct Fight<'a> {
     pub enemies: Vec<Creature>,
     next_status_id: u32,
     units_spent: usize,
+    units_bitten: usize,
+    units_status: usize,
     /// What last took a unit off the slime.
     last_harm: Option<String>,
+    /// Turn-by-turn log lines, kept only for `--trace`.
+    trace: Option<Vec<String>>,
 }
 
 impl<'a> Fight<'a> {
@@ -173,7 +182,10 @@ impl<'a> Fight<'a> {
             enemies,
             next_status_id: 0,
             units_spent: 0,
+            units_bitten: 0,
+            units_status: 0,
             last_harm: None,
+            trace: None,
         };
         let d = fight.d;
         refresh_dominance(d, &mut fight.slime, &mut fight.next_status_id);
@@ -183,12 +195,75 @@ impl<'a> Fight<'a> {
     /// Plays the fight to the end. Round: the slime acts `actions_per_round` times, then each
     /// enemy pulses its statuses and takes one intent, then the slime's statuses pulse
     /// (`GameSession.Resolve`). `TurnManager.Bind` pulses the slime once before its first action.
-    pub fn run(mut self) -> FightResult {
+    pub fn run(self) -> FightResult {
+        self.play().0
+    }
+
+    /// Plays the fight and returns a turn-by-turn log as well (`--trace`).
+    pub fn run_traced(mut self) -> (FightResult, Vec<String>) {
+        self.trace = Some(Vec::new());
+        self.play()
+    }
+
+    fn play(mut self) -> (FightResult, Vec<String>) {
+        self.note(|f| format!("start: {}", f.describe_all()));
+        let result = self.rounds();
+        self.note(|_| format!("result: {result:?}"));
+        (result, self.trace.unwrap_or_default())
+    }
+
+    fn note(&mut self, line: impl FnOnce(&Fight) -> String) {
+        if let Some(mut trace) = self.trace.take() {
+            trace.push(line(self));
+            self.trace = Some(trace);
+        }
+    }
+
+    fn label(&self, i: usize) -> String {
+        format!("{}#{}", self.enemies[i].name, i + 1)
+    }
+
+    fn describe_all(&self) -> String {
+        let s = &self.slime;
+        let mut out = format!(
+            "Slime {:?} volume [{}] dominant {:?} statuses {:?}",
+            s.cell,
+            s.volume
+                .iter()
+                .map(|l| format!("{l:?}"))
+                .collect::<Vec<_>>()
+                .join(" "),
+            s.dominant,
+            s.statuses
+                .iter()
+                .map(|x| (x.kind, x.remaining))
+                .collect::<Vec<_>>()
+        );
+        for (i, e) in self.enemies.iter().enumerate().filter(|(_, e)| e.alive()) {
+            out += &format!(
+                "; {} {:?} HP {}/{} armor {} aggro {} statuses {:?}",
+                self.label(i),
+                e.cell,
+                e.hit_points,
+                e.max_hit_points,
+                e.armor,
+                e.aggroed,
+                e.statuses
+                    .iter()
+                    .map(|x| (x.kind, x.remaining))
+                    .collect::<Vec<_>>()
+            );
+        }
+        out
+    }
+
+    fn rounds(&mut self) -> FightResult {
         self.pulse(None);
         if !self.slime.alive() {
             return self.result(false, 0);
         }
         for round in 1..=self.d.rules.max_rounds {
+            self.note(|_| format!("round {round}"));
             for _ in 0..self.actions_per_round {
                 self.slime_act();
                 if self.enemies_dead() {
@@ -215,6 +290,7 @@ impl<'a> Fight<'a> {
             if !self.slime.alive() {
                 return self.result(false, round);
             }
+            self.note(|f| format!("end of round {round}: {}", f.describe_all()));
         }
         self.last_harm = Some("timeout".into());
         self.result(false, self.d.rules.max_rounds)
@@ -226,6 +302,9 @@ impl<'a> Fight<'a> {
             rounds,
             units_left: self.slime.volume.len(),
             units_spent: self.units_spent,
+            units_bitten: self.units_bitten,
+            units_status: self.units_status,
+            enemies_killed: self.enemies.iter().filter(|e| !e.alive()).count(),
             cause: if won { None } else { self.last_harm.clone() },
         }
     }
@@ -292,12 +371,32 @@ impl<'a> Fight<'a> {
             // `Volume.CanSpend`: the last unit is the slime's life.
             if self.slime.volume.len() > 1 {
                 let liquid = self.most_held_liquid();
+                let hp = self.enemies[target].hit_points;
                 self.slime_strike(target, liquid);
+                self.note(|f| {
+                    let e = &f.enemies[target];
+                    format!(
+                        "Slime strikes {} with {liquid:?}: HP {hp}->{}, armor {}, statuses {:?}",
+                        f.label(target),
+                        e.hit_points,
+                        e.armor,
+                        e.statuses
+                            .iter()
+                            .map(|x| (x.kind, x.remaining))
+                            .collect::<Vec<_>>()
+                    )
+                });
+            } else {
+                self.note(|_| "Slime waits: the last unit cannot be spent".into());
             }
             return;
         }
-        if let Some(to) = self.walk_toward(self.slime.cell, self.enemies[target].cell, 1) {
+        let from = self.slime.cell;
+        if let Some(to) = self.walk_toward(from, self.enemies[target].cell, 1) {
             self.slime.cell = to;
+            self.note(|_| format!("Slime steps {from:?}->{to:?}"));
+        } else {
+            self.note(|_| "Slime waits: no path".into());
         }
     }
 
@@ -356,6 +455,7 @@ impl<'a> Fight<'a> {
                 e.pursuit_left = 0;
             }
         }
+        let (from, volume) = (self.enemies[i].cell, self.slime.volume.len());
         match intent {
             Intent::Attack => self.enemy_melee(i),
             Intent::Chase => self.chase(i),
@@ -363,6 +463,16 @@ impl<'a> Fight<'a> {
             Intent::Wander => self.wander(i),
             Intent::Idle => {}
         }
+        self.note(|f| {
+            let e = &f.enemies[i];
+            format!(
+                "{} {intent:?}: {from:?}->{:?}, slime volume {volume}->{}, HP {}",
+                f.label(i),
+                e.cell,
+                f.slime.volume.len(),
+                e.hit_points
+            )
+        });
         self.after_act(i, intent);
     }
 
@@ -429,7 +539,9 @@ impl<'a> Fight<'a> {
         // Retaliation is captured before the hit: the hit may end dominance.
         let retort = self.slime.dominant;
         let power = self.enemies[i].melee_power;
+        let before = self.slime.volume.len();
         let tip = damage(d, &mut self.slime, power, true, &mut self.next_status_id);
+        self.units_bitten += before - self.slime.volume.len();
         if tip.is_some() {
             self.last_harm = Some(format!("melee:{}", self.enemies[i].name));
         }
@@ -583,6 +695,8 @@ impl<'a> Fight<'a> {
     /// start of its owner's turn; stops when the owner dies.
     fn pulse(&mut self, enemy: Option<usize>) {
         let d = self.d;
+        let who = enemy.map_or("Slime".to_string(), |i| self.label(i));
+        let mut log: Option<Vec<String>> = self.trace.as_ref().map(|_| Vec::new());
         let ids = &mut self.next_status_id;
         let owner = match enemy {
             Some(i) => &mut self.enemies[i],
@@ -595,7 +709,7 @@ impl<'a> Fight<'a> {
             };
             let status = owner.statuses[at];
             pulsed.push(status.id);
-            let before = owner.volume.len();
+            let (before, hp) = (owner.volume.len(), owner.hit_points);
             match status.kind {
                 StatusKind::Burning => {
                     let amount = modify_incoming_harm(d, owner, d.statuses.burning_pulse);
@@ -621,7 +735,17 @@ impl<'a> Fight<'a> {
                 StatusKind::Wet | StatusKind::Instability | StatusKind::Flammable => {}
             }
             if owner.is_slime && owner.volume.len() < before {
+                self.units_status += before - owner.volume.len();
                 self.last_harm = Some(format!("status:{:?}", status.kind));
+            }
+            if let Some(log) = log.as_mut() {
+                log.push(format!(
+                    "{who} pulse {:?}: HP {hp}->{}, volume {before}->{}, armor {}",
+                    status.kind,
+                    owner.hit_points,
+                    owner.volume.len(),
+                    owner.armor
+                ));
             }
             // A pulse may have removed the status (dominance change); tick it where it is now.
             if let Some(now) = owner.statuses.iter().position(|s| s.id == status.id) {
@@ -637,6 +761,9 @@ impl<'a> Fight<'a> {
                 break;
             }
             refresh_dominance(d, owner, ids);
+        }
+        if let (Some(trace), Some(log)) = (self.trace.as_mut(), log) {
+            trace.extend(log);
         }
     }
 }

@@ -1,4 +1,4 @@
-//! `simulator [--design data/design.toml] [--out design-guard.json] [--out-txt design-guard.txt]`
+//! `simulator` — see `USAGE` and README.md.
 //! Runs the matrix once per `matrix.action_points` value and writes the reports as one JSON
 //! array for the site and one plain-text file for the balance session (`docs/report-format.md`).
 
@@ -8,28 +8,63 @@ use std::path::PathBuf;
 use std::process::{Command, ExitCode};
 use std::time::{SystemTime, UNIX_EPOCH};
 
+const USAGE: &str = "usage: simulator [--design PATH] [--out PATH] [--no-json] [--out-txt PATH|-]
+                 [--only-builds ID,ID] [--only-enemies NAME,NAME]
+                 [--trace BUILD ENCOUNTER SEED AP]";
+
 fn main() -> ExitCode {
-    let mut design = PathBuf::from("data/design.toml");
-    let mut out = PathBuf::from("design-guard.json");
-    let mut out_txt = PathBuf::from("design-guard.txt");
-    let mut args = std::env::args().skip(1);
-    while let Some(arg) = args.next() {
-        match (arg.as_str(), args.next()) {
-            ("--design", Some(v)) => design = v.into(),
-            ("--out", Some(v)) => out = v.into(),
-            ("--out-txt", Some(v)) => out_txt = v.into(),
+    let mut design: Option<String> = None;
+    let mut out = Some(PathBuf::from("design-guard.json"));
+    let mut out_txt = String::from("design-guard.txt");
+    let mut only_builds: Option<Vec<String>> = None;
+    let mut only_enemies: Option<Vec<String>> = None;
+    let mut trace: Option<Vec<String>> = None;
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    let mut i = 0;
+    while i < args.len() {
+        let value = |n: usize| args.get(i + n).cloned();
+        let list = |v: String| v.split(',').map(String::from).collect::<Vec<_>>();
+        let taken = match (args[i].as_str(), value(1)) {
+            ("--design", Some(v)) => {
+                design = Some(v);
+                2
+            }
+            ("--out", Some(v)) => {
+                out = Some(v.into());
+                2
+            }
+            ("--no-json", _) => {
+                out = None;
+                1
+            }
+            ("--out-txt", Some(v)) => {
+                out_txt = v;
+                2
+            }
+            ("--only-builds", Some(v)) => {
+                only_builds = Some(list(v));
+                2
+            }
+            ("--only-enemies", Some(v)) => {
+                only_enemies = Some(list(v));
+                2
+            }
+            ("--trace", _) if args.len() >= i + 5 => {
+                trace = Some(args[i + 1..i + 5].to_vec());
+                5
+            }
             _ => {
-                eprintln!(
-                    "usage: simulator [--design data/design.toml] [--out design-guard.json] [--out-txt design-guard.txt]"
-                );
+                eprintln!("{USAGE}");
                 return ExitCode::from(2);
             }
-        }
+        };
+        i += taken;
     }
-    let text = match std::fs::read_to_string(&design) {
+    let design_path = design.clone().unwrap_or_else(|| "data/design.toml".into());
+    let text = match std::fs::read_to_string(&design_path) {
         Ok(t) => t,
         Err(e) => {
-            eprintln!("cannot read {}: {e}", design.display());
+            eprintln!("cannot read {design_path}: {e}");
             return ExitCode::FAILURE;
         }
     };
@@ -40,22 +75,64 @@ fn main() -> ExitCode {
             return ExitCode::FAILURE;
         }
     };
+    let builds: Vec<report::Build> = report::builds(&d)
+        .into_iter()
+        .filter(|b| only_builds.as_ref().is_none_or(|ids| ids.contains(&b.id)))
+        .collect();
+    let encounters: Vec<report::Encounter> = report::encounters(&d)
+        .into_iter()
+        .filter(|e| {
+            only_enemies
+                .as_ref()
+                .is_none_or(|names| names.contains(&e.enemy))
+        })
+        .collect();
+
+    if let Some(t) = trace {
+        let build = builds.iter().find(|b| b.id == t[0]);
+        let encounter = encounters.iter().find(|e| e.id == t[1]);
+        let (Some(b), Some(e), Ok(seed), Ok(ap)) = (build, encounter, t[2].parse(), t[3].parse())
+        else {
+            eprintln!("--trace needs a build id, an encounter id, a seed and an action count");
+            return ExitCode::from(2);
+        };
+        for line in report::fight(&d, b, e, ap, seed).run_traced().1 {
+            println!("{line}");
+        }
+        return ExitCode::SUCCESS;
+    }
+
     let generated = utc_now();
     let commit = commit();
     let reports: Vec<report::Report> = d
         .matrix
         .action_points
         .iter()
-        .map(|&ap| report::run(&d, ap, &generated, &commit))
+        .map(|&ap| {
+            report::run(
+                &d,
+                ap,
+                builds.clone(),
+                encounters.clone(),
+                &generated,
+                &commit,
+            )
+        })
         .collect();
-    let json = serde_json::to_string_pretty(&reports).expect("reports serialize") + "\n";
-    let txt = simulator::text::render(&text, &reports).expect("the design file parsed above");
-    for (path, content) in [(&out, json), (&out_txt, txt)] {
-        if let Err(e) = std::fs::write(path, content) {
-            eprintln!("cannot write {}: {e}", path.display());
+    let txt = simulator::text::render(&text, design.as_deref(), &reports)
+        .expect("the design file parsed above");
+    if out_txt == "-" {
+        print!("{txt}");
+    } else if let Err(e) = std::fs::write(&out_txt, txt) {
+        eprintln!("cannot write {out_txt}: {e}");
+        return ExitCode::FAILURE;
+    }
+    if let Some(out) = out {
+        let json = serde_json::to_string_pretty(&reports).expect("reports serialize") + "\n";
+        if let Err(e) = std::fs::write(&out, json) {
+            eprintln!("cannot write {}: {e}", out.display());
             return ExitCode::FAILURE;
         }
-        println!("wrote {}", path.display());
     }
     ExitCode::SUCCESS
 }

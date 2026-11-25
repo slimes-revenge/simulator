@@ -3,7 +3,7 @@
 1. **Start** — understand the task. Write the acceptance criteria before writing code; if the task has none, propose them. If a requirement is ambiguous, ask; do not guess.
 2. **Branch** — before the first edit, switch to a branch for the task created from **`dev`**. Without a given name use `wip-<short-topic>`.
 3. **Implement** — the smallest change that satisfies the criteria. Follow the rules in `.claude/rules/` and the matching note in `docs/`.
-4. **Verify** — `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test`, and `cargo run --release` when the rules or the data change (read the matrix: did it move where you expected?). Tests check the acceptance criteria and the game's rules, not the code you just wrote.
+4. **Verify** — `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test`, and `cargo run --release -- --no-json --out-txt reports/design-guard.txt` when the rules or the data change (read `git diff reports/`: did the matrix move where you expected?). Tests check the acceptance criteria and the game's rules, not the code you just wrote.
 5. **Simplify** — KISS / DRY / YAGNI pass over the whole diff (`kiss-dry-yagni` rule). Re-run the affected checks.
 6. **Document** — `docs/` notes, `AGENTS.md`, `README.md` (`documentation` rule). A change to the JSON output updates `docs/report-format.md` in the same PR.
 7. **Report** — what changed, the checks run with their outcome, how the matrix moved, what is left.
