@@ -102,7 +102,8 @@ pub struct Creature {
 impl Creature {
     pub fn alive(&self) -> bool {
         if self.is_slime {
-            !self.volume.is_empty()
+            // Dross is cargo, not life: a body of nothing but Dross is dead (balance D4).
+            self.volume.iter().any(|&l| l != Liquid::Dross)
         } else {
             self.hit_points > 0
         }

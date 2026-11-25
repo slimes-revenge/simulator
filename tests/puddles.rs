@@ -236,3 +236,19 @@ fn before_level_9_the_pus_policy_never_spends_pus_on_the_living() {
     }
     assert!(stepped, "it steps back from the Living at least once");
 }
+
+#[test]
+fn a_body_of_nothing_but_dross_is_dead() {
+    let d = Design::bundled();
+    let f = Fight::new(&d, 0, 1, vec![Liquid::Dross; 3], (0, 5), &[("Bat", (9, 9))]);
+    assert!(!f.slime.alive());
+    let f = Fight::new(
+        &d,
+        0,
+        1,
+        vec![Liquid::Dross, Liquid::Water],
+        (0, 5),
+        &[("Bat", (9, 9))],
+    );
+    assert!(f.slime.alive());
+}

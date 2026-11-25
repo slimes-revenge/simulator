@@ -298,10 +298,11 @@ Agreed design rules; not in the game.
      a neighbouring one), else wait for a burp — so it reaches the exit full;
   5. otherwise walk on like `kite`; it drinks a drip or the river only while Pus stays a bad
      affinity, and at the exit it leaves the rest of the river once a drink would end it.
-- Infected lasts `infected_pulses` pulses; the last one ends before that turn's bite, so it
-  weakens 2 bites. A Dash bite on arrival lands before the puddle infects (the step-in follows
+- Infected lasts `infected_pulses` (4) pulses; the last one ends before that turn's bite, so it
+  weakens 3 bites. A Dash bite on arrival lands before the puddle infects (the step-in follows
   the whole move); a fast walk infects only on the cell it ends on.
-- **Dross:** dead cargo a stop leaves (no power, no effect, a cell).
+- **Dross:** dead cargo a stop leaves (no power, no effect, a cell). Bites take it like any
+  unit, but it is not life: a body of nothing but Dross is dead.
 
 ## Where the docs and the code disagree
 
