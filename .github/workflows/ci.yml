@@ -4,6 +4,8 @@ on:
   pull_request:
   push:
     branches: [dev]
+  # Manual run, e.g. when GitHub dropped the push event of a merge and `latest` went stale.
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -39,7 +41,7 @@ jobs:
     # The rolling `latest` release: the site downloads
     # https://github.com/slimes-revenge/simulator/releases/download/latest/design-guard.json,
     # the balance session .../latest/design-guard.txt
-    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/dev'
     needs: check
     runs-on: ubuntu-latest
     permissions:

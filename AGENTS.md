@@ -65,4 +65,5 @@ Base branch `dev`; pull requests squash-merge into it.
 - **Pathing cost:** one `path::Tree` (a Dijkstra from the walker) answers routes to every cell;
   build one per decision instead of calling `path::find` per candidate cell.
 - The `latest` tag and release are moved by CI on every push to `dev`; do not create other
-  releases by hand.
+  releases by hand. If a merge's push run never started (a GitHub outage), run the workflow
+  by hand on `dev`: `gh workflow run ci --ref dev`.
