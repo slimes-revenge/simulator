@@ -186,9 +186,9 @@ are in [ladder.md](ladder.md). Ladder rows are not repeated in `[map-levels]`.
 
 ```
 [ladder]
-mode  difficulty policy   branch                   level end fights net_per_fight engaged2+ min_body body_out      hunter hunter_net reactions react_loss stones elem_plus elem_miss  stops
-level E          strafe   -                            1   8   1.74         -5.14      9.20     0.24     7.75           -          -      0.00       0.00   0.00      0.00      0.00  room3:sun=11 ...
-run   E          strafe   Lava                         2   0   2.25         -4.67      0.00     0.00        -           -          -      0.00       0.00   0.00      0.00      0.00  room3:melee:Eye=2 ...
+mode  difficulty policy   branch                   level end fights net_per_fight engaged2+ min_body body_out      hunter hunter_net reactions react_loss stones elem_plus elem_miss puddles pus_aff  stops
+level E          strafe   -                            1   8   1.74         -5.14      9.20     0.24     7.75           -          -      0.00       0.00   0.00      0.00      0.00    0.00       0  room3:sun=11 ...
+run   E          strafe   Lava                         2   0   2.25         -4.67      0.00     0.00        -           -          -      0.00       0.00   0.00      0.00      0.00    0.00       0  room3:melee:Eye=2 ...
 
 [ladder-summary]
 mode  difficulty policy   branch                   rule   furthest_level first_fail_level  cause
@@ -205,6 +205,8 @@ run   E          strafe   Lava                     min90               -        
 | `fights`, `net_per_fight`, `min_body` | As in `[map-levels]`, over the seeds that played the level |
 | `engaged2+` | `engaged2` + `engaged3+` of `[map-levels]` |
 | `hunter` … `elem_miss` | As in `[map-levels]` |
+| `puddles` | Puddles left on the level at the end, average over the seeds played |
+| `pus_aff` | Percent of the seeds played that ended holding Pus as a bad affinity |
 | `body_out` | Average body at the exit, after drinking, over the seeds that reached it (in `run` mode: the next level's entry body); `-` when none did |
 | `stops` | As in `[map-level-ends]` |
 

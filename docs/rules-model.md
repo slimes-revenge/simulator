@@ -268,6 +268,33 @@ Agreed design rules (balance `sim-reactions-spec.md`, `bestiary-numbers.md`); no
   has a way to the slime past walls, stones and given-up enemies. `arranger` never swaps the
   target's own element up. A bring-up never raises the number of reacting pairs.
 
+## D1, D3: puddles, Pus burps, Infected (`[pus]`, balance `sim-3d-spec.md`)
+
+Agreed design rules; not in the game.
+
+- **Puddles** (`Fight::puddles`): one per cell, 1–2 units, for the whole fight. An enemy that
+  steps into one (any move that ends there) gets the liquid's effect without damage, as from a
+  strike (`Source::Puddle`, counted in the status damage); a Pus puddle gives Infected instead.
+  On a sun tick (slime in a surface room) every Water puddle in a surface room loses 1 unit.
+- **Pus as a bad affinity:** Pus at least `pus.affinity_percent` (60) of the capacity. While
+  it holds, every `pus.burp_every`-th (3rd) slime round is a burp: the slime takes no actions
+  and `pus.burp_puddles` (2) new 1-unit Pus puddles fall on free neighbouring cells (empty
+  cells first, then 1-unit Pus puddles; row-major), from nothing, in or out of a fight.
+- **Infected** (Living enemies only, `elements.living`): `pus.infected_damage` HP per pulse
+  and a bite `pus.infected_bite` weaker (a bite of 0 does nothing), for
+  `pus.infected_pulses`; it refreshes, never stacks. From Pus puddles always; from a Pus hit
+  (strike or spit) only on levels with `pus_infects = true`.
+- **`pus` policy** (D5): `kite` until Pus is a bad affinity (matrix: always `kite`). Then on
+  maps:
+  1. a Living enemy next to it: strike it on `pus_infects` levels (or with the last drop),
+     else stand in the puddles; other neighbours: `kite`;
+  2. in a fight: hold among the puddles (the Living come through them);
+  3. calm and not full, and no hunter in: gather its Pus puddles (stand on one: 1 unit per
+     action; or step onto a neighbouring one), else wait for a burp;
+  4. otherwise walk on like `kite` (the river at the exit cannot lower a share of the
+     capacity, so it drinks it).
+- **Dross:** dead cargo a stop leaves (no power, no effect, a cell).
+
 ## Where the docs and the code disagree
 
 Found while building the model (game `dev` at 44018ffe, 2026-11-25). The simulator follows the code.

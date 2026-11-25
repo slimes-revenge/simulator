@@ -20,6 +20,8 @@ pub enum StatusKind {
     Flammable,
     /// Blood dominance: +Blood each pulse; cleared when dominance changes.
     Regeneration,
+    /// D3 (Living enemies): `pus.infected_damage` HP per pulse, bite −`pus.infected_bite`.
+    Infected,
 }
 
 impl StatusKind {
@@ -32,6 +34,7 @@ impl StatusKind {
             StatusKind::Instability => "Instability",
             StatusKind::Flammable => "Flammable",
             StatusKind::Regeneration => "Regeneration",
+            StatusKind::Infected => "Infected",
         }
     }
 }
@@ -43,6 +46,8 @@ pub enum Source {
     Retaliation,
     /// The slime's own dominance (Regeneration).
     Body,
+    /// A puddle an enemy stepped into (D1).
+    Puddle,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -219,6 +224,9 @@ pub struct MapState {
     pub hunter_dead: bool,
     /// The hunter's bite killed the slime.
     pub hunter_killed_slime: bool,
+    /// D6: puddles on the level when the run ended; Pus held as a bad affinity then.
+    pub puddles_left: usize,
+    pub pus_affinity: bool,
 }
 
 /// One fight on a map: from the first enemy aggroed on the slime until none is.
@@ -276,6 +284,8 @@ pub enum Policy {
     /// R3: `kite`, and before a strike it brings a unit that dominates the target's element
     /// from at most 2 places under the edge up to the edge (one action).
     Reader,
+    /// D5: `kite` until Pus is a bad affinity; then it farms its burps (`pus_act`).
+    Pus,
 }
 
 impl Policy {
@@ -286,6 +296,7 @@ impl Policy {
             },
             "kite" => Policy::Kite,
             "reader" => Policy::Reader,
+            "pus" => Policy::Pus,
             _ => Policy::Newcomer,
         }
     }
@@ -325,6 +336,8 @@ pub struct Tally {
     pub swaps: usize,
     /// Spits (strikes without melee contact).
     pub spits: usize,
+    /// D3: Pus puddle units burped.
+    pub burped: usize,
     /// R2: slime hits that dominated the target's element; suppressed enemy bites that missed.
     pub elem_plus: usize,
     pub elem_miss: usize,
@@ -377,6 +390,10 @@ pub struct Fight<'a> {
     wasted: Vec<usize>,
     /// Matrix fights: no living enemy can be hurt any more (R2 stalls).
     stalemate: bool,
+    /// D1 puddles: cell, liquid, units (1–2), one per cell; they last the whole fight.
+    pub puddles: Vec<(Cell, Liquid, usize)>,
+    /// D3: Pus hits apply Infected (the level's `pus_infects`).
+    pub pus_infects: bool,
     round: u32,
     rng: Rng,
     actions_per_round: u32,
@@ -454,6 +471,8 @@ impl<'a> Fight<'a> {
             encouraged: false,
             wasted: Vec::new(),
             stalemate: false,
+            puddles: Vec::new(),
+            pus_infects: false,
             round: 0,
             rng: Rng::new(seed),
             actions_per_round,
@@ -555,7 +574,13 @@ impl<'a> Fight<'a> {
             self.round = round;
             self.note(|_| format!("round {round}"));
             self.encouraged = false;
-            let actions = self.action_points();
+            // D3: a burp round costs the whole turn.
+            let actions = if self.burps(round) {
+                self.burp();
+                0
+            } else {
+                self.action_points()
+            };
             for k in 0..actions {
                 self.last_action = k + 1 == actions;
                 self.slime_act();
@@ -633,6 +658,13 @@ impl<'a> Fight<'a> {
         {
             return;
         }
+        let surface = m.surface.clone();
+        for p in &mut self.puddles {
+            if p.1 == Liquid::Water && surface.iter().any(|&r| in_rect(r, p.0)) {
+                p.2 -= 1;
+            }
+        }
+        self.puddles.retain(|p| p.2 > 0);
         let Some(i) = self.slime.volume.iter().rposition(|&l| l == Liquid::Water) else {
             return;
         };
@@ -799,6 +831,8 @@ impl<'a> Fight<'a> {
         }
         let mut state = self.map.take().unwrap_or_default();
         state.body = self.slime.volume.clone();
+        state.puddles_left = self.puddles.len();
+        state.pus_affinity = self.pus_affinity();
         state.hunter_dead = state.hunter_at.is_some_and(|h| !self.enemies[h].alive());
         if !self.slime.alive() {
             state.min_body = 0;
@@ -1000,6 +1034,9 @@ impl<'a> Fight<'a> {
     ///   `policies.lure_patience` actions per approach) while 2+ calm Aggressive enemies would
     ///   see the next cell.
     fn map_act(&mut self) {
+        if self.policy == Policy::Pus && self.pus_affinity() && self.pus_act() {
+            return;
+        }
         // R2 stalls: an enemy the slime gives up on is neither struck nor waited for.
         let adjacent = |f: &Fight, aggroed_only: bool| {
             (0..f.enemies.len()).find(|&i| {
@@ -1422,7 +1459,7 @@ impl<'a> Fight<'a> {
 
     /// `kite` or `reader`.
     fn kites(&self) -> bool {
-        matches!(self.policy, Policy::Kite | Policy::Reader)
+        matches!(self.policy, Policy::Kite | Policy::Reader | Policy::Pus)
     }
 
     /// `reader`: the index (1 or 2 under the edge) of a unit whose element dominates the
@@ -1591,6 +1628,9 @@ impl<'a> Fight<'a> {
             apply_liquid(d, enemy, liquid, Source::Strike, &mut self.next_status_id);
         }
         enemy.aggroed = true;
+        if liquid == Liquid::Pus && self.pus_infects {
+            self.infect(target, Source::Strike);
+        }
     }
 
     // ---- enemies ---------------------------------------------------------------------------
@@ -1633,6 +1673,9 @@ impl<'a> Fight<'a> {
             Intent::Flee => self.flee(i),
             Intent::Wander => self.wander(i),
             Intent::Idle => {}
+        }
+        if self.enemies[i].cell != from {
+            self.step_in(i);
         }
         self.note(|f| {
             let e = &f.enemies[i];
@@ -1712,6 +1755,151 @@ impl<'a> Fight<'a> {
         m.homes.push(None);
         m.hunter_at = Some(self.enemies.len() - 1);
         self.note(|f| format!("{} enters at {cell:?}", f.label(f.enemies.len() - 1)));
+    }
+
+    /// D5 `pus` on a map, with the bad affinity held. `false` hands the action to `kite`.
+    /// - A Living enemy next to it: strike it from `pus_infects` levels on (or with the last
+    ///   drop), else stand in the puddles. Other neighbours: `kite`.
+    /// - In a fight: hold among the puddles; the Living come through them.
+    /// - Calm and not full (and on Hard no hunter in yet): gather its Pus puddles (stand on one
+    ///   and gather 1 unit per action, or step onto a neighbouring one), else wait for a burp.
+    /// - Otherwise walk on like `kite`.
+    fn pus_act(&mut self) -> bool {
+        let living = self.d.elements.living;
+        let adjacent = (0..self.enemies.len()).find(|&i| {
+            let e = &self.enemies[i];
+            self.engaging(e) && chebyshev(e.cell, self.slime.cell) == 1 && !self.gives_up(i)
+        });
+        if let Some(i) = adjacent {
+            if self.enemies[i].element.is_none() || self.enemies[i].element != living {
+                return false;
+            }
+            if self.pus_infects || self.slime.volume.len() == 1 {
+                self.strike_or_wait(i);
+            } else {
+                self.note(|_| "Slime stands in its puddles".into());
+            }
+            return true;
+        }
+        let fight = (0..self.enemies.len())
+            .any(|i| self.engaging(&self.enemies[i]) && !self.gives_up(i) && self.can_reach(i));
+        if fight {
+            self.note(|_| "Slime holds among its puddles".into());
+            return true;
+        }
+        let hunted = self.map.as_ref().is_some_and(|m| m.hunter_at.is_some());
+        if self.slime.volume.len() >= self.d.slime.capacity || hunted {
+            return false;
+        }
+        let here = self.slime.cell;
+        if let Some(p) = self
+            .puddles
+            .iter_mut()
+            .find(|p| p.0 == here && p.1 == Liquid::Pus)
+        {
+            p.2 -= 1;
+            self.puddles.retain(|p| p.2 > 0);
+            self.slime.volume.push(Liquid::Pus);
+            let d = self.d;
+            refresh_dominance(d, &mut self.slime, &mut self.next_status_id);
+            self.note(|_| "Slime gathers its Pus".into());
+            return true;
+        }
+        let occupied = self.occupied();
+        let next = self
+            .puddles
+            .iter()
+            .filter(|p| p.1 == Liquid::Pus && chebyshev(p.0, here) == 1)
+            .map(|p| p.0)
+            .filter(|c| !occupied.contains(c))
+            .min_by_key(|c| (c.1, c.0));
+        if let Some(to) = next {
+            self.move_slime(to);
+            return true;
+        }
+        let room = path::neighbours(here).any(|c| self.inside(c) && !occupied.contains(&c));
+        if room {
+            self.note(|_| "Slime waits to burp".into());
+        }
+        room
+    }
+
+    /// D3: the slime holds Pus as a bad affinity (a share of the capacity).
+    pub fn pus_affinity(&self) -> bool {
+        self.slime.count(Liquid::Pus) * 100 >= self.d.slime.capacity * self.d.pus.affinity_percent
+    }
+
+    /// D3: this round is a burp round.
+    fn burps(&self, round: u32) -> bool {
+        self.pus_affinity() && round.is_multiple_of(self.d.pus.burp_every)
+    }
+
+    /// D3: `pus.burp_puddles` new 1-unit Pus puddles on free neighbouring cells (empty cells
+    /// first, then 1-unit Pus puddles; row-major), from nothing.
+    fn burp(&mut self) {
+        let occupied = self.occupied();
+        let mut cells: Vec<(usize, Cell)> = path::neighbours(self.slime.cell)
+            .filter(|&c| self.inside(c) && !occupied.contains(&c))
+            .filter_map(|c| match self.puddles.iter().find(|p| p.0 == c) {
+                None => Some((0, c)),
+                Some(&(_, Liquid::Pus, 1)) => Some((1, c)),
+                Some(_) => None,
+            })
+            .collect();
+        cells.sort_by_key(|&(k, c)| (k, c.1, c.0));
+        for &(_, c) in cells.iter().take(self.d.pus.burp_puddles) {
+            match self.puddles.iter_mut().find(|p| p.0 == c) {
+                Some(p) => p.2 += 1,
+                None => self.puddles.push((c, Liquid::Pus, 1)),
+            }
+            self.tally.burped += 1;
+        }
+        self.note(|f| format!("Slime burps; puddles {:?}", f.puddles));
+    }
+
+    /// D1: an enemy that steps into a puddle gets the liquid's effect without damage; a Pus
+    /// puddle infects the Living.
+    fn step_in(&mut self, i: usize) {
+        let cell = self.enemies[i].cell;
+        let Some(&(_, liquid, _)) = self.puddles.iter().find(|p| p.0 == cell) else {
+            return;
+        };
+        if liquid == Liquid::Pus {
+            return self.infect(i, Source::Puddle);
+        }
+        let d = self.d;
+        apply_liquid(
+            d,
+            &mut self.enemies[i],
+            liquid,
+            Source::Puddle,
+            &mut self.next_status_id,
+        );
+    }
+
+    /// D3: Infected on a Living enemy; it refreshes, never stacks.
+    fn infect(&mut self, i: usize, source: Source) {
+        let d = self.d;
+        let e = &mut self.enemies[i];
+        if !e.alive() || e.element.is_none() || e.element != d.elements.living {
+            return;
+        }
+        let pulses = d.pus.infected_pulses;
+        if let Some(s) = e
+            .statuses
+            .iter_mut()
+            .find(|s| s.kind == StatusKind::Infected)
+        {
+            s.remaining = s.remaining.max(pulses);
+        } else {
+            add_status(
+                e,
+                StatusKind::Infected,
+                pulses,
+                source,
+                &mut self.next_status_id,
+            );
+        }
     }
 
     /// R1: at the end of the slime's actions, the reacting pair nearest the edge becomes its
@@ -1876,6 +2064,16 @@ impl<'a> Fight<'a> {
             return self.note(|f| format!("{} cannot hurt its own element", f.label(i)));
         }
         let mut power = self.enemies[i].melee_power;
+        if self.enemies[i]
+            .statuses
+            .iter()
+            .any(|s| s.kind == StatusKind::Infected)
+        {
+            power = (power - d.pus.infected_bite).max(0);
+            if power == 0 {
+                return self.note(|f| format!("{} is too sick to bite", f.label(i)));
+            }
+        }
         if theirs.zip(mine).is_some_and(|(a, b)| el.suppresses(b, a))
             && el.suppressed_hit_percent < 100
             && self.rng.pick(100) >= el.suppressed_hit_percent
@@ -2134,6 +2332,10 @@ impl<'a> Fight<'a> {
                         }
                     }
                 }
+                StatusKind::Infected => {
+                    harm = d.pus.infected_damage;
+                    damage(d, owner, harm, false, ids);
+                }
                 StatusKind::Wet | StatusKind::Instability | StatusKind::Flammable => {}
             }
             if owner.is_slime && owner.volume.len() > before {
@@ -2154,7 +2356,7 @@ impl<'a> Fight<'a> {
                 let t = &mut self.tally;
                 match status.source {
                     Source::Retaliation => t.retaliation_dmg += applied,
-                    Source::Strike | Source::Body => t.status_dmg += applied,
+                    Source::Strike | Source::Body | Source::Puddle => t.status_dmg += applied,
                 }
                 *t.status_dmg_by.entry(status.kind.name()).or_insert(0) += applied;
                 t.overkill += harm as usize - applied;
@@ -2334,7 +2536,8 @@ fn apply_liquid(d: &Design, target: &mut Creature, liquid: Liquid, from: Source,
         | Liquid::Fat
         | Liquid::Resin
         | Liquid::Tar
-        | Liquid::Aphrodisiac => {}
+        | Liquid::Aphrodisiac
+        | Liquid::Dross => {}
     }
     if liquid == Liquid::Blood && target.vampirism {
         heal(target, s.vampirism_heal);

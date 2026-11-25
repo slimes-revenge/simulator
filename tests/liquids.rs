@@ -87,9 +87,9 @@ fn heavy_liquids_cost_action_points() {
 }
 
 #[test]
-fn all_18_liquids_are_listed_and_mercury_hits_for_2() {
+fn all_18_liquids_and_dross_are_listed_and_mercury_hits_for_2() {
     let d = Design::bundled();
-    assert_eq!(ALL_LIQUIDS.len(), 18);
+    assert_eq!(ALL_LIQUIDS.len(), 19, "18 liquids and Dross");
     assert_eq!(d.liquid(Liquid::Mercury).power, 2);
     assert_eq!(d.liquid(Liquid::Aquavita).power, 1);
 }

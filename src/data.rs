@@ -27,9 +27,11 @@ pub enum Liquid {
     Sulfur,
     Tar,
     Aphrodisiac,
+    /// Dead cargo a stop leaves behind (spent Phosphorus, Fat): no power, no effect, a cell.
+    Dross,
 }
 
-pub const ALL_LIQUIDS: [Liquid; 18] = [
+pub const ALL_LIQUIDS: [Liquid; 19] = [
     Liquid::Water,
     Liquid::Oil,
     Liquid::Poison,
@@ -48,6 +50,7 @@ pub const ALL_LIQUIDS: [Liquid; 18] = [
     Liquid::Sulfur,
     Liquid::Tar,
     Liquid::Aphrodisiac,
+    Liquid::Dross,
 ];
 
 #[derive(Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
@@ -100,6 +103,25 @@ pub struct Design {
     /// R1: pairs of neighbouring units that react in the body; none is fine.
     #[serde(default)]
     pub reactions: Vec<Reaction>,
+    /// D3: Pus as a bad affinity, its burps and Infected (balance `sim-3d-spec.md`).
+    pub pus: PusRules,
+}
+
+/// `[pus]` (D3).
+#[derive(Deserialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct PusRules {
+    /// Bad affinity: Pus at least this percent of the capacity.
+    pub affinity_percent: usize,
+    /// While it holds, every this many slime rounds the slime burps: it skips its turn and
+    /// `burp_puddles` new 1-unit Pus puddles fall on free neighbouring cells.
+    pub burp_every: u32,
+    pub burp_puddles: usize,
+    /// Infected (Living enemies only, from Pus puddles, and from Pus hits on `pus_infects`
+    /// levels): pulses, bite reduction, damage per pulse. It refreshes, never stacks.
+    pub infected_pulses: i32,
+    pub infected_bite: i32,
+    pub infected_damage: i32,
 }
 
 /// `[elements]` (balance `sim-reactions-spec.md`, lore `forum.md`).
@@ -206,6 +228,29 @@ pub struct Reaction {
 pub struct LadderRules {
     #[serde(default)]
     pub thresholds: Vec<Threshold>,
+    /// D4: the stops between maps (run mode): resets of the body, then a Water refill.
+    #[serde(default)]
+    pub stops: Vec<Stop>,
+}
+
+/// A stop after ladder level `after`: the carried body is reset by `resets` in order, then its
+/// empty cells (up to the next level's capacity) fill with Water.
+#[derive(Deserialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct Stop {
+    pub after: u32,
+    #[serde(default)]
+    pub resets: Vec<Reset>,
+}
+
+/// Every `from` unit becomes `to` (or leaves the body without `to`); with `max_percent`, at
+/// most that percent of the body's units change (rounded down), edge-most first.
+#[derive(Deserialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct Reset {
+    pub from: Liquid,
+    pub to: Option<Liquid>,
+    pub max_percent: Option<usize>,
 }
 
 /// A level passes when its `end` is at least `min` (or at most `max`) percent.
@@ -392,6 +437,9 @@ pub struct Level {
     pub map: Option<MapSpec>,
     /// A map level on the ladder (`src/ladder.rs`); it is reported in `[ladder]` only.
     pub ladder: Option<LadderPlace>,
+    /// D3: Pus hits apply Infected here (from level 9, after the undertaker).
+    #[serde(default)]
+    pub pus_infects: bool,
 }
 
 /// A generated map: a west-to-east chain of rooms joined by corridors.
@@ -542,6 +590,7 @@ impl Design {
             "Instability",
             "Flammable",
             "Regeneration",
+            "Infected",
         ];
         if !["plus1", "double"].contains(&el.suppress.as_str())
             || el.suppressed_hit_percent > 100
@@ -566,6 +615,10 @@ impl Design {
         if design.elements.circles.iter().any(|c| c.len() < 3) {
             return Err("elements.circles: each circle needs at least 3 liquids".into());
         }
+        let pus = &design.pus;
+        if pus.burp_every == 0 || pus.infected_pulses < 1 {
+            return Err("pus.burp_every and pus.infected_pulses must be at least 1".into());
+        }
         if design.rules.spit_range != 1 {
             return Err("rules.spit_range: only 1 is modelled".into());
         }
@@ -578,7 +631,7 @@ impl Design {
         let policies = &design.matrix.policies;
         if let Some(p) = policies
             .iter()
-            .find(|p| !["newcomer", "arranger", "kite", "reader"].contains(&p.as_str()))
+            .find(|p| !["newcomer", "arranger", "kite", "reader", "pus"].contains(&p.as_str()))
         {
             return Err(format!("matrix.policies: unknown policy {p:?}"));
         }
@@ -627,9 +680,9 @@ impl Design {
                 return Err(format!("level {:?}: {problem}", level.id));
             }
             let allowed: &[&str] = if level.map.is_some() {
-                &["strafe", "lure", "kite", "reader"]
+                &["strafe", "lure", "kite", "reader", "pus"]
             } else {
-                &["newcomer", "arranger", "kite", "reader"]
+                &["newcomer", "arranger", "kite", "reader", "pus"]
             };
             if !allowed.contains(&level.policy.as_str()) {
                 return Err(format!(
@@ -739,7 +792,7 @@ impl Design {
         for t in &design.ladder.thresholds {
             if t.min.is_some() == t.max.is_some()
                 || !["E", "N", "H"].contains(&t.difficulty.as_str())
-                || !["strafe", "lure", "kite", "reader"].contains(&t.policy.as_str())
+                || !["strafe", "lure", "kite", "reader", "pus"].contains(&t.policy.as_str())
             {
                 return Err(format!(
                     "ladder.thresholds {} {}: difficulty E, N or H, a map policy, exactly one of min, max",
