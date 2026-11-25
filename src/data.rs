@@ -62,7 +62,8 @@ pub struct Rules {
     pub dominance_percent: usize,
     pub pursuit_memory_turns: i32,
     pub max_rounds: u32,
-    /// П15: at 1 unit a strike hits and spends nothing. `false` is the game today.
+    /// П15, an agreed design rule: at 1 unit a strike hits and spends nothing. The game does
+    /// not implement it yet (its last unit cannot be spent); `false` models the game today.
     pub last_drop_strike: bool,
     /// Spit range (Chebyshev). Only 1 is modelled: spit replaces a strike on a neighbour.
     pub spit_range: i32,

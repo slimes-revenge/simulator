@@ -7,7 +7,7 @@ rules.vision_range = 5
 rules.dominance_percent = 80
 rules.pursuit_memory_turns = 3
 rules.max_rounds = 200
-rules.last_drop_strike = false
+rules.last_drop_strike = true
 rules.spit_range = 1
 slime.capacity = 10
 slime.speed = 1
@@ -195,7 +195,7 @@ levels.map-kite3.map.vision = 3
 ap policy     build      encounter        win  rounds killed   left  spent bitten status  cause
 1  newcomer   start      bat-1            100    6.18   1.00   3.00   2.00   1.00   0.00  -
 1  newcomer   start      bat-2              0    9.74   1.00   0.00   3.00   3.00   0.00  melee:Bat=50
-1  newcomer   start      bat-3              0   23.96   1.08   0.08   3.00   2.92   0.00  melee:Bat=46 timeout=4
+1  newcomer   start      bat-3              0    8.76   1.08   0.00   3.00   3.00   0.00  melee:Bat=50
 1  newcomer   start      mushroom-1       100    4.00   1.00   3.00   2.00   1.00   0.00  -
 1  newcomer   start      mushroom-2         0    5.00   1.00   0.00   2.00   4.00   0.00  melee:Mushroom=50
 1  newcomer   start      mushroom-3         0    4.00   0.00   0.00   2.00   4.00   0.00  melee:Mushroom=50
@@ -212,8 +212,8 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 1  newcomer   start      eye-2              0    5.00   1.00   0.00   2.00   4.00   0.00  melee:Eye=50
 1  newcomer   start      eye-3              0    4.00   0.00   0.00   2.00   4.00   0.00  melee:Eye=50
 1  newcomer   water      bat-1            100    7.18   1.00   5.00   3.00   2.00   0.00  -
-1  newcomer   water      bat-2              0   11.88   1.00   0.00   5.00   5.00   0.00  melee:Bat=50
-1  newcomer   water      bat-3              0   10.36   0.96   0.00   4.88   5.12   0.00  melee:Bat=50
+1  newcomer   water      bat-2            100   11.88   2.00   1.00   5.00   4.00   0.00  -
+1  newcomer   water      bat-3              0   13.06   1.82   0.00   4.88   5.12   0.00  melee:Bat=50
 1  newcomer   water      mushroom-1       100    7.00   1.00   1.00   5.00   4.00   0.00  -
 1  newcomer   water      mushroom-2         0    6.00   0.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
 1  newcomer   water      mushroom-3         0    5.00   0.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
@@ -230,8 +230,8 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 1  newcomer   water      eye-2              0    6.00   0.00   0.00   3.00   7.00   0.00  melee:Eye=50
 1  newcomer   water      eye-3              0    5.00   0.00   0.00   3.00   7.00   0.00  melee:Eye=50
 1  newcomer   oil        bat-1            100    7.18   1.00   5.00   3.00   2.00   0.00  -
-1  newcomer   oil        bat-2              0   11.88   1.00   0.00   5.00   5.00   0.00  melee:Bat=50
-1  newcomer   oil        bat-3              0   10.36   0.96   0.00   4.88   5.12   0.00  melee:Bat=50
+1  newcomer   oil        bat-2            100   11.88   2.00   1.00   5.00   4.00   0.00  -
+1  newcomer   oil        bat-3              0   13.06   1.82   0.00   4.88   5.12   0.00  melee:Bat=50
 1  newcomer   oil        mushroom-1       100    7.00   1.00   1.00   5.00   4.00   0.00  -
 1  newcomer   oil        mushroom-2         0    6.00   0.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
 1  newcomer   oil        mushroom-3         0    5.00   0.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
@@ -320,26 +320,26 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 1  newcomer   lava       eye-2            100    5.00   2.00   4.00   3.00   3.00   0.00  -
 1  newcomer   lava       eye-3            100    6.00   3.00   1.00   3.00   6.00   0.00  -
 1  newcomer   mercury    bat-1            100    7.18   1.00   5.00   3.00   2.00   0.00  -
-1  newcomer   mercury    bat-2              0   11.88   1.00   0.00   5.00   5.00   0.00  melee:Bat=50
-1  newcomer   mercury    bat-3              0   10.36   0.96   0.00   4.88   5.12   0.00  melee:Bat=50
+1  newcomer   mercury    bat-2            100   11.88   2.00   1.00   5.00   4.00   0.00  -
+1  newcomer   mercury    bat-3              0   13.06   1.82   0.00   4.88   5.12   0.00  melee:Bat=50
 1  newcomer   mercury    mushroom-1       100    9.18   1.00   1.00   5.00   4.00   0.00  -
-1  newcomer   mercury    mushroom-2         0  200.00   1.00   1.00   5.00   4.00   0.00  timeout=50
-1  newcomer   mercury    mushroom-3         0  173.10   0.86   0.86   4.88   4.26   0.00  timeout=43 melee:Mushroom=7
+1  newcomer   mercury    mushroom-2         0   12.02   1.00   0.00   5.00   5.00   0.00  melee:Mushroom=50
+1  newcomer   mercury    mushroom-3         0   10.28   0.86   0.00   4.88   5.12   0.00  melee:Mushroom=50
 1  newcomer   mercury    undine-1         100    9.18   1.00   1.00   5.00   4.00   0.00  -
-1  newcomer   mercury    undine-2           0  200.00   1.00   1.00   5.00   4.00   0.00  timeout=50
-1  newcomer   mercury    undine-3           0  173.10   0.86   0.86   4.88   4.26   0.00  timeout=43 melee:Undine=7
+1  newcomer   mercury    undine-2           0   12.02   1.00   0.00   5.00   5.00   0.00  melee:Undine=50
+1  newcomer   mercury    undine-3           0   10.28   0.86   0.00   4.88   5.12   0.00  melee:Undine=50
 1  newcomer   mercury    cactus-1         100    9.18   1.00   1.00   5.00   4.00   0.00  -
-1  newcomer   mercury    cactus-2           0  200.00   1.00   1.00   5.00   4.00   0.00  timeout=50
-1  newcomer   mercury    cactus-3           0  173.10   0.86   0.86   4.88   4.26   0.00  timeout=43 melee:Cactus=7
+1  newcomer   mercury    cactus-2           0   12.02   1.00   0.00   5.00   5.00   0.00  melee:Cactus=50
+1  newcomer   mercury    cactus-3           0   10.28   0.86   0.00   4.88   5.12   0.00  melee:Cactus=50
 1  newcomer   mercury    mandragora-1     100    9.18   1.00   1.00   5.00   4.00   0.00  -
-1  newcomer   mercury    mandragora-2       0  200.00   1.00   1.00   5.00   4.00   0.00  timeout=50
-1  newcomer   mercury    mandragora-3       0  173.10   0.86   0.86   4.88   4.26   0.00  timeout=43 melee:Mandragora=7
+1  newcomer   mercury    mandragora-2       0   12.02   1.00   0.00   5.00   5.00   0.00  melee:Mandragora=50
+1  newcomer   mercury    mandragora-3       0   10.28   0.86   0.00   4.88   5.12   0.00  melee:Mandragora=50
 1  newcomer   mercury    eye-1            100    9.18   1.00   1.00   5.00   4.00   0.00  -
-1  newcomer   mercury    eye-2              0  200.00   1.00   1.00   5.00   4.00   0.00  timeout=50
-1  newcomer   mercury    eye-3              0  173.10   0.86   0.86   4.88   4.26   0.00  timeout=43 melee:Eye=7
+1  newcomer   mercury    eye-2              0   12.02   1.00   0.00   5.00   5.00   0.00  melee:Eye=50
+1  newcomer   mercury    eye-3              0   10.28   0.86   0.00   4.88   5.12   0.00  melee:Eye=50
 1  arranger   start      bat-1            100    6.18   1.00   3.00   2.00   1.00   0.00  -
 1  arranger   start      bat-2              0    9.74   1.00   0.00   3.00   3.00   0.00  melee:Bat=50
-1  arranger   start      bat-3              0   23.96   1.08   0.08   3.00   2.92   0.00  melee:Bat=46 timeout=4
+1  arranger   start      bat-3              0    8.76   1.08   0.00   3.00   3.00   0.00  melee:Bat=50
 1  arranger   start      mushroom-1       100    4.00   1.00   3.00   2.00   1.00   0.00  -
 1  arranger   start      mushroom-2         0    5.00   1.00   0.00   2.00   4.00   0.00  melee:Mushroom=50
 1  arranger   start      mushroom-3         0    4.00   0.00   0.00   2.00   4.00   0.00  melee:Mushroom=50
@@ -356,8 +356,8 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 1  arranger   start      eye-2              0    5.00   1.00   0.00   2.00   4.00   0.00  melee:Eye=50
 1  arranger   start      eye-3              0    4.00   0.00   0.00   2.00   4.00   0.00  melee:Eye=50
 1  arranger   water      bat-1            100    7.18   1.00   5.00   3.00   2.00   0.00  -
-1  arranger   water      bat-2              0   11.88   1.00   0.00   5.00   5.00   0.00  melee:Bat=50
-1  arranger   water      bat-3              0   10.36   0.96   0.00   4.88   5.12   0.00  melee:Bat=50
+1  arranger   water      bat-2            100   11.88   2.00   1.00   5.00   4.00   0.00  -
+1  arranger   water      bat-3              0   13.06   1.82   0.00   4.88   5.12   0.00  melee:Bat=50
 1  arranger   water      mushroom-1       100    7.00   1.00   1.00   5.00   4.00   0.00  -
 1  arranger   water      mushroom-2         0    6.00   0.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
 1  arranger   water      mushroom-3         0    5.00   0.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
@@ -374,8 +374,8 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 1  arranger   water      eye-2              0    6.00   0.00   0.00   3.00   7.00   0.00  melee:Eye=50
 1  arranger   water      eye-3              0    5.00   0.00   0.00   3.00   7.00   0.00  melee:Eye=50
 1  arranger   oil        bat-1            100    7.18   1.00   5.00   3.00   2.00   0.00  -
-1  arranger   oil        bat-2              0   11.88   1.00   0.00   5.00   5.00   0.00  melee:Bat=50
-1  arranger   oil        bat-3              0   10.36   0.96   0.00   4.88   5.12   0.00  melee:Bat=50
+1  arranger   oil        bat-2            100   11.88   2.00   1.00   5.00   4.00   0.00  -
+1  arranger   oil        bat-3              0   13.06   1.82   0.00   4.88   5.12   0.00  melee:Bat=50
 1  arranger   oil        mushroom-1       100    7.00   1.00   1.00   5.00   4.00   0.00  -
 1  arranger   oil        mushroom-2         0    6.00   0.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
 1  arranger   oil        mushroom-3         0    5.00   0.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
@@ -464,23 +464,23 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 1  arranger   lava       eye-2            100    5.00   2.00   4.00   3.00   3.00   0.00  -
 1  arranger   lava       eye-3            100    6.00   3.00   1.00   3.00   6.00   0.00  -
 1  arranger   mercury    bat-1            100    7.18   1.00   5.00   3.00   2.00   0.00  -
-1  arranger   mercury    bat-2              0   11.88   1.00   0.00   5.00   5.00   0.00  melee:Bat=50
-1  arranger   mercury    bat-3              0   10.36   0.96   0.00   4.88   5.12   0.00  melee:Bat=50
+1  arranger   mercury    bat-2            100   11.88   2.00   1.00   5.00   4.00   0.00  -
+1  arranger   mercury    bat-3              0   13.06   1.82   0.00   4.88   5.12   0.00  melee:Bat=50
 1  arranger   mercury    mushroom-1       100    9.18   1.00   1.00   5.00   4.00   0.00  -
-1  arranger   mercury    mushroom-2         0  200.00   1.00   1.00   5.00   4.00   0.00  timeout=50
-1  arranger   mercury    mushroom-3         0  173.10   0.86   0.86   4.88   4.26   0.00  timeout=43 melee:Mushroom=7
+1  arranger   mercury    mushroom-2         0   12.02   1.00   0.00   5.00   5.00   0.00  melee:Mushroom=50
+1  arranger   mercury    mushroom-3         0   10.28   0.86   0.00   4.88   5.12   0.00  melee:Mushroom=50
 1  arranger   mercury    undine-1         100    9.18   1.00   1.00   5.00   4.00   0.00  -
-1  arranger   mercury    undine-2           0  200.00   1.00   1.00   5.00   4.00   0.00  timeout=50
-1  arranger   mercury    undine-3           0  173.10   0.86   0.86   4.88   4.26   0.00  timeout=43 melee:Undine=7
+1  arranger   mercury    undine-2           0   12.02   1.00   0.00   5.00   5.00   0.00  melee:Undine=50
+1  arranger   mercury    undine-3           0   10.28   0.86   0.00   4.88   5.12   0.00  melee:Undine=50
 1  arranger   mercury    cactus-1         100    9.18   1.00   1.00   5.00   4.00   0.00  -
-1  arranger   mercury    cactus-2           0  200.00   1.00   1.00   5.00   4.00   0.00  timeout=50
-1  arranger   mercury    cactus-3           0  173.10   0.86   0.86   4.88   4.26   0.00  timeout=43 melee:Cactus=7
+1  arranger   mercury    cactus-2           0   12.02   1.00   0.00   5.00   5.00   0.00  melee:Cactus=50
+1  arranger   mercury    cactus-3           0   10.28   0.86   0.00   4.88   5.12   0.00  melee:Cactus=50
 1  arranger   mercury    mandragora-1     100    9.18   1.00   1.00   5.00   4.00   0.00  -
-1  arranger   mercury    mandragora-2       0  200.00   1.00   1.00   5.00   4.00   0.00  timeout=50
-1  arranger   mercury    mandragora-3       0  173.10   0.86   0.86   4.88   4.26   0.00  timeout=43 melee:Mandragora=7
+1  arranger   mercury    mandragora-2       0   12.02   1.00   0.00   5.00   5.00   0.00  melee:Mandragora=50
+1  arranger   mercury    mandragora-3       0   10.28   0.86   0.00   4.88   5.12   0.00  melee:Mandragora=50
 1  arranger   mercury    eye-1            100    9.18   1.00   1.00   5.00   4.00   0.00  -
-1  arranger   mercury    eye-2              0  200.00   1.00   1.00   5.00   4.00   0.00  timeout=50
-1  arranger   mercury    eye-3              0  173.10   0.86   0.86   4.88   4.26   0.00  timeout=43 melee:Eye=7
+1  arranger   mercury    eye-2              0   12.02   1.00   0.00   5.00   5.00   0.00  melee:Eye=50
+1  arranger   mercury    eye-3              0   10.28   0.86   0.00   4.88   5.12   0.00  melee:Eye=50
 1  kite       start      bat-1              0  200.00   0.00   6.00   0.00   0.00   0.00  timeout=50
 1  kite       start      bat-2              0  200.00   0.00   6.00   0.00   0.00   0.00  timeout=50
 1  kite       start      bat-3              0  200.00   0.00   6.00   0.00   0.00   0.00  timeout=50
@@ -626,8 +626,8 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 1  kite       mercury    eye-2              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
 1  kite       mercury    eye-3              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
 2  newcomer   start      bat-1            100    3.26   1.00   3.46   2.00   0.54   0.00  -
-2  newcomer   start      bat-2             52    4.74   1.52   0.76   3.80   1.44   0.00  melee:Bat=24
-2  newcomer   start      bat-3              0   39.72   1.40   0.18   3.94   1.88   0.00  melee:Bat=41 timeout=9
+2  newcomer   start      bat-2             72    4.74   1.72   0.96   3.80   1.24   0.00  melee:Bat=14
+2  newcomer   start      bat-3              0    5.12   1.60   0.00   3.94   2.06   0.00  melee:Bat=50
 2  newcomer   start      mushroom-1       100    3.00   1.00   2.00   3.00   1.00   0.00  -
 2  newcomer   start      mushroom-2         0    3.00   0.00   0.00   3.00   3.00   0.00  melee:Mushroom=50
 2  newcomer   start      mushroom-3         0    3.00   0.00   0.00   2.00   4.00   0.00  melee:Mushroom=50
@@ -645,40 +645,40 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 2  newcomer   start      eye-3              0    3.00   0.00   0.00   2.00   4.00   0.00  melee:Eye=50
 2  newcomer   water      bat-1            100    3.72   1.00   6.00   3.00   1.00   0.00  -
 2  newcomer   water      bat-2            100    5.72   2.00   1.96   6.00   2.04   0.00  -
-2  newcomer   water      bat-3              0   14.38   1.96   0.04   6.88   3.08   0.00  melee:Bat=48 timeout=2
+2  newcomer   water      bat-3              0    6.68   2.00   0.00   6.88   3.12   0.00  melee:Bat=50
 2  newcomer   water      mushroom-1       100    4.00   1.00   3.00   5.00   2.00   0.00  -
 2  newcomer   water      mushroom-2         0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Mushroom=50
-2  newcomer   water      mushroom-3         0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
+2  newcomer   water      mushroom-3         0    4.00   1.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
 2  newcomer   water      undine-1         100    4.00   1.00   3.00   5.00   2.00   0.00  -
 2  newcomer   water      undine-2           0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Undine=50
-2  newcomer   water      undine-3           0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Undine=50
+2  newcomer   water      undine-3           0    4.00   1.00   0.00   3.00   7.00   0.00  melee:Undine=50
 2  newcomer   water      cactus-1         100    4.00   1.00   3.00   5.00   2.00   0.00  -
 2  newcomer   water      cactus-2           0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Cactus=50
-2  newcomer   water      cactus-3           0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Cactus=50
+2  newcomer   water      cactus-3           0    4.00   1.00   0.00   3.00   7.00   0.00  melee:Cactus=50
 2  newcomer   water      mandragora-1     100    4.00   1.00   3.00   5.00   2.00   0.00  -
 2  newcomer   water      mandragora-2       0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Mandragora=50
-2  newcomer   water      mandragora-3       0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Mandragora=50
+2  newcomer   water      mandragora-3       0    4.00   1.00   0.00   3.00   7.00   0.00  melee:Mandragora=50
 2  newcomer   water      eye-1            100    4.00   1.00   3.00   5.00   2.00   0.00  -
 2  newcomer   water      eye-2              0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Eye=50
-2  newcomer   water      eye-3              0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Eye=50
+2  newcomer   water      eye-3              0    4.00   1.00   0.00   3.00   7.00   0.00  melee:Eye=50
 2  newcomer   oil        bat-1            100    3.72   1.00   6.00   3.00   1.00   0.00  -
 2  newcomer   oil        bat-2            100    5.72   2.00   1.96   6.00   2.04   0.00  -
-2  newcomer   oil        bat-3              0   14.38   1.96   0.04   6.88   3.08   0.00  melee:Bat=48 timeout=2
+2  newcomer   oil        bat-3              0    6.68   2.00   0.00   6.88   3.12   0.00  melee:Bat=50
 2  newcomer   oil        mushroom-1       100    4.00   1.00   3.00   5.00   2.00   0.00  -
 2  newcomer   oil        mushroom-2         0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Mushroom=50
-2  newcomer   oil        mushroom-3         0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
+2  newcomer   oil        mushroom-3         0    4.00   1.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
 2  newcomer   oil        undine-1         100    4.00   1.00   3.00   5.00   2.00   0.00  -
 2  newcomer   oil        undine-2           0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Undine=50
-2  newcomer   oil        undine-3           0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Undine=50
+2  newcomer   oil        undine-3           0    4.00   1.00   0.00   3.00   7.00   0.00  melee:Undine=50
 2  newcomer   oil        cactus-1         100    4.00   1.00   3.00   5.00   2.00   0.00  -
 2  newcomer   oil        cactus-2           0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Cactus=50
-2  newcomer   oil        cactus-3           0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Cactus=50
+2  newcomer   oil        cactus-3           0    4.00   1.00   0.00   3.00   7.00   0.00  melee:Cactus=50
 2  newcomer   oil        mandragora-1     100    4.00   1.00   3.00   5.00   2.00   0.00  -
 2  newcomer   oil        mandragora-2       0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Mandragora=50
-2  newcomer   oil        mandragora-3       0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Mandragora=50
+2  newcomer   oil        mandragora-3       0    4.00   1.00   0.00   3.00   7.00   0.00  melee:Mandragora=50
 2  newcomer   oil        eye-1            100    4.00   1.00   3.00   5.00   2.00   0.00  -
 2  newcomer   oil        eye-2              0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Eye=50
-2  newcomer   oil        eye-3              0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Eye=50
+2  newcomer   oil        eye-3              0    4.00   1.00   0.00   3.00   7.00   0.00  melee:Eye=50
 2  newcomer   poison     bat-1            100    3.26   1.00   7.46   2.00   0.54   0.00  -
 2  newcomer   poison     bat-2            100    4.74   2.00   5.04   4.00   0.96   0.00  -
 2  newcomer   poison     bat-3            100    6.16   3.00   2.44   5.92   1.64   0.00  -
@@ -753,7 +753,7 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 2  newcomer   lava       eye-3              0    4.00   2.00   0.00   4.00   6.00   0.00  melee:Eye=50
 2  newcomer   mercury    bat-1            100    3.72   1.00   6.00   3.00   1.00   0.00  -
 2  newcomer   mercury    bat-2            100    5.72   2.00   1.96   6.00   2.04   0.00  -
-2  newcomer   mercury    bat-3              0   14.38   1.96   0.04   6.88   3.08   0.00  melee:Bat=48 timeout=2
+2  newcomer   mercury    bat-3              0    6.68   2.00   0.00   6.88   3.12   0.00  melee:Bat=50
 2  newcomer   mercury    mushroom-1       100    4.72   1.00   3.00   5.00   2.00   0.00  -
 2  newcomer   mercury    mushroom-2         0    6.34   0.90   0.00   6.30   3.70   0.00  melee:Mushroom=50
 2  newcomer   mercury    mushroom-3         0    5.84   0.88   0.00   6.30   3.70   0.00  melee:Mushroom=50
@@ -770,8 +770,8 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 2  newcomer   mercury    eye-2              0    6.34   0.90   0.00   6.30   3.70   0.00  melee:Eye=50
 2  newcomer   mercury    eye-3              0    5.84   0.88   0.00   6.30   3.70   0.00  melee:Eye=50
 2  arranger   start      bat-1            100    3.26   1.00   3.46   2.00   0.54   0.00  -
-2  arranger   start      bat-2             52    4.74   1.52   0.76   3.80   1.44   0.00  melee:Bat=24
-2  arranger   start      bat-3              0   39.72   1.40   0.18   3.94   1.88   0.00  melee:Bat=41 timeout=9
+2  arranger   start      bat-2             72    4.74   1.72   0.96   3.80   1.24   0.00  melee:Bat=14
+2  arranger   start      bat-3              0    5.12   1.60   0.00   3.94   2.06   0.00  melee:Bat=50
 2  arranger   start      mushroom-1       100    3.00   1.00   2.00   3.00   1.00   0.00  -
 2  arranger   start      mushroom-2         0    3.00   0.00   0.00   3.00   3.00   0.00  melee:Mushroom=50
 2  arranger   start      mushroom-3         0    3.00   0.00   0.00   2.00   4.00   0.00  melee:Mushroom=50
@@ -789,40 +789,40 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 2  arranger   start      eye-3              0    3.00   0.00   0.00   2.00   4.00   0.00  melee:Eye=50
 2  arranger   water      bat-1            100    3.72   1.00   6.00   3.00   1.00   0.00  -
 2  arranger   water      bat-2            100    5.72   2.00   1.96   6.00   2.04   0.00  -
-2  arranger   water      bat-3              0   14.38   1.96   0.04   6.88   3.08   0.00  melee:Bat=48 timeout=2
+2  arranger   water      bat-3              0    6.68   2.00   0.00   6.88   3.12   0.00  melee:Bat=50
 2  arranger   water      mushroom-1       100    4.00   1.00   3.00   5.00   2.00   0.00  -
 2  arranger   water      mushroom-2         0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Mushroom=50
-2  arranger   water      mushroom-3         0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
+2  arranger   water      mushroom-3         0    4.00   1.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
 2  arranger   water      undine-1         100    4.00   1.00   3.00   5.00   2.00   0.00  -
 2  arranger   water      undine-2           0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Undine=50
-2  arranger   water      undine-3           0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Undine=50
+2  arranger   water      undine-3           0    4.00   1.00   0.00   3.00   7.00   0.00  melee:Undine=50
 2  arranger   water      cactus-1         100    4.00   1.00   3.00   5.00   2.00   0.00  -
 2  arranger   water      cactus-2           0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Cactus=50
-2  arranger   water      cactus-3           0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Cactus=50
+2  arranger   water      cactus-3           0    4.00   1.00   0.00   3.00   7.00   0.00  melee:Cactus=50
 2  arranger   water      mandragora-1     100    4.00   1.00   3.00   5.00   2.00   0.00  -
 2  arranger   water      mandragora-2       0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Mandragora=50
-2  arranger   water      mandragora-3       0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Mandragora=50
+2  arranger   water      mandragora-3       0    4.00   1.00   0.00   3.00   7.00   0.00  melee:Mandragora=50
 2  arranger   water      eye-1            100    4.00   1.00   3.00   5.00   2.00   0.00  -
 2  arranger   water      eye-2              0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Eye=50
-2  arranger   water      eye-3              0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Eye=50
+2  arranger   water      eye-3              0    4.00   1.00   0.00   3.00   7.00   0.00  melee:Eye=50
 2  arranger   oil        bat-1            100    3.72   1.00   6.00   3.00   1.00   0.00  -
 2  arranger   oil        bat-2            100    5.72   2.00   1.96   6.00   2.04   0.00  -
-2  arranger   oil        bat-3              0   14.38   1.96   0.04   6.88   3.08   0.00  melee:Bat=48 timeout=2
+2  arranger   oil        bat-3              0    6.68   2.00   0.00   6.88   3.12   0.00  melee:Bat=50
 2  arranger   oil        mushroom-1       100    4.00   1.00   3.00   5.00   2.00   0.00  -
 2  arranger   oil        mushroom-2         0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Mushroom=50
-2  arranger   oil        mushroom-3         0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
+2  arranger   oil        mushroom-3         0    4.00   1.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
 2  arranger   oil        undine-1         100    4.00   1.00   3.00   5.00   2.00   0.00  -
 2  arranger   oil        undine-2           0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Undine=50
-2  arranger   oil        undine-3           0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Undine=50
+2  arranger   oil        undine-3           0    4.00   1.00   0.00   3.00   7.00   0.00  melee:Undine=50
 2  arranger   oil        cactus-1         100    4.00   1.00   3.00   5.00   2.00   0.00  -
 2  arranger   oil        cactus-2           0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Cactus=50
-2  arranger   oil        cactus-3           0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Cactus=50
+2  arranger   oil        cactus-3           0    4.00   1.00   0.00   3.00   7.00   0.00  melee:Cactus=50
 2  arranger   oil        mandragora-1     100    4.00   1.00   3.00   5.00   2.00   0.00  -
 2  arranger   oil        mandragora-2       0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Mandragora=50
-2  arranger   oil        mandragora-3       0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Mandragora=50
+2  arranger   oil        mandragora-3       0    4.00   1.00   0.00   3.00   7.00   0.00  melee:Mandragora=50
 2  arranger   oil        eye-1            100    4.00   1.00   3.00   5.00   2.00   0.00  -
 2  arranger   oil        eye-2              0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Eye=50
-2  arranger   oil        eye-3              0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Eye=50
+2  arranger   oil        eye-3              0    4.00   1.00   0.00   3.00   7.00   0.00  melee:Eye=50
 2  arranger   poison     bat-1            100    3.26   1.00   7.46   2.00   0.54   0.00  -
 2  arranger   poison     bat-2            100    4.74   2.00   5.04   4.00   0.96   0.00  -
 2  arranger   poison     bat-3            100    6.16   3.00   2.44   5.92   1.64   0.00  -
@@ -897,7 +897,7 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 2  arranger   lava       eye-3              0    4.00   2.00   0.00   4.00   6.00   0.00  melee:Eye=50
 2  arranger   mercury    bat-1            100    3.72   1.00   6.00   3.00   1.00   0.00  -
 2  arranger   mercury    bat-2            100    5.72   2.00   1.96   6.00   2.04   0.00  -
-2  arranger   mercury    bat-3              0   14.38   1.96   0.04   6.88   3.08   0.00  melee:Bat=48 timeout=2
+2  arranger   mercury    bat-3              0    6.68   2.00   0.00   6.88   3.12   0.00  melee:Bat=50
 2  arranger   mercury    mushroom-1       100    4.72   1.00   3.00   5.00   2.00   0.00  -
 2  arranger   mercury    mushroom-2         0    6.34   0.90   0.00   6.30   3.70   0.00  melee:Mushroom=50
 2  arranger   mercury    mushroom-3         0    5.84   0.88   0.00   6.30   3.70   0.00  melee:Mushroom=50
@@ -953,20 +953,20 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 2  kite       oil        bat-2              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
 2  kite       oil        bat-3              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
 2  kite       oil        mushroom-1       100   17.00   1.00   5.00   5.00   0.00   0.00  -
-2  kite       oil        mushroom-2         0   14.00   1.00   0.00   7.00   3.00   0.00  melee:Mushroom=50
-2  kite       oil        mushroom-3         0    8.00   0.00   0.00   5.00   5.00   0.00  melee:Mushroom=50
+2  kite       oil        mushroom-2       100   18.00   2.00   1.00   7.00   2.00   0.00  -
+2  kite       oil        mushroom-3         0   16.00   2.00   0.00   5.00   5.00   0.00  melee:Mushroom=50
 2  kite       oil        undine-1         100   17.00   1.00   5.00   5.00   0.00   0.00  -
-2  kite       oil        undine-2           0   14.00   1.00   0.00   7.00   3.00   0.00  melee:Undine=50
-2  kite       oil        undine-3           0    8.00   0.00   0.00   5.00   5.00   0.00  melee:Undine=50
+2  kite       oil        undine-2         100   18.00   2.00   1.00   7.00   2.00   0.00  -
+2  kite       oil        undine-3           0   16.00   2.00   0.00   5.00   5.00   0.00  melee:Undine=50
 2  kite       oil        cactus-1         100   17.00   1.00   5.00   5.00   0.00   0.00  -
-2  kite       oil        cactus-2           0   14.00   1.00   0.00   7.00   3.00   0.00  melee:Cactus=50
-2  kite       oil        cactus-3           0    8.00   0.00   0.00   5.00   5.00   0.00  melee:Cactus=50
+2  kite       oil        cactus-2         100   18.00   2.00   1.00   7.00   2.00   0.00  -
+2  kite       oil        cactus-3           0   16.00   2.00   0.00   5.00   5.00   0.00  melee:Cactus=50
 2  kite       oil        mandragora-1     100   17.00   1.00   5.00   5.00   0.00   0.00  -
-2  kite       oil        mandragora-2       0   14.00   1.00   0.00   7.00   3.00   0.00  melee:Mandragora=50
-2  kite       oil        mandragora-3       0    8.00   0.00   0.00   5.00   5.00   0.00  melee:Mandragora=50
+2  kite       oil        mandragora-2     100   18.00   2.00   1.00   7.00   2.00   0.00  -
+2  kite       oil        mandragora-3       0   16.00   2.00   0.00   5.00   5.00   0.00  melee:Mandragora=50
 2  kite       oil        eye-1            100   17.00   1.00   5.00   5.00   0.00   0.00  -
-2  kite       oil        eye-2              0   14.00   1.00   0.00   7.00   3.00   0.00  melee:Eye=50
-2  kite       oil        eye-3              0    8.00   0.00   0.00   5.00   5.00   0.00  melee:Eye=50
+2  kite       oil        eye-2            100   18.00   2.00   1.00   7.00   2.00   0.00  -
+2  kite       oil        eye-3              0   16.00   2.00   0.00   5.00   5.00   0.00  melee:Eye=50
 2  kite       poison     bat-1              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
 2  kite       poison     bat-2              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
 2  kite       poison     bat-3              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
@@ -1062,7 +1062,7 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 ap policy     build      encounter         spent bitten status thorns  grown  swaps     net  by
 1  newcomer   start      bat-1              2.00   1.00   0.00   0.00   0.00   0.00   -3.00  spent=Poison:1.00,Lava:1.00 bitten=Acid:1.00 status=-
 1  newcomer   start      bat-2              3.00   3.00   0.00   0.00   0.00   0.00   -6.00  spent=Oil:1.00,Poison:1.00,Lava:1.00 bitten=Water:2.00,Acid:1.00 status=-
-1  newcomer   start      bat-3              3.00   2.92   0.00   0.00   0.00   0.00   -5.92  spent=Water:0.08,Oil:0.92,Poison:1.00,Lava:1.00 bitten=Water:1.84,Oil:0.08,Acid:1.00 status=-
+1  newcomer   start      bat-3              3.00   3.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:0.08,Oil:0.92,Poison:1.00,Lava:1.00 bitten=Water:1.92,Oil:0.08,Acid:1.00 status=-
 1  newcomer   start      mushroom-1         2.00   1.00   0.00   0.00   0.00   0.00   -3.00  spent=Poison:1.00,Lava:1.00 bitten=Acid:1.00 status=-
 1  newcomer   start      mushroom-2         2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Oil:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
 1  newcomer   start      mushroom-3         2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Lava:1.00 bitten=Water:1.00,Oil:1.00,Poison:1.00,Acid:1.00 status=-
@@ -1079,7 +1079,7 @@ ap policy     build      encounter         spent bitten status thorns  grown  sw
 1  newcomer   start      eye-2              2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Oil:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
 1  newcomer   start      eye-3              2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Lava:1.00 bitten=Water:1.00,Oil:1.00,Poison:1.00,Acid:1.00 status=-
 1  newcomer   water      bat-1              3.00   2.00   0.00   0.00   0.00   0.00   -5.00  spent=Water:3.00 bitten=Water:2.00 status=-
-1  newcomer   water      bat-2              5.00   5.00   0.00   0.00   0.00   0.00  -10.00  spent=Water:5.00 bitten=Water:5.00 status=-
+1  newcomer   water      bat-2              5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Water:5.00 bitten=Water:4.00 status=-
 1  newcomer   water      bat-3              4.88   5.12   0.00   0.00   0.00   0.00  -10.00  spent=Water:4.88 bitten=Water:5.12 status=-
 1  newcomer   water      mushroom-1         5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Water:5.00 bitten=Water:4.00 status=-
 1  newcomer   water      mushroom-2         3.00   7.00   0.00   0.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
@@ -1097,7 +1097,7 @@ ap policy     build      encounter         spent bitten status thorns  grown  sw
 1  newcomer   water      eye-2              3.00   7.00   0.00   0.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
 1  newcomer   water      eye-3              3.00   7.00   0.00   0.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
 1  newcomer   oil        bat-1              3.00   2.00   0.00   0.00   0.00   0.00   -5.00  spent=Oil:3.00 bitten=Oil:2.00 status=-
-1  newcomer   oil        bat-2              5.00   5.00   0.00   0.00   0.00   0.00  -10.00  spent=Oil:5.00 bitten=Oil:5.00 status=-
+1  newcomer   oil        bat-2              5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Oil:5.00 bitten=Oil:4.00 status=-
 1  newcomer   oil        bat-3              4.88   5.12   0.00   0.00   0.00   0.00  -10.00  spent=Oil:4.88 bitten=Oil:5.12 status=-
 1  newcomer   oil        mushroom-1         5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Oil:5.00 bitten=Oil:4.00 status=-
 1  newcomer   oil        mushroom-2         3.00   7.00   0.00   0.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
@@ -1187,26 +1187,26 @@ ap policy     build      encounter         spent bitten status thorns  grown  sw
 1  newcomer   lava       eye-2              3.00   3.00   0.00   0.00   0.00   0.00   -6.00  spent=Lava:3.00 bitten=Lava:3.00 status=-
 1  newcomer   lava       eye-3              3.00   6.00   0.00   0.00   0.00   0.00   -9.00  spent=Lava:3.00 bitten=Lava:6.00 status=-
 1  newcomer   mercury    bat-1              3.00   2.00   0.00   0.00   0.00   0.00   -5.00  spent=Mercury:3.00 bitten=Mercury:2.00 status=-
-1  newcomer   mercury    bat-2              5.00   5.00   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:5.00 bitten=Mercury:5.00 status=-
+1  newcomer   mercury    bat-2              5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
 1  newcomer   mercury    bat-3              4.88   5.12   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:4.88 bitten=Mercury:5.12 status=-
 1  newcomer   mercury    mushroom-1         5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
-1  newcomer   mercury    mushroom-2         5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
-1  newcomer   mercury    mushroom-3         4.88   4.26   0.00   0.00   0.00   0.00   -9.14  spent=Mercury:4.88 bitten=Mercury:4.26 status=-
+1  newcomer   mercury    mushroom-2         5.00   5.00   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:5.00 bitten=Mercury:5.00 status=-
+1  newcomer   mercury    mushroom-3         4.88   5.12   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:4.88 bitten=Mercury:5.12 status=-
 1  newcomer   mercury    undine-1           5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
-1  newcomer   mercury    undine-2           5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
-1  newcomer   mercury    undine-3           4.88   4.26   0.00   0.00   0.00   0.00   -9.14  spent=Mercury:4.88 bitten=Mercury:4.26 status=-
+1  newcomer   mercury    undine-2           5.00   5.00   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:5.00 bitten=Mercury:5.00 status=-
+1  newcomer   mercury    undine-3           4.88   5.12   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:4.88 bitten=Mercury:5.12 status=-
 1  newcomer   mercury    cactus-1           5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
-1  newcomer   mercury    cactus-2           5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
-1  newcomer   mercury    cactus-3           4.88   4.26   0.00   0.00   0.00   0.00   -9.14  spent=Mercury:4.88 bitten=Mercury:4.26 status=-
+1  newcomer   mercury    cactus-2           5.00   5.00   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:5.00 bitten=Mercury:5.00 status=-
+1  newcomer   mercury    cactus-3           4.88   5.12   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:4.88 bitten=Mercury:5.12 status=-
 1  newcomer   mercury    mandragora-1       5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
-1  newcomer   mercury    mandragora-2       5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
-1  newcomer   mercury    mandragora-3       4.88   4.26   0.00   0.00   0.00   0.00   -9.14  spent=Mercury:4.88 bitten=Mercury:4.26 status=-
+1  newcomer   mercury    mandragora-2       5.00   5.00   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:5.00 bitten=Mercury:5.00 status=-
+1  newcomer   mercury    mandragora-3       4.88   5.12   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:4.88 bitten=Mercury:5.12 status=-
 1  newcomer   mercury    eye-1              5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
-1  newcomer   mercury    eye-2              5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
-1  newcomer   mercury    eye-3              4.88   4.26   0.00   0.00   0.00   0.00   -9.14  spent=Mercury:4.88 bitten=Mercury:4.26 status=-
+1  newcomer   mercury    eye-2              5.00   5.00   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:5.00 bitten=Mercury:5.00 status=-
+1  newcomer   mercury    eye-3              4.88   5.12   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:4.88 bitten=Mercury:5.12 status=-
 1  arranger   start      bat-1              2.00   1.00   0.00   0.00   0.00   0.00   -3.00  spent=Poison:1.00,Lava:1.00 bitten=Acid:1.00 status=-
 1  arranger   start      bat-2              3.00   3.00   0.00   0.00   0.00   0.00   -6.00  spent=Oil:1.00,Poison:1.00,Lava:1.00 bitten=Water:2.00,Acid:1.00 status=-
-1  arranger   start      bat-3              3.00   2.92   0.00   0.00   0.00   0.00   -5.92  spent=Water:0.08,Oil:0.92,Poison:1.00,Lava:1.00 bitten=Water:1.84,Oil:0.08,Acid:1.00 status=-
+1  arranger   start      bat-3              3.00   3.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:0.08,Oil:0.92,Poison:1.00,Lava:1.00 bitten=Water:1.92,Oil:0.08,Acid:1.00 status=-
 1  arranger   start      mushroom-1         2.00   1.00   0.00   0.00   0.00   0.00   -3.00  spent=Poison:1.00,Lava:1.00 bitten=Acid:1.00 status=-
 1  arranger   start      mushroom-2         2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Oil:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
 1  arranger   start      mushroom-3         2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Lava:1.00 bitten=Water:1.00,Oil:1.00,Poison:1.00,Acid:1.00 status=-
@@ -1223,7 +1223,7 @@ ap policy     build      encounter         spent bitten status thorns  grown  sw
 1  arranger   start      eye-2              2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Oil:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
 1  arranger   start      eye-3              2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Lava:1.00 bitten=Water:1.00,Oil:1.00,Poison:1.00,Acid:1.00 status=-
 1  arranger   water      bat-1              3.00   2.00   0.00   0.00   0.00   0.00   -5.00  spent=Water:3.00 bitten=Water:2.00 status=-
-1  arranger   water      bat-2              5.00   5.00   0.00   0.00   0.00   0.00  -10.00  spent=Water:5.00 bitten=Water:5.00 status=-
+1  arranger   water      bat-2              5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Water:5.00 bitten=Water:4.00 status=-
 1  arranger   water      bat-3              4.88   5.12   0.00   0.00   0.00   0.00  -10.00  spent=Water:4.88 bitten=Water:5.12 status=-
 1  arranger   water      mushroom-1         5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Water:5.00 bitten=Water:4.00 status=-
 1  arranger   water      mushroom-2         3.00   7.00   0.00   0.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
@@ -1241,7 +1241,7 @@ ap policy     build      encounter         spent bitten status thorns  grown  sw
 1  arranger   water      eye-2              3.00   7.00   0.00   0.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
 1  arranger   water      eye-3              3.00   7.00   0.00   0.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
 1  arranger   oil        bat-1              3.00   2.00   0.00   0.00   0.00   0.00   -5.00  spent=Oil:3.00 bitten=Oil:2.00 status=-
-1  arranger   oil        bat-2              5.00   5.00   0.00   0.00   0.00   0.00  -10.00  spent=Oil:5.00 bitten=Oil:5.00 status=-
+1  arranger   oil        bat-2              5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Oil:5.00 bitten=Oil:4.00 status=-
 1  arranger   oil        bat-3              4.88   5.12   0.00   0.00   0.00   0.00  -10.00  spent=Oil:4.88 bitten=Oil:5.12 status=-
 1  arranger   oil        mushroom-1         5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Oil:5.00 bitten=Oil:4.00 status=-
 1  arranger   oil        mushroom-2         3.00   7.00   0.00   0.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
@@ -1331,23 +1331,23 @@ ap policy     build      encounter         spent bitten status thorns  grown  sw
 1  arranger   lava       eye-2              3.00   3.00   0.00   0.00   0.00   0.00   -6.00  spent=Lava:3.00 bitten=Lava:3.00 status=-
 1  arranger   lava       eye-3              3.00   6.00   0.00   0.00   0.00   0.00   -9.00  spent=Lava:3.00 bitten=Lava:6.00 status=-
 1  arranger   mercury    bat-1              3.00   2.00   0.00   0.00   0.00   0.00   -5.00  spent=Mercury:3.00 bitten=Mercury:2.00 status=-
-1  arranger   mercury    bat-2              5.00   5.00   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:5.00 bitten=Mercury:5.00 status=-
+1  arranger   mercury    bat-2              5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
 1  arranger   mercury    bat-3              4.88   5.12   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:4.88 bitten=Mercury:5.12 status=-
 1  arranger   mercury    mushroom-1         5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
-1  arranger   mercury    mushroom-2         5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
-1  arranger   mercury    mushroom-3         4.88   4.26   0.00   0.00   0.00   0.00   -9.14  spent=Mercury:4.88 bitten=Mercury:4.26 status=-
+1  arranger   mercury    mushroom-2         5.00   5.00   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:5.00 bitten=Mercury:5.00 status=-
+1  arranger   mercury    mushroom-3         4.88   5.12   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:4.88 bitten=Mercury:5.12 status=-
 1  arranger   mercury    undine-1           5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
-1  arranger   mercury    undine-2           5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
-1  arranger   mercury    undine-3           4.88   4.26   0.00   0.00   0.00   0.00   -9.14  spent=Mercury:4.88 bitten=Mercury:4.26 status=-
+1  arranger   mercury    undine-2           5.00   5.00   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:5.00 bitten=Mercury:5.00 status=-
+1  arranger   mercury    undine-3           4.88   5.12   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:4.88 bitten=Mercury:5.12 status=-
 1  arranger   mercury    cactus-1           5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
-1  arranger   mercury    cactus-2           5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
-1  arranger   mercury    cactus-3           4.88   4.26   0.00   0.00   0.00   0.00   -9.14  spent=Mercury:4.88 bitten=Mercury:4.26 status=-
+1  arranger   mercury    cactus-2           5.00   5.00   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:5.00 bitten=Mercury:5.00 status=-
+1  arranger   mercury    cactus-3           4.88   5.12   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:4.88 bitten=Mercury:5.12 status=-
 1  arranger   mercury    mandragora-1       5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
-1  arranger   mercury    mandragora-2       5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
-1  arranger   mercury    mandragora-3       4.88   4.26   0.00   0.00   0.00   0.00   -9.14  spent=Mercury:4.88 bitten=Mercury:4.26 status=-
+1  arranger   mercury    mandragora-2       5.00   5.00   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:5.00 bitten=Mercury:5.00 status=-
+1  arranger   mercury    mandragora-3       4.88   5.12   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:4.88 bitten=Mercury:5.12 status=-
 1  arranger   mercury    eye-1              5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
-1  arranger   mercury    eye-2              5.00   4.00   0.00   0.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
-1  arranger   mercury    eye-3              4.88   4.26   0.00   0.00   0.00   0.00   -9.14  spent=Mercury:4.88 bitten=Mercury:4.26 status=-
+1  arranger   mercury    eye-2              5.00   5.00   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:5.00 bitten=Mercury:5.00 status=-
+1  arranger   mercury    eye-3              4.88   5.12   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:4.88 bitten=Mercury:5.12 status=-
 1  kite       start      bat-1              0.00   0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
 1  kite       start      bat-2              0.00   0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
 1  kite       start      bat-3              0.00   0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
@@ -1493,8 +1493,8 @@ ap policy     build      encounter         spent bitten status thorns  grown  sw
 1  kite       mercury    eye-2              0.00   0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
 1  kite       mercury    eye-3              0.00   0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
 2  newcomer   start      bat-1              2.00   0.54   0.00   0.00   0.00   0.00   -2.54  spent=Poison:0.54,Acid:0.46,Lava:1.00 bitten=Acid:0.54 status=-
-2  newcomer   start      bat-2              3.80   1.44   0.00   0.00   0.00   0.00   -5.24  spent=Water:0.56,Oil:0.72,Poison:1.00,Acid:0.52,Lava:1.00 bitten=Water:0.68,Oil:0.28,Acid:0.48 status=-
-2  newcomer   start      bat-3              3.94   1.88   0.00   0.00   0.00   0.00   -5.82  spent=Water:0.76,Oil:0.82,Poison:1.00,Acid:0.36,Lava:1.00 bitten=Water:1.06,Oil:0.18,Acid:0.64 status=-
+2  newcomer   start      bat-2              3.80   1.24   0.00   0.00   0.00   0.00   -5.04  spent=Water:0.56,Oil:0.72,Poison:1.00,Acid:0.52,Lava:1.00 bitten=Water:0.48,Oil:0.28,Acid:0.48 status=-
+2  newcomer   start      bat-3              3.94   2.06   0.00   0.00   0.00   0.00   -6.00  spent=Water:0.76,Oil:0.82,Poison:1.00,Acid:0.36,Lava:1.00 bitten=Water:1.24,Oil:0.18,Acid:0.64 status=-
 2  newcomer   start      mushroom-1         3.00   1.00   0.00   0.00   0.00   0.00   -4.00  spent=Oil:1.00,Poison:1.00,Lava:1.00 bitten=Acid:1.00 status=-
 2  newcomer   start      mushroom-2         3.00   3.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Oil:1.00,Lava:1.00 bitten=Water:1.00,Poison:1.00,Acid:1.00 status=-
 2  newcomer   start      mushroom-3         2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Lava:1.00 bitten=Water:1.00,Oil:1.00,Poison:1.00,Acid:1.00 status=-
@@ -1512,7 +1512,7 @@ ap policy     build      encounter         spent bitten status thorns  grown  sw
 2  newcomer   start      eye-3              2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Lava:1.00 bitten=Water:1.00,Oil:1.00,Poison:1.00,Acid:1.00 status=-
 2  newcomer   water      bat-1              3.00   1.00   0.00   0.00   0.00   0.00   -4.00  spent=Water:3.00 bitten=Water:1.00 status=-
 2  newcomer   water      bat-2              6.00   2.04   0.00   0.00   0.00   0.00   -8.04  spent=Water:6.00 bitten=Water:2.04 status=-
-2  newcomer   water      bat-3              6.88   3.08   0.00   0.00   0.00   0.00   -9.96  spent=Water:6.88 bitten=Water:3.08 status=-
+2  newcomer   water      bat-3              6.88   3.12   0.00   0.00   0.00   0.00  -10.00  spent=Water:6.88 bitten=Water:3.12 status=-
 2  newcomer   water      mushroom-1         5.00   2.00   0.00   0.00   0.00   0.00   -7.00  spent=Water:5.00 bitten=Water:2.00 status=-
 2  newcomer   water      mushroom-2         5.00   5.00   0.00   0.00   0.00   0.00  -10.00  spent=Water:5.00 bitten=Water:5.00 status=-
 2  newcomer   water      mushroom-3         3.00   7.00   0.00   0.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
@@ -1530,7 +1530,7 @@ ap policy     build      encounter         spent bitten status thorns  grown  sw
 2  newcomer   water      eye-3              3.00   7.00   0.00   0.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
 2  newcomer   oil        bat-1              3.00   1.00   0.00   0.00   0.00   0.00   -4.00  spent=Oil:3.00 bitten=Oil:1.00 status=-
 2  newcomer   oil        bat-2              6.00   2.04   0.00   0.00   0.00   0.00   -8.04  spent=Oil:6.00 bitten=Oil:2.04 status=-
-2  newcomer   oil        bat-3              6.88   3.08   0.00   0.00   0.00   0.00   -9.96  spent=Oil:6.88 bitten=Oil:3.08 status=-
+2  newcomer   oil        bat-3              6.88   3.12   0.00   0.00   0.00   0.00  -10.00  spent=Oil:6.88 bitten=Oil:3.12 status=-
 2  newcomer   oil        mushroom-1         5.00   2.00   0.00   0.00   0.00   0.00   -7.00  spent=Oil:5.00 bitten=Oil:2.00 status=-
 2  newcomer   oil        mushroom-2         5.00   5.00   0.00   0.00   0.00   0.00  -10.00  spent=Oil:5.00 bitten=Oil:5.00 status=-
 2  newcomer   oil        mushroom-3         3.00   7.00   0.00   0.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
@@ -1620,7 +1620,7 @@ ap policy     build      encounter         spent bitten status thorns  grown  sw
 2  newcomer   lava       eye-3              4.00   6.00   0.00   0.00   0.00   0.00  -10.00  spent=Lava:4.00 bitten=Lava:6.00 status=-
 2  newcomer   mercury    bat-1              3.00   1.00   0.00   0.00   0.00   0.00   -4.00  spent=Mercury:3.00 bitten=Mercury:1.00 status=-
 2  newcomer   mercury    bat-2              6.00   2.04   0.00   0.00   0.00   0.00   -8.04  spent=Mercury:6.00 bitten=Mercury:2.04 status=-
-2  newcomer   mercury    bat-3              6.88   3.08   0.00   0.00   0.00   0.00   -9.96  spent=Mercury:6.88 bitten=Mercury:3.08 status=-
+2  newcomer   mercury    bat-3              6.88   3.12   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:6.88 bitten=Mercury:3.12 status=-
 2  newcomer   mercury    mushroom-1         5.00   2.00   0.00   0.00   0.00   0.00   -7.00  spent=Mercury:5.00 bitten=Mercury:2.00 status=-
 2  newcomer   mercury    mushroom-2         6.30   3.70   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:6.30 bitten=Mercury:3.70 status=-
 2  newcomer   mercury    mushroom-3         6.30   3.70   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:6.30 bitten=Mercury:3.70 status=-
@@ -1637,8 +1637,8 @@ ap policy     build      encounter         spent bitten status thorns  grown  sw
 2  newcomer   mercury    eye-2              6.30   3.70   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:6.30 bitten=Mercury:3.70 status=-
 2  newcomer   mercury    eye-3              6.30   3.70   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:6.30 bitten=Mercury:3.70 status=-
 2  arranger   start      bat-1              2.00   0.54   0.00   0.00   0.00   0.00   -2.54  spent=Poison:0.54,Acid:0.46,Lava:1.00 bitten=Acid:0.54 status=-
-2  arranger   start      bat-2              3.80   1.44   0.00   0.00   0.00   0.00   -5.24  spent=Water:0.56,Oil:0.72,Poison:1.00,Acid:0.52,Lava:1.00 bitten=Water:0.68,Oil:0.28,Acid:0.48 status=-
-2  arranger   start      bat-3              3.94   1.88   0.00   0.00   0.00   0.00   -5.82  spent=Water:0.76,Oil:0.82,Poison:1.00,Acid:0.36,Lava:1.00 bitten=Water:1.06,Oil:0.18,Acid:0.64 status=-
+2  arranger   start      bat-2              3.80   1.24   0.00   0.00   0.00   0.00   -5.04  spent=Water:0.56,Oil:0.72,Poison:1.00,Acid:0.52,Lava:1.00 bitten=Water:0.48,Oil:0.28,Acid:0.48 status=-
+2  arranger   start      bat-3              3.94   2.06   0.00   0.00   0.00   0.00   -6.00  spent=Water:0.76,Oil:0.82,Poison:1.00,Acid:0.36,Lava:1.00 bitten=Water:1.24,Oil:0.18,Acid:0.64 status=-
 2  arranger   start      mushroom-1         3.00   1.00   0.00   0.00   0.00   0.00   -4.00  spent=Oil:1.00,Poison:1.00,Lava:1.00 bitten=Acid:1.00 status=-
 2  arranger   start      mushroom-2         3.00   3.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Oil:1.00,Lava:1.00 bitten=Water:1.00,Poison:1.00,Acid:1.00 status=-
 2  arranger   start      mushroom-3         2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Lava:1.00 bitten=Water:1.00,Oil:1.00,Poison:1.00,Acid:1.00 status=-
@@ -1656,7 +1656,7 @@ ap policy     build      encounter         spent bitten status thorns  grown  sw
 2  arranger   start      eye-3              2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Lava:1.00 bitten=Water:1.00,Oil:1.00,Poison:1.00,Acid:1.00 status=-
 2  arranger   water      bat-1              3.00   1.00   0.00   0.00   0.00   0.00   -4.00  spent=Water:3.00 bitten=Water:1.00 status=-
 2  arranger   water      bat-2              6.00   2.04   0.00   0.00   0.00   0.00   -8.04  spent=Water:6.00 bitten=Water:2.04 status=-
-2  arranger   water      bat-3              6.88   3.08   0.00   0.00   0.00   0.00   -9.96  spent=Water:6.88 bitten=Water:3.08 status=-
+2  arranger   water      bat-3              6.88   3.12   0.00   0.00   0.00   0.00  -10.00  spent=Water:6.88 bitten=Water:3.12 status=-
 2  arranger   water      mushroom-1         5.00   2.00   0.00   0.00   0.00   0.00   -7.00  spent=Water:5.00 bitten=Water:2.00 status=-
 2  arranger   water      mushroom-2         5.00   5.00   0.00   0.00   0.00   0.00  -10.00  spent=Water:5.00 bitten=Water:5.00 status=-
 2  arranger   water      mushroom-3         3.00   7.00   0.00   0.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
@@ -1674,7 +1674,7 @@ ap policy     build      encounter         spent bitten status thorns  grown  sw
 2  arranger   water      eye-3              3.00   7.00   0.00   0.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
 2  arranger   oil        bat-1              3.00   1.00   0.00   0.00   0.00   0.00   -4.00  spent=Oil:3.00 bitten=Oil:1.00 status=-
 2  arranger   oil        bat-2              6.00   2.04   0.00   0.00   0.00   0.00   -8.04  spent=Oil:6.00 bitten=Oil:2.04 status=-
-2  arranger   oil        bat-3              6.88   3.08   0.00   0.00   0.00   0.00   -9.96  spent=Oil:6.88 bitten=Oil:3.08 status=-
+2  arranger   oil        bat-3              6.88   3.12   0.00   0.00   0.00   0.00  -10.00  spent=Oil:6.88 bitten=Oil:3.12 status=-
 2  arranger   oil        mushroom-1         5.00   2.00   0.00   0.00   0.00   0.00   -7.00  spent=Oil:5.00 bitten=Oil:2.00 status=-
 2  arranger   oil        mushroom-2         5.00   5.00   0.00   0.00   0.00   0.00  -10.00  spent=Oil:5.00 bitten=Oil:5.00 status=-
 2  arranger   oil        mushroom-3         3.00   7.00   0.00   0.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
@@ -1764,7 +1764,7 @@ ap policy     build      encounter         spent bitten status thorns  grown  sw
 2  arranger   lava       eye-3              4.00   6.00   0.00   0.00   0.00   0.00  -10.00  spent=Lava:4.00 bitten=Lava:6.00 status=-
 2  arranger   mercury    bat-1              3.00   1.00   0.00   0.00   0.00   0.00   -4.00  spent=Mercury:3.00 bitten=Mercury:1.00 status=-
 2  arranger   mercury    bat-2              6.00   2.04   0.00   0.00   0.00   0.00   -8.04  spent=Mercury:6.00 bitten=Mercury:2.04 status=-
-2  arranger   mercury    bat-3              6.88   3.08   0.00   0.00   0.00   0.00   -9.96  spent=Mercury:6.88 bitten=Mercury:3.08 status=-
+2  arranger   mercury    bat-3              6.88   3.12   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:6.88 bitten=Mercury:3.12 status=-
 2  arranger   mercury    mushroom-1         5.00   2.00   0.00   0.00   0.00   0.00   -7.00  spent=Mercury:5.00 bitten=Mercury:2.00 status=-
 2  arranger   mercury    mushroom-2         6.30   3.70   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:6.30 bitten=Mercury:3.70 status=-
 2  arranger   mercury    mushroom-3         6.30   3.70   0.00   0.00   0.00   0.00  -10.00  spent=Mercury:6.30 bitten=Mercury:3.70 status=-
@@ -1820,19 +1820,19 @@ ap policy     build      encounter         spent bitten status thorns  grown  sw
 2  kite       oil        bat-2              0.00   0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
 2  kite       oil        bat-3              0.00   0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
 2  kite       oil        mushroom-1         5.00   0.00   0.00   0.00   0.00   0.00   -5.00  spent=Oil:5.00 bitten=- status=-
-2  kite       oil        mushroom-2         7.00   3.00   0.00   0.00   0.00   0.00  -10.00  spent=Oil:7.00 bitten=Oil:3.00 status=-
+2  kite       oil        mushroom-2         7.00   2.00   0.00   0.00   0.00   0.00   -9.00  spent=Oil:7.00 bitten=Oil:2.00 status=-
 2  kite       oil        mushroom-3         5.00   5.00   0.00   0.00   0.00   0.00  -10.00  spent=Oil:5.00 bitten=Oil:5.00 status=-
 2  kite       oil        undine-1           5.00   0.00   0.00   0.00   0.00   0.00   -5.00  spent=Oil:5.00 bitten=- status=-
-2  kite       oil        undine-2           7.00   3.00   0.00   0.00   0.00   0.00  -10.00  spent=Oil:7.00 bitten=Oil:3.00 status=-
+2  kite       oil        undine-2           7.00   2.00   0.00   0.00   0.00   0.00   -9.00  spent=Oil:7.00 bitten=Oil:2.00 status=-
 2  kite       oil        undine-3           5.00   5.00   0.00   0.00   0.00   0.00  -10.00  spent=Oil:5.00 bitten=Oil:5.00 status=-
 2  kite       oil        cactus-1           5.00   0.00   0.00   0.00   0.00   0.00   -5.00  spent=Oil:5.00 bitten=- status=-
-2  kite       oil        cactus-2           7.00   3.00   0.00   0.00   0.00   0.00  -10.00  spent=Oil:7.00 bitten=Oil:3.00 status=-
+2  kite       oil        cactus-2           7.00   2.00   0.00   0.00   0.00   0.00   -9.00  spent=Oil:7.00 bitten=Oil:2.00 status=-
 2  kite       oil        cactus-3           5.00   5.00   0.00   0.00   0.00   0.00  -10.00  spent=Oil:5.00 bitten=Oil:5.00 status=-
 2  kite       oil        mandragora-1       5.00   0.00   0.00   0.00   0.00   0.00   -5.00  spent=Oil:5.00 bitten=- status=-
-2  kite       oil        mandragora-2       7.00   3.00   0.00   0.00   0.00   0.00  -10.00  spent=Oil:7.00 bitten=Oil:3.00 status=-
+2  kite       oil        mandragora-2       7.00   2.00   0.00   0.00   0.00   0.00   -9.00  spent=Oil:7.00 bitten=Oil:2.00 status=-
 2  kite       oil        mandragora-3       5.00   5.00   0.00   0.00   0.00   0.00  -10.00  spent=Oil:5.00 bitten=Oil:5.00 status=-
 2  kite       oil        eye-1              5.00   0.00   0.00   0.00   0.00   0.00   -5.00  spent=Oil:5.00 bitten=- status=-
-2  kite       oil        eye-2              7.00   3.00   0.00   0.00   0.00   0.00  -10.00  spent=Oil:7.00 bitten=Oil:3.00 status=-
+2  kite       oil        eye-2              7.00   2.00   0.00   0.00   0.00   0.00   -9.00  spent=Oil:7.00 bitten=Oil:2.00 status=-
 2  kite       oil        eye-3              5.00   5.00   0.00   0.00   0.00   0.00  -10.00  spent=Oil:5.00 bitten=Oil:5.00 status=-
 2  kite       poison     bat-1              0.00   0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
 2  kite       poison     bat-2              0.00   0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
@@ -1928,95 +1928,95 @@ ap policy     build      encounter         spent bitten status thorns  grown  sw
 [damage]
 ap policy     build      encounter        strike status  retal overkill doomed per_unit  status_by
 1  newcomer   start      bat-1              2.00   1.00   0.00     0.00   1.00     1.50  Burning:1.00
-1  newcomer   start      bat-2              3.00   1.00   0.00     0.00   1.00     1.33  Burning:1.00
-1  newcomer   start      bat-3              3.00   1.16   0.00     0.00   1.00     1.39  Burning:1.08,Poisoned:0.08
+1  newcomer   start      bat-2              4.00   1.00   0.00     0.00   1.00     1.67  Burning:1.00
+1  newcomer   start      bat-3              4.00   1.16   0.00     0.00   1.00     1.72  Burning:1.08,Poisoned:0.08
 1  newcomer   start      mushroom-1         2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Poisoned:1.00
-1  newcomer   start      mushroom-2         2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+1  newcomer   start      mushroom-2         3.00   3.00   0.00     0.00   0.00     3.00  Burning:3.00
 1  newcomer   start      mushroom-3         2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
 1  newcomer   start      undine-1           2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Poisoned:1.00
-1  newcomer   start      undine-2           2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+1  newcomer   start      undine-2           3.00   3.00   0.00     0.00   0.00     3.00  Burning:3.00
 1  newcomer   start      undine-3           2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
 1  newcomer   start      cactus-1           2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Poisoned:1.00
-1  newcomer   start      cactus-2           2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+1  newcomer   start      cactus-2           3.00   3.00   0.00     0.00   0.00     3.00  Burning:3.00
 1  newcomer   start      cactus-3           2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
 1  newcomer   start      mandragora-1       2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Poisoned:1.00
-1  newcomer   start      mandragora-2       2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+1  newcomer   start      mandragora-2       3.00   3.00   0.00     0.00   0.00     3.00  Burning:3.00
 1  newcomer   start      mandragora-3       2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
 1  newcomer   start      eye-1              2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Poisoned:1.00
-1  newcomer   start      eye-2              2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+1  newcomer   start      eye-2              3.00   3.00   0.00     0.00   0.00     3.00  Burning:3.00
 1  newcomer   start      eye-3              2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
 1  newcomer   water      bat-1              3.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   water      bat-2              5.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   water      bat-3              4.88   0.00   0.00     0.00   0.00     1.00  -
+1  newcomer   water      bat-2              6.00   0.00   0.00     0.00   0.00     1.20  -
+1  newcomer   water      bat-3              6.62   0.00   0.00     0.00   0.00     1.36  -
 1  newcomer   water      mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   water      mushroom-2         3.00   0.00   0.00     0.00   0.00     1.00  -
+1  newcomer   water      mushroom-2         4.00   0.00   0.00     0.00   0.00     1.33  -
 1  newcomer   water      mushroom-3         3.00   0.00   0.00     0.00   0.00     1.00  -
 1  newcomer   water      undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   water      undine-2           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  newcomer   water      undine-2           4.00   0.00   0.00     0.00   0.00     1.33  -
 1  newcomer   water      undine-3           3.00   0.00   0.00     0.00   0.00     1.00  -
 1  newcomer   water      cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   water      cactus-2           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  newcomer   water      cactus-2           4.00   0.00   0.00     0.00   0.00     1.33  -
 1  newcomer   water      cactus-3           3.00   0.00   0.00     0.00   0.00     1.00  -
 1  newcomer   water      mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   water      mandragora-2       3.00   0.00   0.00     0.00   0.00     1.00  -
+1  newcomer   water      mandragora-2       4.00   0.00   0.00     0.00   0.00     1.33  -
 1  newcomer   water      mandragora-3       3.00   0.00   0.00     0.00   0.00     1.00  -
 1  newcomer   water      eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   water      eye-2              3.00   0.00   0.00     0.00   0.00     1.00  -
+1  newcomer   water      eye-2              4.00   0.00   0.00     0.00   0.00     1.33  -
 1  newcomer   water      eye-3              3.00   0.00   0.00     0.00   0.00     1.00  -
 1  newcomer   oil        bat-1              3.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   oil        bat-2              5.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   oil        bat-3              4.88   0.00   0.00     0.00   0.00     1.00  -
+1  newcomer   oil        bat-2              6.00   0.00   0.00     0.00   0.00     1.20  -
+1  newcomer   oil        bat-3              6.62   0.00   0.00     0.00   0.00     1.36  -
 1  newcomer   oil        mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   oil        mushroom-2         3.00   0.00   0.00     0.00   0.00     1.00  -
+1  newcomer   oil        mushroom-2         4.00   0.00   0.00     0.00   0.00     1.33  -
 1  newcomer   oil        mushroom-3         3.00   0.00   0.00     0.00   0.00     1.00  -
 1  newcomer   oil        undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   oil        undine-2           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  newcomer   oil        undine-2           4.00   0.00   0.00     0.00   0.00     1.33  -
 1  newcomer   oil        undine-3           3.00   0.00   0.00     0.00   0.00     1.00  -
 1  newcomer   oil        cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   oil        cactus-2           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  newcomer   oil        cactus-2           4.00   0.00   0.00     0.00   0.00     1.33  -
 1  newcomer   oil        cactus-3           3.00   0.00   0.00     0.00   0.00     1.00  -
 1  newcomer   oil        mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   oil        mandragora-2       3.00   0.00   0.00     0.00   0.00     1.00  -
+1  newcomer   oil        mandragora-2       4.00   0.00   0.00     0.00   0.00     1.33  -
 1  newcomer   oil        mandragora-3       3.00   0.00   0.00     0.00   0.00     1.00  -
 1  newcomer   oil        eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   oil        eye-2              3.00   0.00   0.00     0.00   0.00     1.00  -
+1  newcomer   oil        eye-2              4.00   0.00   0.00     0.00   0.00     1.33  -
 1  newcomer   oil        eye-3              3.00   0.00   0.00     0.00   0.00     1.00  -
 1  newcomer   poison     bat-1              2.00   1.00   0.00     0.00   1.00     1.50  Poisoned:1.00
 1  newcomer   poison     bat-2              4.00   2.00   0.00     0.00   2.00     1.50  Poisoned:2.00
 1  newcomer   poison     bat-3              5.90   3.10   0.00     0.00   2.90     1.53  Poisoned:3.10
 1  newcomer   poison     mushroom-1         2.00   2.00   1.00     0.00   1.00     2.50  Poisoned:3.00
 1  newcomer   poison     mushroom-2         3.00   3.00   4.00     0.00   2.00     3.33  Poisoned:7.00
-1  newcomer   poison     mushroom-3         3.00   3.00   9.00     0.00   2.00     5.00  Poisoned:12.00
+1  newcomer   poison     mushroom-3         4.00   3.00   8.00     0.00   3.00     5.00  Poisoned:11.00
 1  newcomer   poison     undine-1           2.00   2.00   1.00     0.00   1.00     2.50  Poisoned:3.00
 1  newcomer   poison     undine-2           3.00   3.00   4.00     0.00   2.00     3.33  Poisoned:7.00
-1  newcomer   poison     undine-3           3.00   3.00   9.00     0.00   2.00     5.00  Poisoned:12.00
+1  newcomer   poison     undine-3           4.00   3.00   8.00     0.00   3.00     5.00  Poisoned:11.00
 1  newcomer   poison     cactus-1           2.00   2.00   1.00     0.00   1.00     2.50  Poisoned:3.00
 1  newcomer   poison     cactus-2           3.00   3.00   4.00     0.00   2.00     3.33  Poisoned:7.00
-1  newcomer   poison     cactus-3           3.00   3.00   9.00     0.00   2.00     5.00  Poisoned:12.00
+1  newcomer   poison     cactus-3           4.00   3.00   8.00     0.00   3.00     5.00  Poisoned:11.00
 1  newcomer   poison     mandragora-1       2.00   2.00   1.00     0.00   1.00     2.50  Poisoned:3.00
 1  newcomer   poison     mandragora-2       3.00   3.00   4.00     0.00   2.00     3.33  Poisoned:7.00
-1  newcomer   poison     mandragora-3       3.00   3.00   9.00     0.00   2.00     5.00  Poisoned:12.00
+1  newcomer   poison     mandragora-3       4.00   3.00   8.00     0.00   3.00     5.00  Poisoned:11.00
 1  newcomer   poison     eye-1              2.00   2.00   1.00     0.00   1.00     2.50  Poisoned:3.00
 1  newcomer   poison     eye-2              3.00   3.00   4.00     0.00   2.00     3.33  Poisoned:7.00
-1  newcomer   poison     eye-3              3.00   3.00   9.00     0.00   2.00     5.00  Poisoned:12.00
+1  newcomer   poison     eye-3              4.00   3.00   8.00     0.00   3.00     5.00  Poisoned:11.00
 1  newcomer   acid       bat-1              2.00   1.00   0.00     0.00   1.00     1.50  Corroding:1.00
 1  newcomer   acid       bat-2              4.00   2.00   0.00     0.00   2.00     1.50  Corroding:2.00
 1  newcomer   acid       bat-3              5.90   3.10   0.00     0.00   2.90     1.53  Corroding:3.10
 1  newcomer   acid       mushroom-1         2.00   2.00   1.00     0.00   1.00     2.50  Corroding:3.00
 1  newcomer   acid       mushroom-2         3.00   3.00   4.00     0.00   2.00     3.33  Corroding:7.00
-1  newcomer   acid       mushroom-3         3.00   3.00   9.00     0.00   2.00     5.00  Corroding:12.00
+1  newcomer   acid       mushroom-3         4.00   3.00   8.00     0.00   3.00     5.00  Corroding:11.00
 1  newcomer   acid       undine-1           2.00   2.00   1.00     0.00   1.00     2.50  Corroding:3.00
 1  newcomer   acid       undine-2           3.00   3.00   4.00     0.00   2.00     3.33  Corroding:7.00
-1  newcomer   acid       undine-3           3.00   3.00   9.00     0.00   2.00     5.00  Corroding:12.00
+1  newcomer   acid       undine-3           4.00   3.00   8.00     0.00   3.00     5.00  Corroding:11.00
 1  newcomer   acid       cactus-1           2.00   2.00   1.00     0.00   1.00     2.50  Corroding:3.00
 1  newcomer   acid       cactus-2           3.00   3.00   4.00     0.00   2.00     3.33  Corroding:7.00
-1  newcomer   acid       cactus-3           3.00   3.00   9.00     0.00   2.00     5.00  Corroding:12.00
+1  newcomer   acid       cactus-3           4.00   3.00   8.00     0.00   3.00     5.00  Corroding:11.00
 1  newcomer   acid       mandragora-1       2.00   2.00   1.00     0.00   1.00     2.50  Corroding:3.00
 1  newcomer   acid       mandragora-2       3.00   3.00   4.00     0.00   2.00     3.33  Corroding:7.00
-1  newcomer   acid       mandragora-3       3.00   3.00   9.00     0.00   2.00     5.00  Corroding:12.00
+1  newcomer   acid       mandragora-3       4.00   3.00   8.00     0.00   3.00     5.00  Corroding:11.00
 1  newcomer   acid       eye-1              2.00   2.00   1.00     0.00   1.00     2.50  Corroding:3.00
 1  newcomer   acid       eye-2              3.00   3.00   4.00     0.00   2.00     3.33  Corroding:7.00
-1  newcomer   acid       eye-3              3.00   3.00   9.00     0.00   2.00     5.00  Corroding:12.00
+1  newcomer   acid       eye-3              4.00   3.00   8.00     0.00   3.00     5.00  Corroding:11.00
 1  newcomer   blood      bat-1              9.00   0.00   0.00     0.00   0.00     1.00  -
 1  newcomer   blood      bat-2              9.00   0.00   0.00     0.00   0.00     1.00  -
 1  newcomer   blood      bat-3              8.48   0.00   0.00     0.00   0.00     1.00  -
@@ -2040,127 +2040,127 @@ ap policy     build      encounter        strike status  retal overkill doomed p
 1  newcomer   lava       bat-3              5.90   3.10   0.00     0.00   2.90     1.53  Burning:3.10
 1  newcomer   lava       mushroom-1         2.00   2.00   1.00     0.00   1.00     2.50  Burning:3.00
 1  newcomer   lava       mushroom-2         3.00   3.00   4.00     0.00   2.00     3.33  Burning:7.00
-1  newcomer   lava       mushroom-3         3.00   3.00   9.00     0.00   2.00     5.00  Burning:12.00
+1  newcomer   lava       mushroom-3         4.00   3.00   8.00     0.00   3.00     5.00  Burning:11.00
 1  newcomer   lava       undine-1           2.00   2.00   1.00     0.00   1.00     2.50  Burning:3.00
 1  newcomer   lava       undine-2           3.00   3.00   4.00     0.00   2.00     3.33  Burning:7.00
-1  newcomer   lava       undine-3           3.00   3.00   9.00     0.00   2.00     5.00  Burning:12.00
+1  newcomer   lava       undine-3           4.00   3.00   8.00     0.00   3.00     5.00  Burning:11.00
 1  newcomer   lava       cactus-1           2.00   2.00   1.00     0.00   1.00     2.50  Burning:3.00
 1  newcomer   lava       cactus-2           3.00   3.00   4.00     0.00   2.00     3.33  Burning:7.00
-1  newcomer   lava       cactus-3           3.00   3.00   9.00     0.00   2.00     5.00  Burning:12.00
+1  newcomer   lava       cactus-3           4.00   3.00   8.00     0.00   3.00     5.00  Burning:11.00
 1  newcomer   lava       mandragora-1       2.00   2.00   1.00     0.00   1.00     2.50  Burning:3.00
 1  newcomer   lava       mandragora-2       3.00   3.00   4.00     0.00   2.00     3.33  Burning:7.00
-1  newcomer   lava       mandragora-3       3.00   3.00   9.00     0.00   2.00     5.00  Burning:12.00
+1  newcomer   lava       mandragora-3       4.00   3.00   8.00     0.00   3.00     5.00  Burning:11.00
 1  newcomer   lava       eye-1              2.00   2.00   1.00     0.00   1.00     2.50  Burning:3.00
 1  newcomer   lava       eye-2              3.00   3.00   4.00     0.00   2.00     3.33  Burning:7.00
-1  newcomer   lava       eye-3              3.00   3.00   9.00     0.00   2.00     5.00  Burning:12.00
+1  newcomer   lava       eye-3              4.00   3.00   8.00     0.00   3.00     5.00  Burning:11.00
 1  newcomer   mercury    bat-1              3.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   mercury    bat-2              5.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   mercury    bat-3              4.88   0.00   0.00     0.00   0.00     1.00  -
+1  newcomer   mercury    bat-2              6.00   0.00   0.00     0.00   0.00     1.20  -
+1  newcomer   mercury    bat-3              6.62   0.00   0.00     0.00   0.00     1.36  -
 1  newcomer   mercury    mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   mercury    mushroom-2         5.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   mercury    mushroom-3         4.88   0.00   0.00     0.00   0.00     1.00  -
+1  newcomer   mercury    mushroom-2         6.00   0.00   0.00     0.00   0.00     1.20  -
+1  newcomer   mercury    mushroom-3         5.74   0.00   0.00     0.00   0.00     1.18  -
 1  newcomer   mercury    undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   mercury    undine-2           5.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   mercury    undine-3           4.88   0.00   0.00     0.00   0.00     1.00  -
+1  newcomer   mercury    undine-2           6.00   0.00   0.00     0.00   0.00     1.20  -
+1  newcomer   mercury    undine-3           5.74   0.00   0.00     0.00   0.00     1.18  -
 1  newcomer   mercury    cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   mercury    cactus-2           5.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   mercury    cactus-3           4.88   0.00   0.00     0.00   0.00     1.00  -
+1  newcomer   mercury    cactus-2           6.00   0.00   0.00     0.00   0.00     1.20  -
+1  newcomer   mercury    cactus-3           5.74   0.00   0.00     0.00   0.00     1.18  -
 1  newcomer   mercury    mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   mercury    mandragora-2       5.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   mercury    mandragora-3       4.88   0.00   0.00     0.00   0.00     1.00  -
+1  newcomer   mercury    mandragora-2       6.00   0.00   0.00     0.00   0.00     1.20  -
+1  newcomer   mercury    mandragora-3       5.74   0.00   0.00     0.00   0.00     1.18  -
 1  newcomer   mercury    eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   mercury    eye-2              5.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   mercury    eye-3              4.88   0.00   0.00     0.00   0.00     1.00  -
+1  newcomer   mercury    eye-2              6.00   0.00   0.00     0.00   0.00     1.20  -
+1  newcomer   mercury    eye-3              5.74   0.00   0.00     0.00   0.00     1.18  -
 1  arranger   start      bat-1              2.00   1.00   0.00     0.00   1.00     1.50  Burning:1.00
-1  arranger   start      bat-2              3.00   1.00   0.00     0.00   1.00     1.33  Burning:1.00
-1  arranger   start      bat-3              3.00   1.16   0.00     0.00   1.00     1.39  Burning:1.08,Poisoned:0.08
+1  arranger   start      bat-2              4.00   1.00   0.00     0.00   1.00     1.67  Burning:1.00
+1  arranger   start      bat-3              4.00   1.16   0.00     0.00   1.00     1.72  Burning:1.08,Poisoned:0.08
 1  arranger   start      mushroom-1         2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Poisoned:1.00
-1  arranger   start      mushroom-2         2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+1  arranger   start      mushroom-2         3.00   3.00   0.00     0.00   0.00     3.00  Burning:3.00
 1  arranger   start      mushroom-3         2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
 1  arranger   start      undine-1           2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Poisoned:1.00
-1  arranger   start      undine-2           2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+1  arranger   start      undine-2           3.00   3.00   0.00     0.00   0.00     3.00  Burning:3.00
 1  arranger   start      undine-3           2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
 1  arranger   start      cactus-1           2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Poisoned:1.00
-1  arranger   start      cactus-2           2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+1  arranger   start      cactus-2           3.00   3.00   0.00     0.00   0.00     3.00  Burning:3.00
 1  arranger   start      cactus-3           2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
 1  arranger   start      mandragora-1       2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Poisoned:1.00
-1  arranger   start      mandragora-2       2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+1  arranger   start      mandragora-2       3.00   3.00   0.00     0.00   0.00     3.00  Burning:3.00
 1  arranger   start      mandragora-3       2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
 1  arranger   start      eye-1              2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Poisoned:1.00
-1  arranger   start      eye-2              2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+1  arranger   start      eye-2              3.00   3.00   0.00     0.00   0.00     3.00  Burning:3.00
 1  arranger   start      eye-3              2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
 1  arranger   water      bat-1              3.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   water      bat-2              5.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   water      bat-3              4.88   0.00   0.00     0.00   0.00     1.00  -
+1  arranger   water      bat-2              6.00   0.00   0.00     0.00   0.00     1.20  -
+1  arranger   water      bat-3              6.62   0.00   0.00     0.00   0.00     1.36  -
 1  arranger   water      mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   water      mushroom-2         3.00   0.00   0.00     0.00   0.00     1.00  -
+1  arranger   water      mushroom-2         4.00   0.00   0.00     0.00   0.00     1.33  -
 1  arranger   water      mushroom-3         3.00   0.00   0.00     0.00   0.00     1.00  -
 1  arranger   water      undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   water      undine-2           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  arranger   water      undine-2           4.00   0.00   0.00     0.00   0.00     1.33  -
 1  arranger   water      undine-3           3.00   0.00   0.00     0.00   0.00     1.00  -
 1  arranger   water      cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   water      cactus-2           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  arranger   water      cactus-2           4.00   0.00   0.00     0.00   0.00     1.33  -
 1  arranger   water      cactus-3           3.00   0.00   0.00     0.00   0.00     1.00  -
 1  arranger   water      mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   water      mandragora-2       3.00   0.00   0.00     0.00   0.00     1.00  -
+1  arranger   water      mandragora-2       4.00   0.00   0.00     0.00   0.00     1.33  -
 1  arranger   water      mandragora-3       3.00   0.00   0.00     0.00   0.00     1.00  -
 1  arranger   water      eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   water      eye-2              3.00   0.00   0.00     0.00   0.00     1.00  -
+1  arranger   water      eye-2              4.00   0.00   0.00     0.00   0.00     1.33  -
 1  arranger   water      eye-3              3.00   0.00   0.00     0.00   0.00     1.00  -
 1  arranger   oil        bat-1              3.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   oil        bat-2              5.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   oil        bat-3              4.88   0.00   0.00     0.00   0.00     1.00  -
+1  arranger   oil        bat-2              6.00   0.00   0.00     0.00   0.00     1.20  -
+1  arranger   oil        bat-3              6.62   0.00   0.00     0.00   0.00     1.36  -
 1  arranger   oil        mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   oil        mushroom-2         3.00   0.00   0.00     0.00   0.00     1.00  -
+1  arranger   oil        mushroom-2         4.00   0.00   0.00     0.00   0.00     1.33  -
 1  arranger   oil        mushroom-3         3.00   0.00   0.00     0.00   0.00     1.00  -
 1  arranger   oil        undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   oil        undine-2           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  arranger   oil        undine-2           4.00   0.00   0.00     0.00   0.00     1.33  -
 1  arranger   oil        undine-3           3.00   0.00   0.00     0.00   0.00     1.00  -
 1  arranger   oil        cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   oil        cactus-2           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  arranger   oil        cactus-2           4.00   0.00   0.00     0.00   0.00     1.33  -
 1  arranger   oil        cactus-3           3.00   0.00   0.00     0.00   0.00     1.00  -
 1  arranger   oil        mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   oil        mandragora-2       3.00   0.00   0.00     0.00   0.00     1.00  -
+1  arranger   oil        mandragora-2       4.00   0.00   0.00     0.00   0.00     1.33  -
 1  arranger   oil        mandragora-3       3.00   0.00   0.00     0.00   0.00     1.00  -
 1  arranger   oil        eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   oil        eye-2              3.00   0.00   0.00     0.00   0.00     1.00  -
+1  arranger   oil        eye-2              4.00   0.00   0.00     0.00   0.00     1.33  -
 1  arranger   oil        eye-3              3.00   0.00   0.00     0.00   0.00     1.00  -
 1  arranger   poison     bat-1              2.00   1.00   0.00     0.00   1.00     1.50  Poisoned:1.00
 1  arranger   poison     bat-2              4.00   2.00   0.00     0.00   2.00     1.50  Poisoned:2.00
 1  arranger   poison     bat-3              5.90   3.10   0.00     0.00   2.90     1.53  Poisoned:3.10
 1  arranger   poison     mushroom-1         2.00   2.00   1.00     0.00   1.00     2.50  Poisoned:3.00
 1  arranger   poison     mushroom-2         3.00   3.00   4.00     0.00   2.00     3.33  Poisoned:7.00
-1  arranger   poison     mushroom-3         3.00   3.00   9.00     0.00   2.00     5.00  Poisoned:12.00
+1  arranger   poison     mushroom-3         4.00   3.00   8.00     0.00   3.00     5.00  Poisoned:11.00
 1  arranger   poison     undine-1           2.00   2.00   1.00     0.00   1.00     2.50  Poisoned:3.00
 1  arranger   poison     undine-2           3.00   3.00   4.00     0.00   2.00     3.33  Poisoned:7.00
-1  arranger   poison     undine-3           3.00   3.00   9.00     0.00   2.00     5.00  Poisoned:12.00
+1  arranger   poison     undine-3           4.00   3.00   8.00     0.00   3.00     5.00  Poisoned:11.00
 1  arranger   poison     cactus-1           2.00   2.00   1.00     0.00   1.00     2.50  Poisoned:3.00
 1  arranger   poison     cactus-2           3.00   3.00   4.00     0.00   2.00     3.33  Poisoned:7.00
-1  arranger   poison     cactus-3           3.00   3.00   9.00     0.00   2.00     5.00  Poisoned:12.00
+1  arranger   poison     cactus-3           4.00   3.00   8.00     0.00   3.00     5.00  Poisoned:11.00
 1  arranger   poison     mandragora-1       2.00   2.00   1.00     0.00   1.00     2.50  Poisoned:3.00
 1  arranger   poison     mandragora-2       3.00   3.00   4.00     0.00   2.00     3.33  Poisoned:7.00
-1  arranger   poison     mandragora-3       3.00   3.00   9.00     0.00   2.00     5.00  Poisoned:12.00
+1  arranger   poison     mandragora-3       4.00   3.00   8.00     0.00   3.00     5.00  Poisoned:11.00
 1  arranger   poison     eye-1              2.00   2.00   1.00     0.00   1.00     2.50  Poisoned:3.00
 1  arranger   poison     eye-2              3.00   3.00   4.00     0.00   2.00     3.33  Poisoned:7.00
-1  arranger   poison     eye-3              3.00   3.00   9.00     0.00   2.00     5.00  Poisoned:12.00
+1  arranger   poison     eye-3              4.00   3.00   8.00     0.00   3.00     5.00  Poisoned:11.00
 1  arranger   acid       bat-1              2.00   1.00   0.00     0.00   1.00     1.50  Corroding:1.00
 1  arranger   acid       bat-2              4.00   2.00   0.00     0.00   2.00     1.50  Corroding:2.00
 1  arranger   acid       bat-3              5.90   3.10   0.00     0.00   2.90     1.53  Corroding:3.10
 1  arranger   acid       mushroom-1         2.00   2.00   1.00     0.00   1.00     2.50  Corroding:3.00
 1  arranger   acid       mushroom-2         3.00   3.00   4.00     0.00   2.00     3.33  Corroding:7.00
-1  arranger   acid       mushroom-3         3.00   3.00   9.00     0.00   2.00     5.00  Corroding:12.00
+1  arranger   acid       mushroom-3         4.00   3.00   8.00     0.00   3.00     5.00  Corroding:11.00
 1  arranger   acid       undine-1           2.00   2.00   1.00     0.00   1.00     2.50  Corroding:3.00
 1  arranger   acid       undine-2           3.00   3.00   4.00     0.00   2.00     3.33  Corroding:7.00
-1  arranger   acid       undine-3           3.00   3.00   9.00     0.00   2.00     5.00  Corroding:12.00
+1  arranger   acid       undine-3           4.00   3.00   8.00     0.00   3.00     5.00  Corroding:11.00
 1  arranger   acid       cactus-1           2.00   2.00   1.00     0.00   1.00     2.50  Corroding:3.00
 1  arranger   acid       cactus-2           3.00   3.00   4.00     0.00   2.00     3.33  Corroding:7.00
-1  arranger   acid       cactus-3           3.00   3.00   9.00     0.00   2.00     5.00  Corroding:12.00
+1  arranger   acid       cactus-3           4.00   3.00   8.00     0.00   3.00     5.00  Corroding:11.00
 1  arranger   acid       mandragora-1       2.00   2.00   1.00     0.00   1.00     2.50  Corroding:3.00
 1  arranger   acid       mandragora-2       3.00   3.00   4.00     0.00   2.00     3.33  Corroding:7.00
-1  arranger   acid       mandragora-3       3.00   3.00   9.00     0.00   2.00     5.00  Corroding:12.00
+1  arranger   acid       mandragora-3       4.00   3.00   8.00     0.00   3.00     5.00  Corroding:11.00
 1  arranger   acid       eye-1              2.00   2.00   1.00     0.00   1.00     2.50  Corroding:3.00
 1  arranger   acid       eye-2              3.00   3.00   4.00     0.00   2.00     3.33  Corroding:7.00
-1  arranger   acid       eye-3              3.00   3.00   9.00     0.00   2.00     5.00  Corroding:12.00
+1  arranger   acid       eye-3              4.00   3.00   8.00     0.00   3.00     5.00  Corroding:11.00
 1  arranger   blood      bat-1              9.00   0.00   0.00     0.00   0.00     1.00  -
 1  arranger   blood      bat-2              9.00   0.00   0.00     0.00   0.00     1.00  -
 1  arranger   blood      bat-3              8.48   0.00   0.00     0.00   0.00     1.00  -
@@ -2184,90 +2184,90 @@ ap policy     build      encounter        strike status  retal overkill doomed p
 1  arranger   lava       bat-3              5.90   3.10   0.00     0.00   2.90     1.53  Burning:3.10
 1  arranger   lava       mushroom-1         2.00   2.00   1.00     0.00   1.00     2.50  Burning:3.00
 1  arranger   lava       mushroom-2         3.00   3.00   4.00     0.00   2.00     3.33  Burning:7.00
-1  arranger   lava       mushroom-3         3.00   3.00   9.00     0.00   2.00     5.00  Burning:12.00
+1  arranger   lava       mushroom-3         4.00   3.00   8.00     0.00   3.00     5.00  Burning:11.00
 1  arranger   lava       undine-1           2.00   2.00   1.00     0.00   1.00     2.50  Burning:3.00
 1  arranger   lava       undine-2           3.00   3.00   4.00     0.00   2.00     3.33  Burning:7.00
-1  arranger   lava       undine-3           3.00   3.00   9.00     0.00   2.00     5.00  Burning:12.00
+1  arranger   lava       undine-3           4.00   3.00   8.00     0.00   3.00     5.00  Burning:11.00
 1  arranger   lava       cactus-1           2.00   2.00   1.00     0.00   1.00     2.50  Burning:3.00
 1  arranger   lava       cactus-2           3.00   3.00   4.00     0.00   2.00     3.33  Burning:7.00
-1  arranger   lava       cactus-3           3.00   3.00   9.00     0.00   2.00     5.00  Burning:12.00
+1  arranger   lava       cactus-3           4.00   3.00   8.00     0.00   3.00     5.00  Burning:11.00
 1  arranger   lava       mandragora-1       2.00   2.00   1.00     0.00   1.00     2.50  Burning:3.00
 1  arranger   lava       mandragora-2       3.00   3.00   4.00     0.00   2.00     3.33  Burning:7.00
-1  arranger   lava       mandragora-3       3.00   3.00   9.00     0.00   2.00     5.00  Burning:12.00
+1  arranger   lava       mandragora-3       4.00   3.00   8.00     0.00   3.00     5.00  Burning:11.00
 1  arranger   lava       eye-1              2.00   2.00   1.00     0.00   1.00     2.50  Burning:3.00
 1  arranger   lava       eye-2              3.00   3.00   4.00     0.00   2.00     3.33  Burning:7.00
-1  arranger   lava       eye-3              3.00   3.00   9.00     0.00   2.00     5.00  Burning:12.00
+1  arranger   lava       eye-3              4.00   3.00   8.00     0.00   3.00     5.00  Burning:11.00
 1  arranger   mercury    bat-1              3.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   mercury    bat-2              5.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   mercury    bat-3              4.88   0.00   0.00     0.00   0.00     1.00  -
+1  arranger   mercury    bat-2              6.00   0.00   0.00     0.00   0.00     1.20  -
+1  arranger   mercury    bat-3              6.62   0.00   0.00     0.00   0.00     1.36  -
 1  arranger   mercury    mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   mercury    mushroom-2         5.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   mercury    mushroom-3         4.88   0.00   0.00     0.00   0.00     1.00  -
+1  arranger   mercury    mushroom-2         6.00   0.00   0.00     0.00   0.00     1.20  -
+1  arranger   mercury    mushroom-3         5.74   0.00   0.00     0.00   0.00     1.18  -
 1  arranger   mercury    undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   mercury    undine-2           5.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   mercury    undine-3           4.88   0.00   0.00     0.00   0.00     1.00  -
+1  arranger   mercury    undine-2           6.00   0.00   0.00     0.00   0.00     1.20  -
+1  arranger   mercury    undine-3           5.74   0.00   0.00     0.00   0.00     1.18  -
 1  arranger   mercury    cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   mercury    cactus-2           5.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   mercury    cactus-3           4.88   0.00   0.00     0.00   0.00     1.00  -
+1  arranger   mercury    cactus-2           6.00   0.00   0.00     0.00   0.00     1.20  -
+1  arranger   mercury    cactus-3           5.74   0.00   0.00     0.00   0.00     1.18  -
 1  arranger   mercury    mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   mercury    mandragora-2       5.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   mercury    mandragora-3       4.88   0.00   0.00     0.00   0.00     1.00  -
+1  arranger   mercury    mandragora-2       6.00   0.00   0.00     0.00   0.00     1.20  -
+1  arranger   mercury    mandragora-3       5.74   0.00   0.00     0.00   0.00     1.18  -
 1  arranger   mercury    eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   mercury    eye-2              5.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   mercury    eye-3              4.88   0.00   0.00     0.00   0.00     1.00  -
+1  arranger   mercury    eye-2              6.00   0.00   0.00     0.00   0.00     1.20  -
+1  arranger   mercury    eye-3              5.74   0.00   0.00     0.00   0.00     1.18  -
 1  kite       start      bat-1              0.00   0.00   0.00     0.00   0.00        -  -
 1  kite       start      bat-2              0.00   0.00   0.00     0.00   0.00        -  -
 1  kite       start      bat-3              0.00   0.00   0.00     0.00   0.00        -  -
 1  kite       start      mushroom-1         2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Poisoned:1.00
-1  kite       start      mushroom-2         2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+1  kite       start      mushroom-2         3.00   3.00   0.00     0.00   0.00     3.00  Burning:3.00
 1  kite       start      mushroom-3         2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
 1  kite       start      undine-1           2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Poisoned:1.00
-1  kite       start      undine-2           2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+1  kite       start      undine-2           3.00   3.00   0.00     0.00   0.00     3.00  Burning:3.00
 1  kite       start      undine-3           2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
 1  kite       start      cactus-1           2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Poisoned:1.00
-1  kite       start      cactus-2           2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+1  kite       start      cactus-2           3.00   3.00   0.00     0.00   0.00     3.00  Burning:3.00
 1  kite       start      cactus-3           2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
 1  kite       start      mandragora-1       2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Poisoned:1.00
-1  kite       start      mandragora-2       2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+1  kite       start      mandragora-2       3.00   3.00   0.00     0.00   0.00     3.00  Burning:3.00
 1  kite       start      mandragora-3       2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
 1  kite       start      eye-1              2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Poisoned:1.00
-1  kite       start      eye-2              2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+1  kite       start      eye-2              3.00   3.00   0.00     0.00   0.00     3.00  Burning:3.00
 1  kite       start      eye-3              2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
 1  kite       water      bat-1              0.00   0.00   0.00     0.00   0.00        -  -
 1  kite       water      bat-2              0.00   0.00   0.00     0.00   0.00        -  -
 1  kite       water      bat-3              0.00   0.00   0.00     0.00   0.00        -  -
 1  kite       water      mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
-1  kite       water      mushroom-2         3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       water      mushroom-2         4.00   0.00   0.00     0.00   0.00     1.33  -
 1  kite       water      mushroom-3         3.00   0.00   0.00     0.00   0.00     1.00  -
 1  kite       water      undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
-1  kite       water      undine-2           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       water      undine-2           4.00   0.00   0.00     0.00   0.00     1.33  -
 1  kite       water      undine-3           3.00   0.00   0.00     0.00   0.00     1.00  -
 1  kite       water      cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
-1  kite       water      cactus-2           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       water      cactus-2           4.00   0.00   0.00     0.00   0.00     1.33  -
 1  kite       water      cactus-3           3.00   0.00   0.00     0.00   0.00     1.00  -
 1  kite       water      mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
-1  kite       water      mandragora-2       3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       water      mandragora-2       4.00   0.00   0.00     0.00   0.00     1.33  -
 1  kite       water      mandragora-3       3.00   0.00   0.00     0.00   0.00     1.00  -
 1  kite       water      eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
-1  kite       water      eye-2              3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       water      eye-2              4.00   0.00   0.00     0.00   0.00     1.33  -
 1  kite       water      eye-3              3.00   0.00   0.00     0.00   0.00     1.00  -
 1  kite       oil        bat-1              0.00   0.00   0.00     0.00   0.00        -  -
 1  kite       oil        bat-2              0.00   0.00   0.00     0.00   0.00        -  -
 1  kite       oil        bat-3              0.00   0.00   0.00     0.00   0.00        -  -
 1  kite       oil        mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
-1  kite       oil        mushroom-2         3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       oil        mushroom-2         4.00   0.00   0.00     0.00   0.00     1.33  -
 1  kite       oil        mushroom-3         3.00   0.00   0.00     0.00   0.00     1.00  -
 1  kite       oil        undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
-1  kite       oil        undine-2           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       oil        undine-2           4.00   0.00   0.00     0.00   0.00     1.33  -
 1  kite       oil        undine-3           3.00   0.00   0.00     0.00   0.00     1.00  -
 1  kite       oil        cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
-1  kite       oil        cactus-2           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       oil        cactus-2           4.00   0.00   0.00     0.00   0.00     1.33  -
 1  kite       oil        cactus-3           3.00   0.00   0.00     0.00   0.00     1.00  -
 1  kite       oil        mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
-1  kite       oil        mandragora-2       3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       oil        mandragora-2       4.00   0.00   0.00     0.00   0.00     1.33  -
 1  kite       oil        mandragora-3       3.00   0.00   0.00     0.00   0.00     1.00  -
 1  kite       oil        eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
-1  kite       oil        eye-2              3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       oil        eye-2              4.00   0.00   0.00     0.00   0.00     1.33  -
 1  kite       oil        eye-3              3.00   0.00   0.00     0.00   0.00     1.00  -
 1  kite       poison     bat-1              0.00   0.00   0.00     0.00   0.00        -  -
 1  kite       poison     bat-2              0.00   0.00   0.00     0.00   0.00        -  -
@@ -2360,98 +2360,98 @@ ap policy     build      encounter        strike status  retal overkill doomed p
 1  kite       mercury    eye-2              0.00   0.00   0.00     0.00   0.00        -  -
 1  kite       mercury    eye-3              0.00   0.00   0.00     0.00   0.00        -  -
 2  newcomer   start      bat-1              2.00   1.00   0.00     0.00   1.00     1.50  Burning:1.00
-2  newcomer   start      bat-2              3.80   1.52   0.00     0.00   1.52     1.40  Burning:1.00,Poisoned:0.52
-2  newcomer   start      bat-3              3.94   1.44   0.00     0.00   1.36     1.37  Burning:1.04,Poisoned:0.40
+2  newcomer   start      bat-2              4.20   1.52   0.00     0.00   1.52     1.51  Burning:1.00,Poisoned:0.52
+2  newcomer   start      bat-3              5.04   1.44   0.00     0.00   1.36     1.64  Burning:1.04,Poisoned:0.40
 2  newcomer   start      mushroom-1         3.00   2.00   0.00     1.00   1.00     1.67  Burning:2.00
 2  newcomer   start      mushroom-2         3.00   1.00   0.00     0.00   1.00     1.33  Burning:1.00
-2  newcomer   start      mushroom-3         2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
+2  newcomer   start      mushroom-3         3.00   1.00   0.00     0.00   0.00     2.00  Burning:1.00
 2  newcomer   start      undine-1           3.00   2.00   0.00     1.00   1.00     1.67  Burning:2.00
 2  newcomer   start      undine-2           3.00   1.00   0.00     0.00   1.00     1.33  Burning:1.00
-2  newcomer   start      undine-3           2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
+2  newcomer   start      undine-3           3.00   1.00   0.00     0.00   0.00     2.00  Burning:1.00
 2  newcomer   start      cactus-1           3.00   2.00   0.00     1.00   1.00     1.67  Burning:2.00
 2  newcomer   start      cactus-2           3.00   1.00   0.00     0.00   1.00     1.33  Burning:1.00
-2  newcomer   start      cactus-3           2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
+2  newcomer   start      cactus-3           3.00   1.00   0.00     0.00   0.00     2.00  Burning:1.00
 2  newcomer   start      mandragora-1       3.00   2.00   0.00     1.00   1.00     1.67  Burning:2.00
 2  newcomer   start      mandragora-2       3.00   1.00   0.00     0.00   1.00     1.33  Burning:1.00
-2  newcomer   start      mandragora-3       2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
+2  newcomer   start      mandragora-3       3.00   1.00   0.00     0.00   0.00     2.00  Burning:1.00
 2  newcomer   start      eye-1              3.00   2.00   0.00     1.00   1.00     1.67  Burning:2.00
 2  newcomer   start      eye-2              3.00   1.00   0.00     0.00   1.00     1.33  Burning:1.00
-2  newcomer   start      eye-3              2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
+2  newcomer   start      eye-3              3.00   1.00   0.00     0.00   0.00     2.00  Burning:1.00
 2  newcomer   water      bat-1              3.00   0.00   0.00     0.00   0.00     1.00  -
 2  newcomer   water      bat-2              6.00   0.00   0.00     0.00   0.00     1.00  -
-2  newcomer   water      bat-3              6.88   0.00   0.00     0.00   0.00     1.00  -
+2  newcomer   water      bat-3              7.44   0.00   0.00     0.00   0.00     1.08  -
 2  newcomer   water      mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
 2  newcomer   water      mushroom-2         5.00   0.00   0.00     0.00   0.00     1.00  -
-2  newcomer   water      mushroom-3         3.00   0.00   0.00     0.00   0.00     1.00  -
+2  newcomer   water      mushroom-3         5.00   0.00   0.00     0.00   0.00     1.67  -
 2  newcomer   water      undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
 2  newcomer   water      undine-2           5.00   0.00   0.00     0.00   0.00     1.00  -
-2  newcomer   water      undine-3           3.00   0.00   0.00     0.00   0.00     1.00  -
+2  newcomer   water      undine-3           5.00   0.00   0.00     0.00   0.00     1.67  -
 2  newcomer   water      cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
 2  newcomer   water      cactus-2           5.00   0.00   0.00     0.00   0.00     1.00  -
-2  newcomer   water      cactus-3           3.00   0.00   0.00     0.00   0.00     1.00  -
+2  newcomer   water      cactus-3           5.00   0.00   0.00     0.00   0.00     1.67  -
 2  newcomer   water      mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
 2  newcomer   water      mandragora-2       5.00   0.00   0.00     0.00   0.00     1.00  -
-2  newcomer   water      mandragora-3       3.00   0.00   0.00     0.00   0.00     1.00  -
+2  newcomer   water      mandragora-3       5.00   0.00   0.00     0.00   0.00     1.67  -
 2  newcomer   water      eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
 2  newcomer   water      eye-2              5.00   0.00   0.00     0.00   0.00     1.00  -
-2  newcomer   water      eye-3              3.00   0.00   0.00     0.00   0.00     1.00  -
+2  newcomer   water      eye-3              5.00   0.00   0.00     0.00   0.00     1.67  -
 2  newcomer   oil        bat-1              3.00   0.00   0.00     0.00   0.00     1.00  -
 2  newcomer   oil        bat-2              6.00   0.00   0.00     0.00   0.00     1.00  -
-2  newcomer   oil        bat-3              6.88   0.00   0.00     0.00   0.00     1.00  -
+2  newcomer   oil        bat-3              7.44   0.00   0.00     0.00   0.00     1.08  -
 2  newcomer   oil        mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
 2  newcomer   oil        mushroom-2         5.00   0.00   0.00     0.00   0.00     1.00  -
-2  newcomer   oil        mushroom-3         3.00   0.00   0.00     0.00   0.00     1.00  -
+2  newcomer   oil        mushroom-3         5.00   0.00   0.00     0.00   0.00     1.67  -
 2  newcomer   oil        undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
 2  newcomer   oil        undine-2           5.00   0.00   0.00     0.00   0.00     1.00  -
-2  newcomer   oil        undine-3           3.00   0.00   0.00     0.00   0.00     1.00  -
+2  newcomer   oil        undine-3           5.00   0.00   0.00     0.00   0.00     1.67  -
 2  newcomer   oil        cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
 2  newcomer   oil        cactus-2           5.00   0.00   0.00     0.00   0.00     1.00  -
-2  newcomer   oil        cactus-3           3.00   0.00   0.00     0.00   0.00     1.00  -
+2  newcomer   oil        cactus-3           5.00   0.00   0.00     0.00   0.00     1.67  -
 2  newcomer   oil        mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
 2  newcomer   oil        mandragora-2       5.00   0.00   0.00     0.00   0.00     1.00  -
-2  newcomer   oil        mandragora-3       3.00   0.00   0.00     0.00   0.00     1.00  -
+2  newcomer   oil        mandragora-3       5.00   0.00   0.00     0.00   0.00     1.67  -
 2  newcomer   oil        eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
 2  newcomer   oil        eye-2              5.00   0.00   0.00     0.00   0.00     1.00  -
-2  newcomer   oil        eye-3              3.00   0.00   0.00     0.00   0.00     1.00  -
+2  newcomer   oil        eye-3              5.00   0.00   0.00     0.00   0.00     1.67  -
 2  newcomer   poison     bat-1              2.00   1.00   0.00     0.00   1.00     1.50  Poisoned:1.00
 2  newcomer   poison     bat-2              4.00   2.00   0.00     0.00   2.00     1.50  Poisoned:2.00
 2  newcomer   poison     bat-3              5.92   3.08   0.00     0.00   2.92     1.52  Poisoned:3.08
 2  newcomer   poison     mushroom-1         3.00   2.00   0.00     0.00   2.00     1.67  Poisoned:2.00
 2  newcomer   poison     mushroom-2         5.00   2.00   3.00     0.00   4.00     2.00  Poisoned:5.00
-2  newcomer   poison     mushroom-3         4.00   3.00   6.00     0.00   3.00     3.25  Poisoned:9.00
+2  newcomer   poison     mushroom-3         5.00   2.00   6.00     0.00   4.00     3.25  Poisoned:8.00
 2  newcomer   poison     undine-1           3.00   2.00   0.00     0.00   2.00     1.67  Poisoned:2.00
 2  newcomer   poison     undine-2           5.00   2.00   3.00     0.00   4.00     2.00  Poisoned:5.00
-2  newcomer   poison     undine-3           4.00   3.00   6.00     0.00   3.00     3.25  Poisoned:9.00
+2  newcomer   poison     undine-3           5.00   2.00   6.00     0.00   4.00     3.25  Poisoned:8.00
 2  newcomer   poison     cactus-1           3.00   2.00   0.00     0.00   2.00     1.67  Poisoned:2.00
 2  newcomer   poison     cactus-2           5.00   2.00   3.00     0.00   4.00     2.00  Poisoned:5.00
-2  newcomer   poison     cactus-3           4.00   3.00   6.00     0.00   3.00     3.25  Poisoned:9.00
+2  newcomer   poison     cactus-3           5.00   2.00   6.00     0.00   4.00     3.25  Poisoned:8.00
 2  newcomer   poison     mandragora-1       3.00   2.00   0.00     0.00   2.00     1.67  Poisoned:2.00
 2  newcomer   poison     mandragora-2       5.00   2.00   3.00     0.00   4.00     2.00  Poisoned:5.00
-2  newcomer   poison     mandragora-3       4.00   3.00   6.00     0.00   3.00     3.25  Poisoned:9.00
+2  newcomer   poison     mandragora-3       5.00   2.00   6.00     0.00   4.00     3.25  Poisoned:8.00
 2  newcomer   poison     eye-1              3.00   2.00   0.00     0.00   2.00     1.67  Poisoned:2.00
 2  newcomer   poison     eye-2              5.00   2.00   3.00     0.00   4.00     2.00  Poisoned:5.00
-2  newcomer   poison     eye-3              4.00   3.00   6.00     0.00   3.00     3.25  Poisoned:9.00
+2  newcomer   poison     eye-3              5.00   2.00   6.00     0.00   4.00     3.25  Poisoned:8.00
 2  newcomer   acid       bat-1              2.00   1.00   0.00     0.00   1.00     1.50  Corroding:1.00
 2  newcomer   acid       bat-2              4.00   2.00   0.00     0.00   2.00     1.50  Corroding:2.00
 2  newcomer   acid       bat-3              5.92   3.08   0.00     0.00   2.92     1.52  Corroding:3.08
 2  newcomer   acid       mushroom-1         3.00   2.00   0.00     0.00   2.00     1.67  Corroding:2.00
 2  newcomer   acid       mushroom-2         5.00   2.00   3.00     0.00   4.00     2.00  Corroding:5.00
-2  newcomer   acid       mushroom-3         4.00   3.00   6.00     0.00   3.00     3.25  Corroding:9.00
+2  newcomer   acid       mushroom-3         5.00   2.00   6.00     0.00   4.00     3.25  Corroding:8.00
 2  newcomer   acid       undine-1           3.00   2.00   0.00     0.00   2.00     1.67  Corroding:2.00
 2  newcomer   acid       undine-2           5.00   2.00   3.00     0.00   4.00     2.00  Corroding:5.00
-2  newcomer   acid       undine-3           4.00   3.00   6.00     0.00   3.00     3.25  Corroding:9.00
+2  newcomer   acid       undine-3           5.00   2.00   6.00     0.00   4.00     3.25  Corroding:8.00
 2  newcomer   acid       cactus-1           3.00   2.00   0.00     0.00   2.00     1.67  Corroding:2.00
 2  newcomer   acid       cactus-2           5.00   2.00   3.00     0.00   4.00     2.00  Corroding:5.00
-2  newcomer   acid       cactus-3           4.00   3.00   6.00     0.00   3.00     3.25  Corroding:9.00
+2  newcomer   acid       cactus-3           5.00   2.00   6.00     0.00   4.00     3.25  Corroding:8.00
 2  newcomer   acid       mandragora-1       3.00   2.00   0.00     0.00   2.00     1.67  Corroding:2.00
 2  newcomer   acid       mandragora-2       5.00   2.00   3.00     0.00   4.00     2.00  Corroding:5.00
-2  newcomer   acid       mandragora-3       4.00   3.00   6.00     0.00   3.00     3.25  Corroding:9.00
+2  newcomer   acid       mandragora-3       5.00   2.00   6.00     0.00   4.00     3.25  Corroding:8.00
 2  newcomer   acid       eye-1              3.00   2.00   0.00     0.00   2.00     1.67  Corroding:2.00
 2  newcomer   acid       eye-2              5.00   2.00   3.00     0.00   4.00     2.00  Corroding:5.00
-2  newcomer   acid       eye-3              4.00   3.00   6.00     0.00   3.00     3.25  Corroding:9.00
-2  newcomer   blood      bat-1              9.00   0.00   0.00     0.00   0.00     1.00  -
-2  newcomer   blood      bat-2              8.82   0.00   0.00     0.00   0.00     1.00  -
-2  newcomer   blood      bat-3              8.76   0.00   0.00     0.00   0.00     1.00  -
+2  newcomer   acid       eye-3              5.00   2.00   6.00     0.00   4.00     3.25  Corroding:8.00
+2  newcomer   blood      bat-1              9.46   0.00   0.00     0.00   0.00     1.05  -
+2  newcomer   blood      bat-2              9.32   0.00   0.00     0.00   0.00     1.06  -
+2  newcomer   blood      bat-3              9.08   0.00   0.00     0.00   0.00     1.04  -
 2  newcomer   blood      mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
 2  newcomer   blood      mushroom-2         7.00   0.00   0.00     0.00   0.00     1.00  -
 2  newcomer   blood      mushroom-3         5.00   0.00   0.00     0.00   0.00     1.00  -
@@ -2472,130 +2472,130 @@ ap policy     build      encounter        strike status  retal overkill doomed p
 2  newcomer   lava       bat-3              5.92   3.08   0.00     0.00   2.92     1.52  Burning:3.08
 2  newcomer   lava       mushroom-1         3.00   2.00   0.00     0.00   2.00     1.67  Burning:2.00
 2  newcomer   lava       mushroom-2         5.00   2.00   3.00     0.00   4.00     2.00  Burning:5.00
-2  newcomer   lava       mushroom-3         4.00   3.00   6.00     0.00   3.00     3.25  Burning:9.00
+2  newcomer   lava       mushroom-3         5.00   2.00   6.00     0.00   4.00     3.25  Burning:8.00
 2  newcomer   lava       undine-1           3.00   2.00   0.00     0.00   2.00     1.67  Burning:2.00
 2  newcomer   lava       undine-2           5.00   2.00   3.00     0.00   4.00     2.00  Burning:5.00
-2  newcomer   lava       undine-3           4.00   3.00   6.00     0.00   3.00     3.25  Burning:9.00
+2  newcomer   lava       undine-3           5.00   2.00   6.00     0.00   4.00     3.25  Burning:8.00
 2  newcomer   lava       cactus-1           3.00   2.00   0.00     0.00   2.00     1.67  Burning:2.00
 2  newcomer   lava       cactus-2           5.00   2.00   3.00     0.00   4.00     2.00  Burning:5.00
-2  newcomer   lava       cactus-3           4.00   3.00   6.00     0.00   3.00     3.25  Burning:9.00
+2  newcomer   lava       cactus-3           5.00   2.00   6.00     0.00   4.00     3.25  Burning:8.00
 2  newcomer   lava       mandragora-1       3.00   2.00   0.00     0.00   2.00     1.67  Burning:2.00
 2  newcomer   lava       mandragora-2       5.00   2.00   3.00     0.00   4.00     2.00  Burning:5.00
-2  newcomer   lava       mandragora-3       4.00   3.00   6.00     0.00   3.00     3.25  Burning:9.00
+2  newcomer   lava       mandragora-3       5.00   2.00   6.00     0.00   4.00     3.25  Burning:8.00
 2  newcomer   lava       eye-1              3.00   2.00   0.00     0.00   2.00     1.67  Burning:2.00
 2  newcomer   lava       eye-2              5.00   2.00   3.00     0.00   4.00     2.00  Burning:5.00
-2  newcomer   lava       eye-3              4.00   3.00   6.00     0.00   3.00     3.25  Burning:9.00
+2  newcomer   lava       eye-3              5.00   2.00   6.00     0.00   4.00     3.25  Burning:8.00
 2  newcomer   mercury    bat-1              3.00   0.00   0.00     0.00   0.00     1.00  -
 2  newcomer   mercury    bat-2              6.00   0.00   0.00     0.00   0.00     1.00  -
-2  newcomer   mercury    bat-3              6.88   0.00   0.00     0.00   0.00     1.00  -
+2  newcomer   mercury    bat-3              7.44   0.00   0.00     0.00   0.00     1.08  -
 2  newcomer   mercury    mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
-2  newcomer   mercury    mushroom-2         6.30   0.00   0.00     0.00   0.00     1.00  -
-2  newcomer   mercury    mushroom-3         6.30   0.00   0.00     0.00   0.00     1.00  -
+2  newcomer   mercury    mushroom-2         7.50   0.00   0.00     0.00   0.00     1.19  -
+2  newcomer   mercury    mushroom-3         7.38   0.00   0.00     0.00   0.00     1.17  -
 2  newcomer   mercury    undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
-2  newcomer   mercury    undine-2           6.30   0.00   0.00     0.00   0.00     1.00  -
-2  newcomer   mercury    undine-3           6.30   0.00   0.00     0.00   0.00     1.00  -
+2  newcomer   mercury    undine-2           7.50   0.00   0.00     0.00   0.00     1.19  -
+2  newcomer   mercury    undine-3           7.38   0.00   0.00     0.00   0.00     1.17  -
 2  newcomer   mercury    cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
-2  newcomer   mercury    cactus-2           6.30   0.00   0.00     0.00   0.00     1.00  -
-2  newcomer   mercury    cactus-3           6.30   0.00   0.00     0.00   0.00     1.00  -
+2  newcomer   mercury    cactus-2           7.50   0.00   0.00     0.00   0.00     1.19  -
+2  newcomer   mercury    cactus-3           7.38   0.00   0.00     0.00   0.00     1.17  -
 2  newcomer   mercury    mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
-2  newcomer   mercury    mandragora-2       6.30   0.00   0.00     0.00   0.00     1.00  -
-2  newcomer   mercury    mandragora-3       6.30   0.00   0.00     0.00   0.00     1.00  -
+2  newcomer   mercury    mandragora-2       7.50   0.00   0.00     0.00   0.00     1.19  -
+2  newcomer   mercury    mandragora-3       7.38   0.00   0.00     0.00   0.00     1.17  -
 2  newcomer   mercury    eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
-2  newcomer   mercury    eye-2              6.30   0.00   0.00     0.00   0.00     1.00  -
-2  newcomer   mercury    eye-3              6.30   0.00   0.00     0.00   0.00     1.00  -
+2  newcomer   mercury    eye-2              7.50   0.00   0.00     0.00   0.00     1.19  -
+2  newcomer   mercury    eye-3              7.38   0.00   0.00     0.00   0.00     1.17  -
 2  arranger   start      bat-1              2.00   1.00   0.00     0.00   1.00     1.50  Burning:1.00
-2  arranger   start      bat-2              3.80   1.52   0.00     0.00   1.52     1.40  Burning:1.00,Poisoned:0.52
-2  arranger   start      bat-3              3.94   1.44   0.00     0.00   1.36     1.37  Burning:1.04,Poisoned:0.40
+2  arranger   start      bat-2              4.20   1.52   0.00     0.00   1.52     1.51  Burning:1.00,Poisoned:0.52
+2  arranger   start      bat-3              5.04   1.44   0.00     0.00   1.36     1.64  Burning:1.04,Poisoned:0.40
 2  arranger   start      mushroom-1         3.00   2.00   0.00     1.00   1.00     1.67  Burning:2.00
 2  arranger   start      mushroom-2         3.00   1.00   0.00     0.00   1.00     1.33  Burning:1.00
-2  arranger   start      mushroom-3         2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
+2  arranger   start      mushroom-3         3.00   1.00   0.00     0.00   0.00     2.00  Burning:1.00
 2  arranger   start      undine-1           3.00   2.00   0.00     1.00   1.00     1.67  Burning:2.00
 2  arranger   start      undine-2           3.00   1.00   0.00     0.00   1.00     1.33  Burning:1.00
-2  arranger   start      undine-3           2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
+2  arranger   start      undine-3           3.00   1.00   0.00     0.00   0.00     2.00  Burning:1.00
 2  arranger   start      cactus-1           3.00   2.00   0.00     1.00   1.00     1.67  Burning:2.00
 2  arranger   start      cactus-2           3.00   1.00   0.00     0.00   1.00     1.33  Burning:1.00
-2  arranger   start      cactus-3           2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
+2  arranger   start      cactus-3           3.00   1.00   0.00     0.00   0.00     2.00  Burning:1.00
 2  arranger   start      mandragora-1       3.00   2.00   0.00     1.00   1.00     1.67  Burning:2.00
 2  arranger   start      mandragora-2       3.00   1.00   0.00     0.00   1.00     1.33  Burning:1.00
-2  arranger   start      mandragora-3       2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
+2  arranger   start      mandragora-3       3.00   1.00   0.00     0.00   0.00     2.00  Burning:1.00
 2  arranger   start      eye-1              3.00   2.00   0.00     1.00   1.00     1.67  Burning:2.00
 2  arranger   start      eye-2              3.00   1.00   0.00     0.00   1.00     1.33  Burning:1.00
-2  arranger   start      eye-3              2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
+2  arranger   start      eye-3              3.00   1.00   0.00     0.00   0.00     2.00  Burning:1.00
 2  arranger   water      bat-1              3.00   0.00   0.00     0.00   0.00     1.00  -
 2  arranger   water      bat-2              6.00   0.00   0.00     0.00   0.00     1.00  -
-2  arranger   water      bat-3              6.88   0.00   0.00     0.00   0.00     1.00  -
+2  arranger   water      bat-3              7.44   0.00   0.00     0.00   0.00     1.08  -
 2  arranger   water      mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
 2  arranger   water      mushroom-2         5.00   0.00   0.00     0.00   0.00     1.00  -
-2  arranger   water      mushroom-3         3.00   0.00   0.00     0.00   0.00     1.00  -
+2  arranger   water      mushroom-3         5.00   0.00   0.00     0.00   0.00     1.67  -
 2  arranger   water      undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
 2  arranger   water      undine-2           5.00   0.00   0.00     0.00   0.00     1.00  -
-2  arranger   water      undine-3           3.00   0.00   0.00     0.00   0.00     1.00  -
+2  arranger   water      undine-3           5.00   0.00   0.00     0.00   0.00     1.67  -
 2  arranger   water      cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
 2  arranger   water      cactus-2           5.00   0.00   0.00     0.00   0.00     1.00  -
-2  arranger   water      cactus-3           3.00   0.00   0.00     0.00   0.00     1.00  -
+2  arranger   water      cactus-3           5.00   0.00   0.00     0.00   0.00     1.67  -
 2  arranger   water      mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
 2  arranger   water      mandragora-2       5.00   0.00   0.00     0.00   0.00     1.00  -
-2  arranger   water      mandragora-3       3.00   0.00   0.00     0.00   0.00     1.00  -
+2  arranger   water      mandragora-3       5.00   0.00   0.00     0.00   0.00     1.67  -
 2  arranger   water      eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
 2  arranger   water      eye-2              5.00   0.00   0.00     0.00   0.00     1.00  -
-2  arranger   water      eye-3              3.00   0.00   0.00     0.00   0.00     1.00  -
+2  arranger   water      eye-3              5.00   0.00   0.00     0.00   0.00     1.67  -
 2  arranger   oil        bat-1              3.00   0.00   0.00     0.00   0.00     1.00  -
 2  arranger   oil        bat-2              6.00   0.00   0.00     0.00   0.00     1.00  -
-2  arranger   oil        bat-3              6.88   0.00   0.00     0.00   0.00     1.00  -
+2  arranger   oil        bat-3              7.44   0.00   0.00     0.00   0.00     1.08  -
 2  arranger   oil        mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
 2  arranger   oil        mushroom-2         5.00   0.00   0.00     0.00   0.00     1.00  -
-2  arranger   oil        mushroom-3         3.00   0.00   0.00     0.00   0.00     1.00  -
+2  arranger   oil        mushroom-3         5.00   0.00   0.00     0.00   0.00     1.67  -
 2  arranger   oil        undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
 2  arranger   oil        undine-2           5.00   0.00   0.00     0.00   0.00     1.00  -
-2  arranger   oil        undine-3           3.00   0.00   0.00     0.00   0.00     1.00  -
+2  arranger   oil        undine-3           5.00   0.00   0.00     0.00   0.00     1.67  -
 2  arranger   oil        cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
 2  arranger   oil        cactus-2           5.00   0.00   0.00     0.00   0.00     1.00  -
-2  arranger   oil        cactus-3           3.00   0.00   0.00     0.00   0.00     1.00  -
+2  arranger   oil        cactus-3           5.00   0.00   0.00     0.00   0.00     1.67  -
 2  arranger   oil        mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
 2  arranger   oil        mandragora-2       5.00   0.00   0.00     0.00   0.00     1.00  -
-2  arranger   oil        mandragora-3       3.00   0.00   0.00     0.00   0.00     1.00  -
+2  arranger   oil        mandragora-3       5.00   0.00   0.00     0.00   0.00     1.67  -
 2  arranger   oil        eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
 2  arranger   oil        eye-2              5.00   0.00   0.00     0.00   0.00     1.00  -
-2  arranger   oil        eye-3              3.00   0.00   0.00     0.00   0.00     1.00  -
+2  arranger   oil        eye-3              5.00   0.00   0.00     0.00   0.00     1.67  -
 2  arranger   poison     bat-1              2.00   1.00   0.00     0.00   1.00     1.50  Poisoned:1.00
 2  arranger   poison     bat-2              4.00   2.00   0.00     0.00   2.00     1.50  Poisoned:2.00
 2  arranger   poison     bat-3              5.92   3.08   0.00     0.00   2.92     1.52  Poisoned:3.08
 2  arranger   poison     mushroom-1         3.00   2.00   0.00     0.00   2.00     1.67  Poisoned:2.00
 2  arranger   poison     mushroom-2         5.00   2.00   3.00     0.00   4.00     2.00  Poisoned:5.00
-2  arranger   poison     mushroom-3         4.00   3.00   6.00     0.00   3.00     3.25  Poisoned:9.00
+2  arranger   poison     mushroom-3         5.00   2.00   6.00     0.00   4.00     3.25  Poisoned:8.00
 2  arranger   poison     undine-1           3.00   2.00   0.00     0.00   2.00     1.67  Poisoned:2.00
 2  arranger   poison     undine-2           5.00   2.00   3.00     0.00   4.00     2.00  Poisoned:5.00
-2  arranger   poison     undine-3           4.00   3.00   6.00     0.00   3.00     3.25  Poisoned:9.00
+2  arranger   poison     undine-3           5.00   2.00   6.00     0.00   4.00     3.25  Poisoned:8.00
 2  arranger   poison     cactus-1           3.00   2.00   0.00     0.00   2.00     1.67  Poisoned:2.00
 2  arranger   poison     cactus-2           5.00   2.00   3.00     0.00   4.00     2.00  Poisoned:5.00
-2  arranger   poison     cactus-3           4.00   3.00   6.00     0.00   3.00     3.25  Poisoned:9.00
+2  arranger   poison     cactus-3           5.00   2.00   6.00     0.00   4.00     3.25  Poisoned:8.00
 2  arranger   poison     mandragora-1       3.00   2.00   0.00     0.00   2.00     1.67  Poisoned:2.00
 2  arranger   poison     mandragora-2       5.00   2.00   3.00     0.00   4.00     2.00  Poisoned:5.00
-2  arranger   poison     mandragora-3       4.00   3.00   6.00     0.00   3.00     3.25  Poisoned:9.00
+2  arranger   poison     mandragora-3       5.00   2.00   6.00     0.00   4.00     3.25  Poisoned:8.00
 2  arranger   poison     eye-1              3.00   2.00   0.00     0.00   2.00     1.67  Poisoned:2.00
 2  arranger   poison     eye-2              5.00   2.00   3.00     0.00   4.00     2.00  Poisoned:5.00
-2  arranger   poison     eye-3              4.00   3.00   6.00     0.00   3.00     3.25  Poisoned:9.00
+2  arranger   poison     eye-3              5.00   2.00   6.00     0.00   4.00     3.25  Poisoned:8.00
 2  arranger   acid       bat-1              2.00   1.00   0.00     0.00   1.00     1.50  Corroding:1.00
 2  arranger   acid       bat-2              4.00   2.00   0.00     0.00   2.00     1.50  Corroding:2.00
 2  arranger   acid       bat-3              5.92   3.08   0.00     0.00   2.92     1.52  Corroding:3.08
 2  arranger   acid       mushroom-1         3.00   2.00   0.00     0.00   2.00     1.67  Corroding:2.00
 2  arranger   acid       mushroom-2         5.00   2.00   3.00     0.00   4.00     2.00  Corroding:5.00
-2  arranger   acid       mushroom-3         4.00   3.00   6.00     0.00   3.00     3.25  Corroding:9.00
+2  arranger   acid       mushroom-3         5.00   2.00   6.00     0.00   4.00     3.25  Corroding:8.00
 2  arranger   acid       undine-1           3.00   2.00   0.00     0.00   2.00     1.67  Corroding:2.00
 2  arranger   acid       undine-2           5.00   2.00   3.00     0.00   4.00     2.00  Corroding:5.00
-2  arranger   acid       undine-3           4.00   3.00   6.00     0.00   3.00     3.25  Corroding:9.00
+2  arranger   acid       undine-3           5.00   2.00   6.00     0.00   4.00     3.25  Corroding:8.00
 2  arranger   acid       cactus-1           3.00   2.00   0.00     0.00   2.00     1.67  Corroding:2.00
 2  arranger   acid       cactus-2           5.00   2.00   3.00     0.00   4.00     2.00  Corroding:5.00
-2  arranger   acid       cactus-3           4.00   3.00   6.00     0.00   3.00     3.25  Corroding:9.00
+2  arranger   acid       cactus-3           5.00   2.00   6.00     0.00   4.00     3.25  Corroding:8.00
 2  arranger   acid       mandragora-1       3.00   2.00   0.00     0.00   2.00     1.67  Corroding:2.00
 2  arranger   acid       mandragora-2       5.00   2.00   3.00     0.00   4.00     2.00  Corroding:5.00
-2  arranger   acid       mandragora-3       4.00   3.00   6.00     0.00   3.00     3.25  Corroding:9.00
+2  arranger   acid       mandragora-3       5.00   2.00   6.00     0.00   4.00     3.25  Corroding:8.00
 2  arranger   acid       eye-1              3.00   2.00   0.00     0.00   2.00     1.67  Corroding:2.00
 2  arranger   acid       eye-2              5.00   2.00   3.00     0.00   4.00     2.00  Corroding:5.00
-2  arranger   acid       eye-3              4.00   3.00   6.00     0.00   3.00     3.25  Corroding:9.00
-2  arranger   blood      bat-1              9.00   0.00   0.00     0.00   0.00     1.00  -
-2  arranger   blood      bat-2              8.82   0.00   0.00     0.00   0.00     1.00  -
-2  arranger   blood      bat-3              8.76   0.00   0.00     0.00   0.00     1.00  -
+2  arranger   acid       eye-3              5.00   2.00   6.00     0.00   4.00     3.25  Corroding:8.00
+2  arranger   blood      bat-1              9.46   0.00   0.00     0.00   0.00     1.05  -
+2  arranger   blood      bat-2              9.32   0.00   0.00     0.00   0.00     1.06  -
+2  arranger   blood      bat-3              9.08   0.00   0.00     0.00   0.00     1.04  -
 2  arranger   blood      mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
 2  arranger   blood      mushroom-2         7.00   0.00   0.00     0.00   0.00     1.00  -
 2  arranger   blood      mushroom-3         5.00   0.00   0.00     0.00   0.00     1.00  -
@@ -2616,91 +2616,91 @@ ap policy     build      encounter        strike status  retal overkill doomed p
 2  arranger   lava       bat-3              5.92   3.08   0.00     0.00   2.92     1.52  Burning:3.08
 2  arranger   lava       mushroom-1         3.00   2.00   0.00     0.00   2.00     1.67  Burning:2.00
 2  arranger   lava       mushroom-2         5.00   2.00   3.00     0.00   4.00     2.00  Burning:5.00
-2  arranger   lava       mushroom-3         4.00   3.00   6.00     0.00   3.00     3.25  Burning:9.00
+2  arranger   lava       mushroom-3         5.00   2.00   6.00     0.00   4.00     3.25  Burning:8.00
 2  arranger   lava       undine-1           3.00   2.00   0.00     0.00   2.00     1.67  Burning:2.00
 2  arranger   lava       undine-2           5.00   2.00   3.00     0.00   4.00     2.00  Burning:5.00
-2  arranger   lava       undine-3           4.00   3.00   6.00     0.00   3.00     3.25  Burning:9.00
+2  arranger   lava       undine-3           5.00   2.00   6.00     0.00   4.00     3.25  Burning:8.00
 2  arranger   lava       cactus-1           3.00   2.00   0.00     0.00   2.00     1.67  Burning:2.00
 2  arranger   lava       cactus-2           5.00   2.00   3.00     0.00   4.00     2.00  Burning:5.00
-2  arranger   lava       cactus-3           4.00   3.00   6.00     0.00   3.00     3.25  Burning:9.00
+2  arranger   lava       cactus-3           5.00   2.00   6.00     0.00   4.00     3.25  Burning:8.00
 2  arranger   lava       mandragora-1       3.00   2.00   0.00     0.00   2.00     1.67  Burning:2.00
 2  arranger   lava       mandragora-2       5.00   2.00   3.00     0.00   4.00     2.00  Burning:5.00
-2  arranger   lava       mandragora-3       4.00   3.00   6.00     0.00   3.00     3.25  Burning:9.00
+2  arranger   lava       mandragora-3       5.00   2.00   6.00     0.00   4.00     3.25  Burning:8.00
 2  arranger   lava       eye-1              3.00   2.00   0.00     0.00   2.00     1.67  Burning:2.00
 2  arranger   lava       eye-2              5.00   2.00   3.00     0.00   4.00     2.00  Burning:5.00
-2  arranger   lava       eye-3              4.00   3.00   6.00     0.00   3.00     3.25  Burning:9.00
+2  arranger   lava       eye-3              5.00   2.00   6.00     0.00   4.00     3.25  Burning:8.00
 2  arranger   mercury    bat-1              3.00   0.00   0.00     0.00   0.00     1.00  -
 2  arranger   mercury    bat-2              6.00   0.00   0.00     0.00   0.00     1.00  -
-2  arranger   mercury    bat-3              6.88   0.00   0.00     0.00   0.00     1.00  -
+2  arranger   mercury    bat-3              7.44   0.00   0.00     0.00   0.00     1.08  -
 2  arranger   mercury    mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
-2  arranger   mercury    mushroom-2         6.30   0.00   0.00     0.00   0.00     1.00  -
-2  arranger   mercury    mushroom-3         6.30   0.00   0.00     0.00   0.00     1.00  -
+2  arranger   mercury    mushroom-2         7.50   0.00   0.00     0.00   0.00     1.19  -
+2  arranger   mercury    mushroom-3         7.38   0.00   0.00     0.00   0.00     1.17  -
 2  arranger   mercury    undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
-2  arranger   mercury    undine-2           6.30   0.00   0.00     0.00   0.00     1.00  -
-2  arranger   mercury    undine-3           6.30   0.00   0.00     0.00   0.00     1.00  -
+2  arranger   mercury    undine-2           7.50   0.00   0.00     0.00   0.00     1.19  -
+2  arranger   mercury    undine-3           7.38   0.00   0.00     0.00   0.00     1.17  -
 2  arranger   mercury    cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
-2  arranger   mercury    cactus-2           6.30   0.00   0.00     0.00   0.00     1.00  -
-2  arranger   mercury    cactus-3           6.30   0.00   0.00     0.00   0.00     1.00  -
+2  arranger   mercury    cactus-2           7.50   0.00   0.00     0.00   0.00     1.19  -
+2  arranger   mercury    cactus-3           7.38   0.00   0.00     0.00   0.00     1.17  -
 2  arranger   mercury    mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
-2  arranger   mercury    mandragora-2       6.30   0.00   0.00     0.00   0.00     1.00  -
-2  arranger   mercury    mandragora-3       6.30   0.00   0.00     0.00   0.00     1.00  -
+2  arranger   mercury    mandragora-2       7.50   0.00   0.00     0.00   0.00     1.19  -
+2  arranger   mercury    mandragora-3       7.38   0.00   0.00     0.00   0.00     1.17  -
 2  arranger   mercury    eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
-2  arranger   mercury    eye-2              6.30   0.00   0.00     0.00   0.00     1.00  -
-2  arranger   mercury    eye-3              6.30   0.00   0.00     0.00   0.00     1.00  -
+2  arranger   mercury    eye-2              7.50   0.00   0.00     0.00   0.00     1.19  -
+2  arranger   mercury    eye-3              7.38   0.00   0.00     0.00   0.00     1.17  -
 2  kite       start      bat-1              0.00   0.00   0.00     0.00   0.00        -  -
 2  kite       start      bat-2              0.00   0.00   0.00     0.00   0.00        -  -
 2  kite       start      bat-3              0.00   0.00   0.00     0.00   0.00        -  -
 2  kite       start      mushroom-1         2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Corroding:1.00
-2  kite       start      mushroom-2         4.00   2.00   0.00     0.00   1.00     1.50  Burning:2.00
-2  kite       start      mushroom-3         4.00   2.00   0.00     0.00   1.00     1.50  Burning:2.00
+2  kite       start      mushroom-2         5.00   2.00   0.00     0.00   1.00     1.75  Burning:2.00
+2  kite       start      mushroom-3         5.00   2.00   0.00     0.00   1.00     1.75  Burning:2.00
 2  kite       start      undine-1           2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Corroding:1.00
-2  kite       start      undine-2           4.00   2.00   0.00     0.00   1.00     1.50  Burning:2.00
-2  kite       start      undine-3           4.00   2.00   0.00     0.00   1.00     1.50  Burning:2.00
+2  kite       start      undine-2           5.00   2.00   0.00     0.00   1.00     1.75  Burning:2.00
+2  kite       start      undine-3           5.00   2.00   0.00     0.00   1.00     1.75  Burning:2.00
 2  kite       start      cactus-1           2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Corroding:1.00
-2  kite       start      cactus-2           4.00   2.00   0.00     0.00   1.00     1.50  Burning:2.00
-2  kite       start      cactus-3           4.00   2.00   0.00     0.00   1.00     1.50  Burning:2.00
+2  kite       start      cactus-2           5.00   2.00   0.00     0.00   1.00     1.75  Burning:2.00
+2  kite       start      cactus-3           5.00   2.00   0.00     0.00   1.00     1.75  Burning:2.00
 2  kite       start      mandragora-1       2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Corroding:1.00
-2  kite       start      mandragora-2       4.00   2.00   0.00     0.00   1.00     1.50  Burning:2.00
-2  kite       start      mandragora-3       4.00   2.00   0.00     0.00   1.00     1.50  Burning:2.00
+2  kite       start      mandragora-2       5.00   2.00   0.00     0.00   1.00     1.75  Burning:2.00
+2  kite       start      mandragora-3       5.00   2.00   0.00     0.00   1.00     1.75  Burning:2.00
 2  kite       start      eye-1              2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Corroding:1.00
-2  kite       start      eye-2              4.00   2.00   0.00     0.00   1.00     1.50  Burning:2.00
-2  kite       start      eye-3              4.00   2.00   0.00     0.00   1.00     1.50  Burning:2.00
+2  kite       start      eye-2              5.00   2.00   0.00     0.00   1.00     1.75  Burning:2.00
+2  kite       start      eye-3              5.00   2.00   0.00     0.00   1.00     1.75  Burning:2.00
 2  kite       water      bat-1              0.00   0.00   0.00     0.00   0.00        -  -
 2  kite       water      bat-2              0.00   0.00   0.00     0.00   0.00        -  -
 2  kite       water      bat-3              0.00   0.00   0.00     0.00   0.00        -  -
 2  kite       water      mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
-2  kite       water      mushroom-2         6.00   0.00   0.00     0.00   0.00     1.00  -
-2  kite       water      mushroom-3         5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       water      mushroom-2         7.00   0.00   0.00     0.00   0.00     1.17  -
+2  kite       water      mushroom-3         7.00   0.00   0.00     0.00   0.00     1.40  -
 2  kite       water      undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
-2  kite       water      undine-2           6.00   0.00   0.00     0.00   0.00     1.00  -
-2  kite       water      undine-3           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       water      undine-2           7.00   0.00   0.00     0.00   0.00     1.17  -
+2  kite       water      undine-3           7.00   0.00   0.00     0.00   0.00     1.40  -
 2  kite       water      cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
-2  kite       water      cactus-2           6.00   0.00   0.00     0.00   0.00     1.00  -
-2  kite       water      cactus-3           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       water      cactus-2           7.00   0.00   0.00     0.00   0.00     1.17  -
+2  kite       water      cactus-3           7.00   0.00   0.00     0.00   0.00     1.40  -
 2  kite       water      mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
-2  kite       water      mandragora-2       6.00   0.00   0.00     0.00   0.00     1.00  -
-2  kite       water      mandragora-3       5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       water      mandragora-2       7.00   0.00   0.00     0.00   0.00     1.17  -
+2  kite       water      mandragora-3       7.00   0.00   0.00     0.00   0.00     1.40  -
 2  kite       water      eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
-2  kite       water      eye-2              6.00   0.00   0.00     0.00   0.00     1.00  -
-2  kite       water      eye-3              5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       water      eye-2              7.00   0.00   0.00     0.00   0.00     1.17  -
+2  kite       water      eye-3              7.00   0.00   0.00     0.00   0.00     1.40  -
 2  kite       oil        bat-1              0.00   0.00   0.00     0.00   0.00        -  -
 2  kite       oil        bat-2              0.00   0.00   0.00     0.00   0.00        -  -
 2  kite       oil        bat-3              0.00   0.00   0.00     0.00   0.00        -  -
 2  kite       oil        mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
-2  kite       oil        mushroom-2         7.00   0.00   0.00     0.00   0.00     1.00  -
-2  kite       oil        mushroom-3         5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       oil        mushroom-2        10.00   0.00   0.00     0.00   0.00     1.43  -
+2  kite       oil        mushroom-3        11.00   0.00   0.00     0.00   0.00     2.20  -
 2  kite       oil        undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
-2  kite       oil        undine-2           7.00   0.00   0.00     0.00   0.00     1.00  -
-2  kite       oil        undine-3           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       oil        undine-2          10.00   0.00   0.00     0.00   0.00     1.43  -
+2  kite       oil        undine-3          11.00   0.00   0.00     0.00   0.00     2.20  -
 2  kite       oil        cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
-2  kite       oil        cactus-2           7.00   0.00   0.00     0.00   0.00     1.00  -
-2  kite       oil        cactus-3           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       oil        cactus-2          10.00   0.00   0.00     0.00   0.00     1.43  -
+2  kite       oil        cactus-3          11.00   0.00   0.00     0.00   0.00     2.20  -
 2  kite       oil        mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
-2  kite       oil        mandragora-2       7.00   0.00   0.00     0.00   0.00     1.00  -
-2  kite       oil        mandragora-3       5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       oil        mandragora-2      10.00   0.00   0.00     0.00   0.00     1.43  -
+2  kite       oil        mandragora-3      11.00   0.00   0.00     0.00   0.00     2.20  -
 2  kite       oil        eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
-2  kite       oil        eye-2              7.00   0.00   0.00     0.00   0.00     1.00  -
-2  kite       oil        eye-3              5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       oil        eye-2             10.00   0.00   0.00     0.00   0.00     1.43  -
+2  kite       oil        eye-3             11.00   0.00   0.00     0.00   0.00     2.20  -
 2  kite       poison     bat-1              0.00   0.00   0.00     0.00   0.00        -  -
 2  kite       poison     bat-2              0.00   0.00   0.00     0.00   0.00        -  -
 2  kite       poison     bat-3              0.00   0.00   0.00     0.00   0.00        -  -
@@ -2800,32 +2800,32 @@ sample-ap1         3 fountain Water x3             0   -   0.00   0.00   0.00   
 sample-ap1         4 fight    mushroom-1           0   -   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   +0.00
 sample-ap1         5 fight    eye-2                0   -   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   +0.00
 sample-ap2         1 fight    mushroom-1         100 100  10.00   5.00   2.00   0.00   0.00   0.00   1.00   1.00   0.00   0.00   4.00   -6.00
-sample-ap2         2 fight    bat-1              100   0   4.00   2.00   2.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   -4.00
-sample-ap2         3 fountain Water x3             0   -   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   +0.00
-sample-ap2         4 fight    mushroom-1           0   -   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   +0.00
-sample-ap2         5 fight    eye-2                0   -   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   +0.00
+sample-ap2         2 fight    bat-1              100 100   4.00   2.00   1.00   0.00   0.00   0.00   2.00   2.00   0.00   0.00   3.00   -1.00
+sample-ap2         3 fountain Water x3           100   -   3.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   3.00   0.00   6.00   +3.00
+sample-ap2         4 fight    mushroom-1         100 100   6.00   3.00   2.00   0.00   0.00   0.00   1.00   1.00   0.00   0.00   2.00   -4.00
+sample-ap2         5 fight    eye-2              100   0   2.00   1.00   1.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   -2.00
 
 [level-ends]
 level          end    min worst wasted  stops
 sample-ap1       0   2.00     2   0.00  stage2:melee:Bat=50
-sample-ap2       0   4.00     4   0.00  stage2:melee:Bat=50
+sample-ap2       0   2.00     2   0.00  stage5:melee:Eye=50
 
 [map-levels]
 level          policy     end rooms  rounds fights engaged0 engaged1 engaged2 engaged3+ net_per_fight
 map-vision2    strafe       6  2.18   12.18   1.82     0.00    91.21     8.79      0.00         -5.36
-map-vision3    strafe       0  1.74   10.04   1.70     0.00    80.00    20.00      0.00         -5.88
+map-vision3    strafe       0  1.74   10.12   1.72     0.00    80.23    19.77      0.00         -5.81
 map-vision4    strafe       0  1.82   10.20   1.60     0.00    72.50    27.50      0.00         -6.25
 map-lure2      lure         6  2.16   12.26   1.84     0.00    93.48     6.52      0.00         -5.30
-map-lure3      lure         0  1.54   11.12   1.80     0.00    87.78    12.22      0.00         -5.56
+map-lure3      lure         0  1.54   11.20   1.82     0.00    87.91    12.09      0.00         -5.49
 map-lure4      lure         0  1.48   12.48   1.68     0.00    84.52    15.48      0.00         -5.95
-map-kite3      kite         0  1.78   19.16   1.90     0.00    83.16    16.84      0.00         -5.26
+map-kite3      kite        52  3.66   60.94   3.76     0.00    91.49     8.51      0.00         -2.38
 
 [map-level-ends]
 level          end    min worst  stops
-map-vision2      6   0.24     0  room1:melee:Cactus=5 room2:melee:Cactus=5 room1:melee:Mandragora=4 room2:melee:Eye=4 room2:melee:Mandragora=4 room3:melee:Mandragora=4 room1:melee:Eye=3 room2:melee:Undine=3 room3:melee:Mushroom=3 room1:melee:Mushroom=2 room1:melee:Undine=2 room2:melee:Mushroom=2 room4:melee:Mandragora=2 room3:melee:Cactus=1 room3:melee:Eye=1 room3:melee:Undine=1 room4:melee:Cactus=1
-map-vision3      0   0.00     0  room1:melee:Mushroom=8 room1:melee:Mandragora=7 room2:melee:Mandragora=5 room2:melee:Eye=4 room3:melee:Mushroom=4 room1:melee:Eye=3 room2:melee:Cactus=3 room2:melee:Mushroom=3 room2:melee:Undine=3 room1:melee:Cactus=2 room1:melee:Undine=2 room1:melee:Bat=1 room3:melee:Cactus=1 room3:melee:Eye=1 room3:melee:Mandragora=1 room3:melee:Undine=1 room4:melee:Mandragora=1
+map-vision2      6   0.24     0  room1:melee:Mandragora=5 room2:melee:Cactus=5 room2:melee:Eye=4 room2:melee:Mandragora=4 room3:melee:Mandragora=4 room1:melee:Cactus=3 room1:melee:Eye=3 room1:melee:Mushroom=3 room2:melee:Undine=3 room3:melee:Mushroom=3 room1:melee:Undine=2 room2:melee:Mushroom=2 room4:melee:Mandragora=2 room3:melee:Cactus=1 room3:melee:Eye=1 room3:melee:Undine=1 room4:melee:Cactus=1
+map-vision3      0   0.00     0  room1:melee:Mushroom=8 room1:melee:Mandragora=7 room2:melee:Mandragora=5 room1:melee:Eye=4 room2:melee:Eye=4 room3:melee:Mushroom=4 room2:melee:Cactus=3 room2:melee:Mushroom=3 room2:melee:Undine=3 room1:melee:Cactus=2 room1:melee:Undine=2 room3:melee:Cactus=1 room3:melee:Eye=1 room3:melee:Mandragora=1 room3:melee:Undine=1 room4:melee:Mandragora=1
 map-vision4      0   0.00     0  room1:melee:Mushroom=8 room1:melee:Mandragora=7 room1:melee:Eye=5 room2:melee:Eye=5 room2:melee:Mandragora=4 room2:melee:Undine=4 room2:melee:Mushroom=3 room3:melee:Mandragora=3 room3:melee:Undine=3 room2:melee:Cactus=2 room3:melee:Mushroom=2 room1:melee:Undine=1 room3:melee:Cactus=1 room3:melee:Eye=1 room4:melee:Mushroom=1
-map-lure2        6   0.24     0  room1:melee:Cactus=5 room2:melee:Cactus=5 room1:melee:Eye=4 room1:melee:Mandragora=4 room2:melee:Eye=4 room2:melee:Mandragora=4 room3:melee:Mandragora=4 room2:melee:Undine=3 room3:melee:Mushroom=3 room1:melee:Mushroom=2 room1:melee:Undine=2 room4:melee:Mandragora=2 room2:melee:Mushroom=1 room3:melee:Cactus=1 room3:melee:Eye=1 room3:melee:Undine=1 room4:melee:Cactus=1
-map-lure3        0   0.00     0  room1:melee:Mandragora=8 room1:melee:Mushroom=8 room1:melee:Cactus=5 room1:melee:Eye=5 room1:melee:Undine=4 room2:melee:Mandragora=4 room2:melee:Eye=3 room2:melee:Cactus=2 room2:melee:Undine=2 room3:melee:Mushroom=2 room1:melee:Bat=1 room2:melee:Mushroom=1 room3:melee:Cactus=1 room3:melee:Eye=1 room3:melee:Mandragora=1 room3:melee:Undine=1 room4:melee:Undine=1
+map-lure2        6   0.24     0  room1:melee:Mandragora=5 room2:melee:Cactus=5 room1:melee:Eye=4 room2:melee:Eye=4 room2:melee:Mandragora=4 room3:melee:Mandragora=4 room1:melee:Cactus=3 room1:melee:Mushroom=3 room2:melee:Undine=3 room3:melee:Mushroom=3 room1:melee:Undine=2 room4:melee:Mandragora=2 room2:melee:Mushroom=1 room3:melee:Cactus=1 room3:melee:Eye=1 room3:melee:Undine=1 room4:melee:Cactus=1
+map-lure3        0   0.00     0  room1:melee:Mandragora=8 room1:melee:Mushroom=8 room1:melee:Eye=6 room1:melee:Cactus=5 room1:melee:Undine=4 room2:melee:Mandragora=4 room2:melee:Eye=3 room2:melee:Cactus=2 room2:melee:Undine=2 room3:melee:Mushroom=2 room2:melee:Mushroom=1 room3:melee:Cactus=1 room3:melee:Eye=1 room3:melee:Mandragora=1 room3:melee:Undine=1 room4:melee:Undine=1
 map-lure4        0   0.00     0  room1:melee:Mushroom=9 room1:melee:Eye=8 room1:melee:Mandragora=8 room1:melee:Undine=5 room2:melee:Mandragora=5 room1:melee:Cactus=3 room3:melee:Mushroom=3 room2:melee:Cactus=2 room2:melee:Eye=2 room3:melee:Undine=2 room2:melee:Undine=1 room3:melee:Eye=1 room3:melee:Mandragora=1
-map-kite3        0   0.00     0  room1:melee:Mushroom=8 room1:melee:Mandragora=5 room2:melee:Cactus=5 room1:melee:Undine=4 room2:melee:Mandragora=4 room3:melee:Undine=4 room1:melee:Cactus=3 room1:melee:Eye=3 room2:melee:Eye=3 room2:melee:Mushroom=2 room3:melee:Bat=2 room3:melee:Mushroom=2 room2:melee:Bat=1 room2:melee:Undine=1 room3:melee:Cactus=1 room3:melee:Mandragora=1 room4:melee:Cactus=1
+map-kite3       52   1.04     0  room1:melee:Mandragora=3 room1:melee:Mushroom=3 room1:melee:Cactus=2 room2:melee:Cactus=2 room2:melee:Mandragora=2 room3:melee:Mandragora=2 room5:melee:Mushroom=2 room1:melee:Eye=1 room1:melee:Undine=1 room2:melee:Bat=1 room2:melee:Eye=1 room3:melee:Mushroom=1 room3:melee:Undine=1 room4:melee:Cactus=1 room5:melee:Eye=1

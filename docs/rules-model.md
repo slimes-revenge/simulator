@@ -135,9 +135,10 @@ nobody hits never aggroes, so against bats the kite waits until the round limit 
 
 ## Last-drop strike (`rules.last_drop_strike`)
 
-Balance proposal П15. With the flag on, the slime may strike with its last unit: the strike hits
-as usual and the unit is not spent. It applies to every policy. `false` is the game today:
-the last unit cannot be spent (`Volume.CanSpend`). Damage from free last-drop strikes counts in
+An agreed design rule (balance П15), on in `data/design.toml`. With the flag on, the slime may
+strike with its last unit: the strike hits as usual and the unit is not spent. It applies to
+every policy. The game does not implement it yet: there the last unit cannot be spent
+(`Volume.CanSpend`), which `last_drop_strike = false` models. Damage from free last-drop strikes counts in
 `[damage]`, so `per_unit` (damage per unit spent) reads higher with the flag on.
 
 ## Level 2: spit, Thorns, stationary enemies
