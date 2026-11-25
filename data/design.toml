@@ -142,6 +142,9 @@ slime_cell = [1, 5]
 enemy_column_offset = 5       # enemies stand in the column slime_cell.x + offset
 enemy_rows = [5, 4, 6]        # the n-th enemy stands on this row
 
+[policies]
+lure_patience = 10            # rounds `lure` waits at a doorway while 2+ calm enemies would see it
+
 # Level runs. A stage level (`stages`) carries the body through fights and fountains
 # (src/level.rs); a map level (`map`) walks a generated chain of rooms to the exit (src/map.rs).
 # Level runs for the body economy (src/level.rs, docs/report-format.md "[levels]").
@@ -195,4 +198,25 @@ id = "map-vision4"
 capacity = 10
 action_points = 2
 policy = "strafe"
+map = { rooms = 5, room_side = [5, 9], enemies_per_room = [1, 2], enemy_kinds = ["Bat", "Mushroom", "Undine", "Cactus", "Mandragora", "Eye"], corridor = 2, vision = 4 }
+
+[[levels]]
+id = "map-lure2"
+capacity = 10
+action_points = 2
+policy = "lure"
+map = { rooms = 5, room_side = [5, 9], enemies_per_room = [1, 2], enemy_kinds = ["Bat", "Mushroom", "Undine", "Cactus", "Mandragora", "Eye"], corridor = 2, vision = 2 }
+
+[[levels]]
+id = "map-lure3"
+capacity = 10
+action_points = 2
+policy = "lure"
+map = { rooms = 5, room_side = [5, 9], enemies_per_room = [1, 2], enemy_kinds = ["Bat", "Mushroom", "Undine", "Cactus", "Mandragora", "Eye"], corridor = 2, vision = 3 }
+
+[[levels]]
+id = "map-lure4"
+capacity = 10
+action_points = 2
+policy = "lure"
 map = { rooms = 5, room_side = [5, 9], enemies_per_room = [1, 2], enemy_kinds = ["Bat", "Mushroom", "Undine", "Cactus", "Mandragora", "Eye"], corridor = 2, vision = 4 }

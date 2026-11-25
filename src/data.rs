@@ -48,6 +48,7 @@ pub struct Design {
     pub liquids: Vec<LiquidData>,
     pub enemies: Vec<EnemyData>,
     pub matrix: Matrix,
+    pub policies: Policies,
     /// Level runs for the body economy (`src/level.rs`); none is fine.
     #[serde(default)]
     pub levels: Vec<Level>,
@@ -115,6 +116,12 @@ pub struct Matrix {
     pub slime_cell: (i32, i32),
     pub enemy_column_offset: i32,
     pub enemy_rows: Vec<i32>,
+}
+
+#[derive(Deserialize, Clone, Debug)]
+pub struct Policies {
+    /// Rounds the `lure` policy waits at a doorway while 2+ calm enemies would see it.
+    pub lure_patience: u32,
 }
 
 /// A level: stages played in order, the slime's body carried from one to the next.
@@ -213,14 +220,14 @@ impl Design {
             if let Some(problem) = problem {
                 return Err(format!("level {:?}: {problem}", level.id));
             }
-            let policy = if level.map.is_some() {
-                "strafe"
+            let allowed: &[&str] = if level.map.is_some() {
+                &["strafe", "lure"]
             } else {
-                "face-tank"
+                &["face-tank"]
             };
-            if level.policy != policy {
+            if !allowed.contains(&level.policy.as_str()) {
                 return Err(format!(
-                    "level {}: policy {:?} is not supported here (only {policy:?})",
+                    "level {}: policy {:?} is not supported here (only {allowed:?})",
                     level.id, level.policy
                 ));
             }

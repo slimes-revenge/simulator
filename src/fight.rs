@@ -170,6 +170,10 @@ pub struct MapState {
     /// Each enemy's room; it wanders only there until aggroed.
     pub homes: Vec<Option<usize>>,
     pub exit: Cell,
+    /// `lure` instead of `strafe`.
+    pub lure: bool,
+    /// Rounds the lure policy has waited at the current doorway.
+    waited: u32,
     pub rooms_entered: usize,
     pub episodes: Vec<Episode>,
     /// The smallest body at the start and after each closed episode.
@@ -204,6 +208,8 @@ impl MapState {
             min_body: body,
             open: None,
             calm: None,
+            lure: false,
+            waited: 0,
         }
     }
 }
@@ -648,7 +654,7 @@ impl<'a> Fight<'a> {
     /// wait when the last unit cannot be spent. Uses only player actions (step, attack, wait).
     fn slime_act(&mut self) {
         if self.map.is_some() {
-            return self.strafe_act();
+            return self.map_act();
         }
         let Some(target) = self
             .enemies
@@ -693,9 +699,13 @@ impl<'a> Fight<'a> {
         }
     }
 
-    /// Strafe (map runs): strike an aggroed enemy next to the slime, else step toward the exit;
-    /// when the way is blocked, strike whatever stands next to it. Never hunts.
-    fn strafe_act(&mut self) {
+    /// Map runs. Both policies strike an aggroed enemy next to the slime first.
+    /// - `strafe`: otherwise step toward the exit; when the way is blocked, strike whatever
+    ///   stands next to it. Never hunts.
+    /// - `lure`: while any enemy is aggroed, hold the nearest corridor cell and let them come
+    ///   one at a time; when calm, advance, but wait at a doorway (up to
+    ///   `policies.lure_patience` rounds) while 2+ calm Aggressive enemies would see the next cell.
+    fn map_act(&mut self) {
         let adjacent = |f: &Fight, aggroed_only: bool| {
             f.enemies.iter().position(|e| {
                 e.alive() && chebyshev(e.cell, f.slime.cell) == 1 && (e.aggroed || !aggroed_only)
@@ -704,16 +714,28 @@ impl<'a> Fight<'a> {
         if let Some(i) = adjacent(self, true) {
             return self.strike_or_wait(i);
         }
-        let exit = self.map.as_ref().expect("strafe runs on a map").exit;
-        let occupied = self.occupied();
-        let from = self.slime.cell;
-        let step = path::find(self.board.width, self.board.height, from, &[exit], |c| {
-            self.blocked(&occupied, c)
-        });
-        if let Some(route) = step {
-            let to = route[0];
+        let m = self.map.as_ref().expect("map runs");
+        let (lure, exit, waited) = (m.lure, m.exit, m.waited);
+        let goal = if lure && self.enemies.iter().any(|e| e.alive() && e.aggroed) {
+            match self.fighting_spot() {
+                Some(spot) if spot != self.slime.cell => spot,
+                _ => return self.note(|_| "Slime holds the corridor".into()),
+            }
+        } else {
+            if lure && !self.in_room(self.slime.cell) && waited < self.d.policies.lure_patience {
+                let next = self.route_to(exit).map(|r| r[0]);
+                if next.is_some_and(|c| self.calm_watchers(c) >= 2) {
+                    self.map.as_mut().expect("checked").waited += 1;
+                    return self.note(|_| "Slime waits at the doorway: 2+ would see it".into());
+                }
+            }
+            exit
+        };
+        if let Some(route) = self.route_to(goal) {
+            let (from, to) = (self.slime.cell, route[0]);
             self.slime.cell = to;
             let m = self.map.as_mut().expect("checked");
+            m.waited = 0;
             if let Some(k) = m.rooms.iter().position(|&r| in_rect(r, to)) {
                 m.rooms_entered = m.rooms_entered.max(k + 1);
             }
@@ -721,8 +743,65 @@ impl<'a> Fight<'a> {
         } else if let Some(i) = adjacent(self, false) {
             self.strike_or_wait(i);
         } else {
-            self.note(|_| "Slime waits: no path to the exit".into());
+            self.note(|_| "Slime waits: no free path".into());
         }
+    }
+
+    fn in_room(&self, c: Cell) -> bool {
+        self.map
+            .as_ref()
+            .is_some_and(|m| m.rooms.iter().any(|&r| in_rect(r, c)))
+    }
+
+    /// The slime's route to `goal` around walls and creatures.
+    fn route_to(&self, goal: Cell) -> Option<Vec<Cell>> {
+        let occupied = self.occupied();
+        path::find(
+            self.board.width,
+            self.board.height,
+            self.slime.cell,
+            &[goal],
+            |c| self.blocked(&occupied, c),
+        )
+    }
+
+    /// Calm Aggressive enemies that would see the slime standing on `cell` (and so engage it).
+    fn calm_watchers(&self, cell: Cell) -> usize {
+        let hidden = self.slime.dominant == Some(Liquid::Mercury);
+        self.enemies
+            .iter()
+            .filter(|e| e.alive() && !e.aggroed && e.personality == Personality::Aggressive)
+            .filter(|e| !hidden && chebyshev(e.cell, cell) <= self.vision)
+            .filter(|e| self.board.line_of_sight(e.cell, cell))
+            .count()
+    }
+
+    /// Where `lure` fights: the nearest non-room cell, preferring corridor cells with at most
+    /// two open neighbours (one enemy can reach it from each side) over doorways; ties go west.
+    fn fighting_spot(&self) -> Option<Cell> {
+        let mut best: Option<((bool, usize, i32), Cell)> = None;
+        for y in 0..self.board.height {
+            for x in 0..self.board.width {
+                let c = (x, y);
+                if !self.board.open(c) || self.in_room(c) {
+                    continue;
+                }
+                let steps = if c == self.slime.cell {
+                    0
+                } else {
+                    match self.route_to(c) {
+                        Some(r) => r.len(),
+                        None => continue,
+                    }
+                };
+                let open = path::neighbours(c).filter(|&n| self.board.open(n)).count();
+                let key = (open > 2, steps, x);
+                if best.is_none_or(|(k, _)| key < k) {
+                    best = Some((key, c));
+                }
+            }
+        }
+        best.map(|(_, c)| c)
     }
 
     fn strike_or_wait(&mut self, target: usize) {

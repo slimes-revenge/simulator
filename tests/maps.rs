@@ -128,6 +128,12 @@ fn map_level_errors_are_explicit() {
     );
     let face = base.replacen("policy = \"strafe\"", "policy = \"face-tank\"", 1);
     assert!(Design::parse(&face).unwrap_err().contains("strafe"));
+    let lure_on_stages = base.replacen("policy = \"face-tank\"", "policy = \"lure\"", 1);
+    assert!(
+        Design::parse(&lure_on_stages)
+            .unwrap_err()
+            .contains("face-tank")
+    );
     let ghost = base.replacen("enemy_kinds = [\"Bat\"", "enemy_kinds = [\"Ghost\"", 1);
     assert!(
         Design::parse(&ghost)
@@ -187,4 +193,28 @@ fn calm_enemies_stay_in_their_rooms() {
         }
     }
     assert!(steps > 0);
+}
+
+#[test]
+fn lure_meets_enemies_one_at_a_time_more_often_than_strafe() {
+    // Two rooms, two Mushrooms waiting in the second. Strafe walks in and meets both; lure
+    // waits at the doorway and fights from the corridor.
+    let level = |policy: &str| {
+        let mut d = design_with(
+            r#"{ rooms = 2, room_side = [6, 7], enemies_per_room = [0, 2], enemy_kinds = ["Mushroom"], corridor = 2, vision = 3 }"#,
+        );
+        d.levels[0].policy = policy.into();
+        d.matrix.seeds = 40;
+        d
+    };
+    let share_of_two = |d: &Design| {
+        let r = map::run(d, &d.levels[0]);
+        assert!(r.fights > 0.0, "{r:?}");
+        r.engaged[2] + r.engaged[3]
+    };
+    let (strafe, lure) = (share_of_two(&level("strafe")), share_of_two(&level("lure")));
+    assert!(
+        lure < strafe,
+        "lure {lure}% vs strafe {strafe}% of fights with 2+ at once"
+    );
 }
