@@ -1075,8 +1075,25 @@ impl<'a> Fight<'a> {
             let blocker =
                 next.and_then(|c| self.enemies.iter().position(|e| e.alive() && e.cell == c));
             if let Some(i) = blocker.filter(|&i| self.gives_up(i)) {
-                // A blocker it cannot hurt: wait for it to move; one that never moves ends it.
-                if self.enemies[i].base_speed == 0 {
+                // A blocker it cannot hurt: wait for it to move (or die of its statuses). The
+                // run ends only when stationary given-up enemies close every way to the goal.
+                let stuck = |e: &Creature| {
+                    e.alive()
+                        && e.base_speed == 0
+                        && pending_status_damage(self.d, e) < e.hit_points
+                };
+                let walls: Vec<Cell> = (0..self.enemies.len())
+                    .filter(|&j| stuck(&self.enemies[j]) && self.gives_up(j))
+                    .map(|j| self.enemies[j].cell)
+                    .collect();
+                let way = path::find(
+                    self.board.width,
+                    self.board.height,
+                    self.slime.cell,
+                    &[goal],
+                    |c| self.board.wall(c) || walls.contains(&c),
+                );
+                if way.is_none() {
                     self.stalemate = true;
                     return self.note(|f| format!("{} blocks the way for good", f.label(i)));
                 }
