@@ -167,8 +167,8 @@ them is in the game yet; only `Vampirism` among the traits is.
   every living calm enemy within `radius` of it (Chebyshev, through walls) gets aggroed and
   chases the slime's cell. The hunter is never woken (it is always aggroed anyway).
 - **`Infects`** (G5, `enemy_melee`): after its bite, the slime's edge-most Blood becomes Pus.
-- **Pus** (`fester`): a liquid with power 0 and no effect. After the slime's actions each round,
-  every Pus unit turns its Blood neighbours in body order into Pus (from the units as they were
+- **Pus** (`fester`): a liquid with power 0 and no effect. After the slime's actions each round
+  in which an enemy is engaged (like G3: no clock outside a fight), every Pus unit turns its Blood neighbours in body order into Pus (from the units as they were
   before the spread); any other unit between them stops it. Every policy spits a Pus edge
   off (1 action, a hit with power 0) instead of striking. `arranger` does not swap the kept
   liquid down onto Pus or next to it. No build is made of Pus.

@@ -1324,9 +1324,13 @@ impl<'a> Fight<'a> {
         self.note(|f| format!("{} enters at {cell:?}", f.label(f.enemies.len() - 1)));
     }
 
-    /// G5: at the end of the slime's actions each Pus unit turns its Blood neighbours (in
-    /// body order) into Pus; anything else between them stops it.
+    /// G5: at the end of the slime's actions, while an enemy is engaged, each Pus unit turns
+    /// its Blood neighbours (in body order) into Pus; anything else between them stops it.
     fn fester(&mut self) {
+        // Like Regeneration (G3), it ticks only in a fight: outside one there is no clock.
+        if !self.enemies.iter().any(|e| self.engaging(e)) {
+            return;
+        }
         let v = &mut self.slime.volume;
         let pus: Vec<usize> = (0..v.len()).filter(|&k| v[k] == Liquid::Pus).collect();
         for k in pus {

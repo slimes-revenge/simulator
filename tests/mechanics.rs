@@ -239,3 +239,13 @@ fn the_camp_stands_in_the_second_to_last_room() {
         assert_eq!(camp, vec!["Mushroom", "Bat"], "seed {seed}");
     }
 }
+
+#[test]
+fn pus_does_not_spread_outside_a_fight() {
+    use Liquid::*;
+    // A Passive Bat far away never engages: no clock, no spread.
+    let d = Design::bundled();
+    let body = vec![Blood, Pus, Blood, Water];
+    let (_, out) = play(&d, body.clone(), Policy::Kite, 1, &[("Bat", (9, 9))], 3);
+    assert_eq!(out, body);
+}
