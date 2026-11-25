@@ -28,9 +28,10 @@ fn affinity_is_a_share_of_the_capacity() {
 }
 
 #[test]
-fn retaliation_lasts_one_enemy_turn() {
-    // A Lava slime is bitten: the biter burns for 2 pulses (its next turn), not the strike's 3.
-    let d = Design::bundled();
+fn retaliation_lasts_retaliation_pulses() {
+    // A Lava slime is bitten: the biter burns for `rules.retaliation_pulses`.
+    let mut d = Design::bundled();
+    d.rules.retaliation_pulses = 2;
     let mut f = Fight::new(
         &d,
         0,

@@ -8,7 +8,7 @@ board_height = 10
 vision_range = 5          # Creature.visionRange (Chebyshev, no walls)
 dominance_percent = 60        # affinity threshold (balance liquids.md); the game uses 80 of the volume
 dominance_basis = "capacity"  # share of the capacity (design); "volume" = of the body now (the game)
-retaliation_pulses = 2        # Retaliation statuses last 2 pulses: one enemy turn (design); 0 = the liquid's own duration (the game)
+retaliation_pulses = 3        # Retaliation statuses last 3 pulses, a full status like a strike (design, Oleg 2026-11-26; fallback 2); 0 = the liquid's own duration (the game)
 heavy = { Lava = 3, Mercury = 2 }  # holding this many costs 1 action point each (design)
 heavy_min_action_points = 2   # heaviness never takes the slime below this
 reaction_can_kill = true      # R1: a reaction chain may empty the body (balance sim-reactions-spec.md)
