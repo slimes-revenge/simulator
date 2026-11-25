@@ -75,8 +75,9 @@ pub struct Creature {
     pub traits: Vec<Trait>,
     /// Its own sight range (enemies); the fight's `vision` when `None`.
     pub vision: Option<i32>,
-    /// G17: the hunter, engaged only while it sees the slime or stands next to it.
+    /// G17: the hunter; it engages once it has seen the slime (`met`) or stands next to it.
     pub hunter: bool,
+    pub met: bool,
     /// G4: it has raised its alarm (once per enemy).
     pub alarmed: bool,
     /// Thorns: a melee strike on this creature costs the striker this many edge units.
@@ -397,6 +398,7 @@ impl<'a> Fight<'a> {
             traits: Vec::new(),
             vision: None,
             hunter: false,
+            met: false,
             alarmed: false,
             thorns: 0,
             dominant: None,
@@ -741,16 +743,11 @@ impl<'a> Fight<'a> {
 
     /// An enemy in the fight with the slime: aggroed and able to come (speed above 0) or
     /// already next to it. A stationary blocker that saw the slime does not hold it.
-    /// The hunter always knows where the slime is, so it engages only once it sees it (its
-    /// sight range, walls block) or stands next to it.
+    /// The hunter always knows where the slime is, so it engages only from the first time it
+    /// sees the slime (its sight range, walls block) until it dies, or while next to it.
     fn engaging(&self, e: &Creature) -> bool {
         let adjacent = chebyshev(e.cell, self.slime.cell) == 1;
-        let comes = if e.hunter {
-            chebyshev(e.cell, self.slime.cell) <= self.sight(e)
-                && self.board.line_of_sight(e.cell, self.slime.cell)
-        } else {
-            e.base_speed > 0
-        };
+        let comes = if e.hunter { e.met } else { e.base_speed > 0 };
         e.alive() && e.aggroed && (comes || adjacent)
     }
 
@@ -1265,6 +1262,9 @@ impl<'a> Fight<'a> {
             e.pursuit = Some(cell);
             e.pursuit_left = memory.max(e.pursuit_left);
         }
+        if self.enemies[i].hunter && self.can_see(i) {
+            self.enemies[i].met = true;
+        }
         let mut intent = self.decide(i);
         // `CreatureHunt.Redirect`: no fear/hate traits in the live roster, so only pursuit memory.
         if matches!(intent, Intent::Wander | Intent::Idle) {
@@ -1296,6 +1296,9 @@ impl<'a> Fight<'a> {
             )
         });
         self.after_act(i, intent);
+        if self.enemies[i].hunter && self.can_see(i) {
+            self.enemies[i].met = true;
+        }
         self.alarm(i);
     }
 
@@ -1933,6 +1936,7 @@ fn enemy_creature(d: &Design, kind: &str, cell: Cell) -> Creature {
         traits: e.traits.clone(),
         vision: e.vision,
         hunter: false,
+        met: false,
         alarmed: false,
         thorns: e.thorns,
         dominant: None,

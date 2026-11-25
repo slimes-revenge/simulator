@@ -107,8 +107,9 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
   (through walls) and chases it by the shortest path. Between scents it walks to the last cell
   it learned; there, with its pursuit memory empty, it heads for the slime's cell like any
   aggroed enemy, so `scent_every` > 1 only makes it lag. It engages the slime (opens an
-  episode, holds `lure` and `kite`, lets G3 and Pus tick) only while it sees the slime (its
-  sight range, walls block) or stands next to it. An episode it takes part in is a hunter
+  episode, holds `lure` and `kite`, lets G3 and Pus tick) from the first time it sees the slime
+  (its sight range, walls block) until it dies, and whenever it stands next to it. Its kind must
+  move (speed >= 1). An episode it takes part in is a hunter
   episode. Its outcome per seed: `killed_slime` when its bite killed the slime, else `killed`
   when it died, else `alive` (also when it never entered).
 - **Min body:** the body at the start and after each closed episode; 0 when the slime dies.

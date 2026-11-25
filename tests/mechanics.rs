@@ -272,3 +272,56 @@ fn an_alarm_rings_even_when_the_slime_struck_first() {
         .count();
     assert_eq!(alarms, 1, "{log:?}");
 }
+
+#[test]
+fn only_the_hunters_own_bite_counts_as_its_kill() {
+    // A room Mushroom bites for 99; the hunter (an Eye without a bite) can never kill.
+    let mut d = map_design(", hunter = { kind = \"Eye\", enter_round = 1 }");
+    d.levels[0].map.as_mut().unwrap().enemies_per_room = (1, 1);
+    for e in d.enemies.iter_mut() {
+        match e.name.as_str() {
+            "Mushroom" => e.melee_power = 99,
+            "Eye" => e.melee_power = 0,
+            _ => {}
+        }
+    }
+    let r = map::run(&d, &d.levels[0]);
+    assert!(r.end < 100.0, "the Mushroom kills some slimes");
+    assert_eq!(r.hunter.unwrap()[2], 0.0);
+    // A hunter that bites for 99 and meets the slime alone does kill it.
+    let mut d = map_design(", hunter = { kind = \"Eye\", enter_round = 1 }");
+    d.enemies
+        .iter_mut()
+        .find(|e| e.name == "Eye")
+        .unwrap()
+        .melee_power = 99;
+    let r = map::run(&d, &d.levels[0]);
+    assert_eq!(r.hunter.unwrap()[2], 100.0, "{r:?}");
+}
+
+#[test]
+fn a_dead_hunters_corpse_is_eaten() {
+    // A 1-HP hunter dies to the first strike; its episode eats the corpse.
+    let mut d = map_design(", hunter = { kind = \"Eye\", enter_round = 1 }");
+    d.enemies
+        .iter_mut()
+        .find(|e| e.name == "Eye")
+        .unwrap()
+        .hit_points = 1;
+    let level = &d.levels[0];
+    let r = map::run(&d, level);
+    assert_eq!(r.hunter.unwrap()[0], 100.0, "{r:?}");
+    for seed in 0..5 {
+        let (_, state) = map::play(
+            &d,
+            level,
+            level.map.as_ref().unwrap(),
+            &map::start_body(level),
+            seed,
+        );
+        assert!(
+            state.episodes.iter().any(|e| e.hunter && e.corpse > 0),
+            "seed {seed}"
+        );
+    }
+}

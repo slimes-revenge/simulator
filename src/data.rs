@@ -433,6 +433,13 @@ impl Design {
                     Some("map.blockers and map.blockers_per_level go together".into())
                 } else if m.hunter.as_ref().is_some_and(|h| h.scent_every == 0) {
                     Some("map.hunter.scent_every must be at least 1".into())
+                } else if m.hunter.as_ref().is_some_and(|h| {
+                    design
+                        .enemies
+                        .iter()
+                        .any(|e| e.name == h.kind && e.speed < 1)
+                }) {
+                    Some("map.hunter: its kind must move (speed >= 1)".into())
                 } else if !m.camp.is_empty() && m.rooms < 2 {
                     Some("map.camp needs at least 2 rooms".into())
                 } else if m.river_liquids.is_empty() != (m.river == 0) {
