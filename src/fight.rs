@@ -230,6 +230,8 @@ pub enum Policy {
     Newcomer,
     /// Before a strike, at most one swap(0, 1) by the balance session's rules (`arranger_swap`).
     Arranger { keep: Option<Liquid> },
+    /// Strike, then step out of reach on the round's last action (`kite_adjacent`).
+    Kite,
 }
 
 impl Policy {
@@ -238,6 +240,7 @@ impl Policy {
             "arranger" => Policy::Arranger {
                 keep: d.policies.keep(),
             },
+            "kite" => Policy::Kite,
             _ => Policy::Newcomer,
         }
     }
@@ -306,6 +309,8 @@ pub struct Fight<'a> {
     pub policy: Policy,
     /// `arranger` swapped before its pending strike: the next strike action strikes.
     swapped: bool,
+    /// The slime's current action is the round's last one (`kite` steps away on it).
+    last_action: bool,
     rng: Rng,
     actions_per_round: u32,
     pub slime: Creature,
@@ -388,6 +393,7 @@ impl<'a> Fight<'a> {
             map: None,
             policy: Policy::Newcomer,
             swapped: false,
+            last_action: false,
             rng: Rng::new(seed),
             actions_per_round,
             slime,
@@ -485,7 +491,8 @@ impl<'a> Fight<'a> {
         }
         for round in 1..=self.max_rounds {
             self.note(|_| format!("round {round}"));
-            for _ in 0..self.actions_per_round {
+            for k in 0..self.actions_per_round {
+                self.last_action = k + 1 == self.actions_per_round;
                 self.slime_act();
                 self.track_engagement();
                 if self.goal_reached() {
@@ -684,6 +691,13 @@ impl<'a> Fight<'a> {
         if self.map.is_some() {
             return self.map_act();
         }
+        if self.policy == Policy::Kite {
+            // No aggroed enemy, or none adjacent: wait for them to come.
+            if !self.enemies.iter().any(|e| e.alive() && e.aggroed) || !self.kite_adjacent() {
+                self.note(|_| "Slime waits for the enemy".into());
+            }
+            return;
+        }
         let Some(target) = self
             .enemies
             .iter()
@@ -696,11 +710,11 @@ impl<'a> Fight<'a> {
         };
         if chebyshev(self.slime.cell, self.enemies[target].cell) == 1 {
             // `Volume.CanSpend`: the last unit is the slime's life.
-            if self.slime.volume.len() > 1 && !self.swapped && self.arranger_swap(target) {
+            if self.can_strike() && !self.swapped && self.arranger_swap(target) {
                 self.slime_swap(0);
                 self.swapped = true;
                 self.note(|f| format!("Slime swaps: {:?} to the edge", f.edge()));
-            } else if self.slime.volume.len() > 1 {
+            } else if self.can_strike() {
                 self.swapped = false;
                 let liquid = self.edge();
                 let hp = self.enemies[target].hit_points;
@@ -747,6 +761,10 @@ impl<'a> Fight<'a> {
                 e.alive() && chebyshev(e.cell, f.slime.cell) == 1 && (e.aggroed || !aggroed_only)
             })
         };
+        let aggro = self.enemies.iter().any(|e| e.alive() && e.aggroed);
+        if self.policy == Policy::Kite && aggro && self.kite_adjacent() {
+            return;
+        }
         if let Some(i) = adjacent(self, true) {
             return self.strike_or_wait(i);
         }
@@ -770,18 +788,35 @@ impl<'a> Fight<'a> {
         };
         if let Some(route) = self.route_to(goal) {
             let (from, to) = (self.slime.cell, route[0]);
-            self.slime.cell = to;
-            let m = self.map.as_mut().expect("checked");
-            if let Some(k) = m.rooms.iter().position(|&r| in_rect(r, to)) {
-                m.rooms_entered = m.rooms_entered.max(k + 1);
-                m.waited = 0;
-            }
+            self.move_slime(to);
             self.note(|_| format!("Slime steps {from:?}->{to:?}"));
         } else if let Some(i) = adjacent(self, false) {
             self.strike_or_wait(i);
         } else {
             self.note(|_| "Slime waits: no path to the exit".into());
         }
+    }
+
+    /// Moves the slime one cell; on a map, entering a room counts it and resets lure's wait.
+    fn move_slime(&mut self, to: Cell) {
+        self.slime.cell = to;
+        if let Some(m) = self.map.as_mut()
+            && let Some(k) = m.rooms.iter().position(|&r| in_rect(r, to))
+        {
+            m.rooms_entered = m.rooms_entered.max(k + 1);
+            m.waited = 0;
+        }
+    }
+
+    /// How far `c` is from the nearest room's centre (Chebyshev); 0 without rooms.
+    fn interior_distance(&self, c: Cell) -> i32 {
+        self.map.as_ref().map_or(0, |m| {
+            m.rooms
+                .iter()
+                .map(|&((x0, y0), (x1, y1))| chebyshev(c, ((x0 + x1) / 2, (y0 + y1) / 2)))
+                .min()
+                .unwrap_or(0)
+        })
     }
 
     fn in_room(&self, c: Cell) -> bool {
@@ -841,8 +876,70 @@ impl<'a> Fight<'a> {
         best.map(|(_, c)| c)
     }
 
+    /// `Volume.CanSpend`: the last unit is the slime's life. With `rules.last_drop_strike` it
+    /// may still strike: the last drop hits and is not spent.
+    fn can_strike(&self) -> bool {
+        self.slime.volume.len() > 1
+            || (self.d.rules.last_drop_strike && !self.slime.volume.is_empty())
+    }
+
+    /// `kite` with enemies next to it: strike the weakest (lowest HP, then placement order),
+    /// except on the round's last action, when it steps to a free cell no living enemy
+    /// touches. A step with no such cell falls back to a strike, and a strike that cannot be
+    /// spent falls back to a step. Returns false when no living enemy is adjacent.
+    fn kite_adjacent(&mut self) -> bool {
+        let Some(target) = self
+            .enemies
+            .iter()
+            .enumerate()
+            .filter(|(_, e)| e.alive() && chebyshev(e.cell, self.slime.cell) == 1)
+            .min_by_key(|(i, e)| (e.hit_points, *i))
+            .map(|(i, _)| i)
+        else {
+            return false;
+        };
+        if (self.last_action || !self.can_strike())
+            && let Some(to) = self.kite_step()
+        {
+            let from = self.slime.cell;
+            self.move_slime(to);
+            self.note(|_| format!("Slime steps back {from:?}->{to:?}"));
+            return true;
+        }
+        self.strike_or_wait(target);
+        true
+    }
+
+    /// Where `kite` steps back: a free neighbour no living enemy is adjacent to. The largest
+    /// smallest distance to the enemies wins, then the cell farther from the nearest room's
+    /// centre, then the lowest (x, y).
+    fn kite_step(&self) -> Option<Cell> {
+        let occupied = self.occupied();
+        let living: Vec<Cell> = self
+            .enemies
+            .iter()
+            .filter(|e| e.alive())
+            .map(|e| e.cell)
+            .collect();
+        path::neighbours(self.slime.cell)
+            .filter(|&c| self.inside(c) && !occupied.contains(&c))
+            .map(|c| {
+                (
+                    living
+                        .iter()
+                        .map(|&e| chebyshev(e, c))
+                        .min()
+                        .unwrap_or(i32::MAX),
+                    c,
+                )
+            })
+            .filter(|&(near, _)| near >= 2)
+            .min_by_key(|&(near, c)| (-near, -self.interior_distance(c), c.0, c.1))
+            .map(|(_, c)| c)
+    }
+
     fn strike_or_wait(&mut self, target: usize) {
-        if self.slime.volume.len() > 1 {
+        if self.can_strike() {
             let liquid = self.edge();
             self.slime_strike(target, liquid);
             self.note(|f| format!("Slime strikes {} with {liquid:?}", f.label(target)));
@@ -902,9 +999,15 @@ impl<'a> Fight<'a> {
         let Some(at) = self.slime.volume.iter().rposition(|&l| l == liquid) else {
             return;
         };
-        self.slime.volume.remove(at);
-        self.units_spent += 1;
-        *self.tally.spent_by.entry(liquid).or_insert(0) += 1;
+        // The last drop strikes without being spent, and only under `rules.last_drop_strike`.
+        if self.slime.volume.len() == 1 && !d.rules.last_drop_strike {
+            return;
+        }
+        if self.slime.volume.len() > 1 {
+            self.slime.volume.remove(at);
+            self.units_spent += 1;
+            *self.tally.spent_by.entry(liquid).or_insert(0) += 1;
+        }
         refresh_dominance(d, &mut self.slime, &mut self.next_status_id);
 
         let stats = d.liquid(liquid);

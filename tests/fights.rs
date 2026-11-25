@@ -487,12 +487,16 @@ fn level_ledger_adds_up() {
 fn level_design_errors_are_explicit() {
     let base =
         std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/data/design.toml")).unwrap();
-    let kite = base.replacen(
+    let strafe = base.replacen(
         "policy = \"newcomer\"\nstages",
-        "policy = \"kite\"\nstages",
+        "policy = \"strafe\"\nstages",
         1,
     );
-    assert!(Design::parse(&kite).unwrap_err().contains("not supported"));
+    assert!(
+        Design::parse(&strafe)
+            .unwrap_err()
+            .contains("not supported")
+    );
     let long = base.replacen(
         "id = \"sample-ap1\"\ncapacity = 10",
         &format!(
@@ -847,9 +851,107 @@ fn policy_settings_are_validated() {
     let wrong = base.replacen("arranger_keep = \"none\"", "arranger_keep = \"Ink\"", 1);
     assert!(Design::parse(&wrong).unwrap_err().contains("arranger_keep"));
     let twice = base.replacen(
-        "policies = [\"newcomer\", \"arranger\"]",
+        "policies = [\"newcomer\", \"arranger\", \"kite\"]",
         "policies = [\"newcomer\", \"newcomer\"]",
         1,
     );
     assert!(Design::parse(&twice).unwrap_err().contains("twice"));
+}
+
+// Kite at 2 actions against one slow Mushroom: it waits for the Mushroom to come, then each
+// round strikes and steps out of reach; the Mushroom spends its move following and never bites.
+#[test]
+fn kite_strikes_then_steps_out_of_reach() {
+    let d = design();
+    let mut f = report::fight(&d, &pure(&d, Liquid::Water), &one("Mushroom"), 2, 0);
+    f.policy = Policy::Kite;
+    let (r, log) = f.run_traced();
+    assert!(r.won);
+    assert_eq!((r.units_spent, r.units_bitten), (5, 0), "{log:#?}");
+    let actions: Vec<&str> = log
+        .iter()
+        .filter(|l| l.starts_with("Slime strikes") || l.starts_with("Slime steps back"))
+        .map(|l| {
+            if l.starts_with("Slime strikes") {
+                "strike"
+            } else {
+                "step"
+            }
+        })
+        .collect();
+    assert_eq!(actions[..4], ["strike", "step", "strike", "step"]);
+}
+
+#[test]
+fn kite_waits_for_enemies_that_never_come() {
+    // A passive Bat never aggroes on its own, so the kiting slime waits until the round limit.
+    let d = design();
+    let mut f = report::fight(&d, &pure(&d, Liquid::Water), &one("Bat"), 2, 0);
+    f.policy = Policy::Kite;
+    let r = f.run();
+    assert_eq!(
+        (r.won, r.cause.as_deref(), r.units_spent),
+        (false, Some("timeout"), 0)
+    );
+}
+
+#[test]
+fn the_last_drop_strikes_without_being_spent_when_the_rule_is_on() {
+    let mut d = design();
+    let strike_on_last = |d: &Design| {
+        let mut f = Fight::new(
+            d,
+            0,
+            1,
+            vec![Liquid::Water],
+            (1, 5),
+            &[("Mushroom", (2, 5))],
+        );
+        f.policy = Policy::Newcomer;
+        let (_, log) = f.run_traced();
+        log.iter().any(|l| l.starts_with("Slime strikes"))
+    };
+    assert!(
+        !strike_on_last(&d),
+        "today the last unit cannot be spent: the slime waits"
+    );
+    d.rules.last_drop_strike = true;
+    assert!(strike_on_last(&d));
+    let mut f = Fight::new(
+        &d,
+        0,
+        1,
+        vec![Liquid::Water],
+        (1, 5),
+        &[("Mushroom", (2, 5))],
+    );
+    f.slime_strike(0, Liquid::Water);
+    assert_eq!((f.enemies[0].hit_points, f.slime.volume.len()), (4, 1));
+}
+
+#[test]
+fn kite_strikes_the_weakest_when_it_cannot_step_away() {
+    // The slime in the corner (0, 0), Mushrooms on all three neighbours: no free cell to step
+    // to, so even on its only action it strikes — the weakest one (Mushroom#2, 2 HP).
+    let d = design();
+    let mut f = Fight::new(
+        &d,
+        0,
+        1,
+        vec![Liquid::Water; 10],
+        (0, 0),
+        &[
+            ("Mushroom", (1, 0)),
+            ("Mushroom", (0, 1)),
+            ("Mushroom", (1, 1)),
+        ],
+    );
+    f.policy = Policy::Kite;
+    f.enemies[1].hit_points = 2;
+    for e in &mut f.enemies {
+        e.aggroed = true;
+    }
+    let (_, log) = f.run_traced();
+    let first = log.iter().find(|l| l.starts_with("Slime ")).unwrap();
+    assert!(first.starts_with("Slime strikes Mushroom#2"), "{first}");
 }

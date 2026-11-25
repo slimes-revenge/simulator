@@ -62,6 +62,8 @@ pub struct Rules {
     pub dominance_percent: usize,
     pub pursuit_memory_turns: i32,
     pub max_rounds: u32,
+    /// П15: at 1 unit a strike hits and spends nothing. `false` is the game today.
+    pub last_drop_strike: bool,
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -221,7 +223,7 @@ impl Design {
         let policies = &design.matrix.policies;
         if let Some(p) = policies
             .iter()
-            .find(|p| !["newcomer", "arranger"].contains(&p.as_str()))
+            .find(|p| !["newcomer", "arranger", "kite"].contains(&p.as_str()))
         {
             return Err(format!("matrix.policies: unknown policy {p:?}"));
         }
@@ -252,9 +254,9 @@ impl Design {
                 return Err(format!("level {:?}: {problem}", level.id));
             }
             let allowed: &[&str] = if level.map.is_some() {
-                &["strafe", "lure"]
+                &["strafe", "lure", "kite"]
             } else {
-                &["newcomer", "arranger"]
+                &["newcomer", "arranger", "kite"]
             };
             if !allowed.contains(&level.policy.as_str()) {
                 return Err(format!(

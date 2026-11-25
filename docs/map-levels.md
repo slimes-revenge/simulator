@@ -10,7 +10,7 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
 ## Input: a `[[levels]]` entry with `map`
 
 `id`, `capacity`, `start` (default: full Water) and `action_points` work as for stage levels
-([level-economy.md](level-economy.md)). `policy` is `strafe` or `lure`. A level has either `stages` or
+([level-economy.md](level-economy.md)). `policy` is `strafe`, `lure` or `kite`. A level has either `stages` or
 `map`, never both.
 
 | `map` key | Meaning |
@@ -59,6 +59,8 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
      sight), it waits. It waits at most `policies.lure_patience` actions per approach (the count
      resets when it enters a room or a fight starts), then goes.
   4. When the way is blocked, strike whatever stands next to it.
+- **`kite` policy.** It walks and holds the fighting spot like `lure`. With an aggroed enemy
+  next to it, it strikes and steps away like the matrix kite (`docs/rules-model.md`).
 - **Episodes (fights).**
   - An episode opens when some living enemy is aggroed on the slime. It includes the action
     that caused it, such as a first strike.

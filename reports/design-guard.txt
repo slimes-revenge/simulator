@@ -7,6 +7,7 @@ rules.vision_range = 5
 rules.dominance_percent = 80
 rules.pursuit_memory_turns = 3
 rules.max_rounds = 200
+rules.last_drop_strike = false
 slime.capacity = 10
 slime.speed = 1
 slime.start = Water Water Oil Poison Acid Lava
@@ -86,7 +87,7 @@ matrix.enemy_counts = 1 2 3
 matrix.slime_cell = 1 5
 matrix.enemy_column_offset = 5
 matrix.enemy_rows = 5 4 6
-matrix.policies = newcomer arranger
+matrix.policies = newcomer arranger kite
 policies.lure_patience = 10
 policies.arranger_keep = none
 levels.sample-ap1.capacity = 10
@@ -179,6 +180,15 @@ levels.map-lure4.map.enemies_per_room = 1 2
 levels.map-lure4.map.enemy_kinds = Bat Mushroom Undine Cactus Mandragora Eye
 levels.map-lure4.map.corridor = 2
 levels.map-lure4.map.vision = 4
+levels.map-kite3.capacity = 10
+levels.map-kite3.action_points = 2
+levels.map-kite3.policy = kite
+levels.map-kite3.map.rooms = 5
+levels.map-kite3.map.room_side = 5 9
+levels.map-kite3.map.enemies_per_room = 1 2
+levels.map-kite3.map.enemy_kinds = Bat Mushroom Undine Cactus Mandragora Eye
+levels.map-kite3.map.corridor = 2
+levels.map-kite3.map.vision = 3
 
 [cells]
 ap policy     build      encounter        win  rounds killed   left  spent bitten status  cause
@@ -470,6 +480,150 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 1  arranger   mercury    eye-1            100    9.18   1.00   1.00   5.00   4.00   0.00  -
 1  arranger   mercury    eye-2              0  200.00   1.00   1.00   5.00   4.00   0.00  timeout=50
 1  arranger   mercury    eye-3              0  173.10   0.86   0.86   4.88   4.26   0.00  timeout=43 melee:Eye=7
+1  kite       start      bat-1              0  200.00   0.00   6.00   0.00   0.00   0.00  timeout=50
+1  kite       start      bat-2              0  200.00   0.00   6.00   0.00   0.00   0.00  timeout=50
+1  kite       start      bat-3              0  200.00   0.00   6.00   0.00   0.00   0.00  timeout=50
+1  kite       start      mushroom-1       100   11.00   1.00   3.00   2.00   1.00   0.00  -
+1  kite       start      mushroom-2         0    8.00   1.00   0.00   2.00   4.00   0.00  melee:Mushroom=50
+1  kite       start      mushroom-3         0    7.00   1.00   0.00   2.00   4.00   0.00  melee:Mushroom=50
+1  kite       start      undine-1         100   11.00   1.00   3.00   2.00   1.00   0.00  -
+1  kite       start      undine-2           0    8.00   1.00   0.00   2.00   4.00   0.00  melee:Undine=50
+1  kite       start      undine-3           0    7.00   1.00   0.00   2.00   4.00   0.00  melee:Undine=50
+1  kite       start      cactus-1         100   11.00   1.00   3.00   2.00   1.00   0.00  -
+1  kite       start      cactus-2           0    8.00   1.00   0.00   2.00   4.00   0.00  melee:Cactus=50
+1  kite       start      cactus-3           0    7.00   1.00   0.00   2.00   4.00   0.00  melee:Cactus=50
+1  kite       start      mandragora-1     100   11.00   1.00   3.00   2.00   1.00   0.00  -
+1  kite       start      mandragora-2       0    8.00   1.00   0.00   2.00   4.00   0.00  melee:Mandragora=50
+1  kite       start      mandragora-3       0    7.00   1.00   0.00   2.00   4.00   0.00  melee:Mandragora=50
+1  kite       start      eye-1            100   11.00   1.00   3.00   2.00   1.00   0.00  -
+1  kite       start      eye-2              0    8.00   1.00   0.00   2.00   4.00   0.00  melee:Eye=50
+1  kite       start      eye-3              0    7.00   1.00   0.00   2.00   4.00   0.00  melee:Eye=50
+1  kite       water      bat-1              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       water      bat-2              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       water      bat-3              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       water      mushroom-1       100   14.00   1.00   1.00   5.00   4.00   0.00  -
+1  kite       water      mushroom-2         0    9.00   0.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
+1  kite       water      mushroom-3         0    8.00   0.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
+1  kite       water      undine-1         100   14.00   1.00   1.00   5.00   4.00   0.00  -
+1  kite       water      undine-2           0    9.00   0.00   0.00   3.00   7.00   0.00  melee:Undine=50
+1  kite       water      undine-3           0    8.00   0.00   0.00   3.00   7.00   0.00  melee:Undine=50
+1  kite       water      cactus-1         100   14.00   1.00   1.00   5.00   4.00   0.00  -
+1  kite       water      cactus-2           0    9.00   0.00   0.00   3.00   7.00   0.00  melee:Cactus=50
+1  kite       water      cactus-3           0    8.00   0.00   0.00   3.00   7.00   0.00  melee:Cactus=50
+1  kite       water      mandragora-1     100   14.00   1.00   1.00   5.00   4.00   0.00  -
+1  kite       water      mandragora-2       0    9.00   0.00   0.00   3.00   7.00   0.00  melee:Mandragora=50
+1  kite       water      mandragora-3       0    8.00   0.00   0.00   3.00   7.00   0.00  melee:Mandragora=50
+1  kite       water      eye-1            100   14.00   1.00   1.00   5.00   4.00   0.00  -
+1  kite       water      eye-2              0    9.00   0.00   0.00   3.00   7.00   0.00  melee:Eye=50
+1  kite       water      eye-3              0    8.00   0.00   0.00   3.00   7.00   0.00  melee:Eye=50
+1  kite       oil        bat-1              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       oil        bat-2              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       oil        bat-3              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       oil        mushroom-1       100   14.00   1.00   1.00   5.00   4.00   0.00  -
+1  kite       oil        mushroom-2         0    9.00   0.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
+1  kite       oil        mushroom-3         0    8.00   0.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
+1  kite       oil        undine-1         100   14.00   1.00   1.00   5.00   4.00   0.00  -
+1  kite       oil        undine-2           0    9.00   0.00   0.00   3.00   7.00   0.00  melee:Undine=50
+1  kite       oil        undine-3           0    8.00   0.00   0.00   3.00   7.00   0.00  melee:Undine=50
+1  kite       oil        cactus-1         100   14.00   1.00   1.00   5.00   4.00   0.00  -
+1  kite       oil        cactus-2           0    9.00   0.00   0.00   3.00   7.00   0.00  melee:Cactus=50
+1  kite       oil        cactus-3           0    8.00   0.00   0.00   3.00   7.00   0.00  melee:Cactus=50
+1  kite       oil        mandragora-1     100   14.00   1.00   1.00   5.00   4.00   0.00  -
+1  kite       oil        mandragora-2       0    9.00   0.00   0.00   3.00   7.00   0.00  melee:Mandragora=50
+1  kite       oil        mandragora-3       0    8.00   0.00   0.00   3.00   7.00   0.00  melee:Mandragora=50
+1  kite       oil        eye-1            100   14.00   1.00   1.00   5.00   4.00   0.00  -
+1  kite       oil        eye-2              0    9.00   0.00   0.00   3.00   7.00   0.00  melee:Eye=50
+1  kite       oil        eye-3              0    8.00   0.00   0.00   3.00   7.00   0.00  melee:Eye=50
+1  kite       poison     bat-1              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       poison     bat-2              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       poison     bat-3              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       poison     mushroom-1       100   11.00   1.00   7.00   2.00   1.00   0.00  -
+1  kite       poison     mushroom-2       100    8.00   2.00   4.00   3.00   3.00   0.00  -
+1  kite       poison     mushroom-3       100   10.00   3.00   2.00   3.00   5.00   0.00  -
+1  kite       poison     undine-1         100   11.00   1.00   7.00   2.00   1.00   0.00  -
+1  kite       poison     undine-2         100    8.00   2.00   4.00   3.00   3.00   0.00  -
+1  kite       poison     undine-3         100   10.00   3.00   2.00   3.00   5.00   0.00  -
+1  kite       poison     cactus-1         100   11.00   1.00   7.00   2.00   1.00   0.00  -
+1  kite       poison     cactus-2         100    8.00   2.00   4.00   3.00   3.00   0.00  -
+1  kite       poison     cactus-3         100   10.00   3.00   2.00   3.00   5.00   0.00  -
+1  kite       poison     mandragora-1     100   11.00   1.00   7.00   2.00   1.00   0.00  -
+1  kite       poison     mandragora-2     100    8.00   2.00   4.00   3.00   3.00   0.00  -
+1  kite       poison     mandragora-3     100   10.00   3.00   2.00   3.00   5.00   0.00  -
+1  kite       poison     eye-1            100   11.00   1.00   7.00   2.00   1.00   0.00  -
+1  kite       poison     eye-2            100    8.00   2.00   4.00   3.00   3.00   0.00  -
+1  kite       poison     eye-3            100   10.00   3.00   2.00   3.00   5.00   0.00  -
+1  kite       acid       bat-1              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       acid       bat-2              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       acid       bat-3              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       acid       mushroom-1       100   11.00   1.00   7.00   2.00   1.00   0.00  -
+1  kite       acid       mushroom-2       100    8.00   2.00   4.00   3.00   3.00   0.00  -
+1  kite       acid       mushroom-3       100   10.00   3.00   2.00   3.00   5.00   0.00  -
+1  kite       acid       undine-1         100   11.00   1.00   7.00   2.00   1.00   0.00  -
+1  kite       acid       undine-2         100    8.00   2.00   4.00   3.00   3.00   0.00  -
+1  kite       acid       undine-3         100   10.00   3.00   2.00   3.00   5.00   0.00  -
+1  kite       acid       cactus-1         100   11.00   1.00   7.00   2.00   1.00   0.00  -
+1  kite       acid       cactus-2         100    8.00   2.00   4.00   3.00   3.00   0.00  -
+1  kite       acid       cactus-3         100   10.00   3.00   2.00   3.00   5.00   0.00  -
+1  kite       acid       mandragora-1     100   11.00   1.00   7.00   2.00   1.00   0.00  -
+1  kite       acid       mandragora-2     100    8.00   2.00   4.00   3.00   3.00   0.00  -
+1  kite       acid       mandragora-3     100   10.00   3.00   2.00   3.00   5.00   0.00  -
+1  kite       acid       eye-1            100   11.00   1.00   7.00   2.00   1.00   0.00  -
+1  kite       acid       eye-2            100    8.00   2.00   4.00   3.00   3.00   0.00  -
+1  kite       acid       eye-3            100   10.00   3.00   2.00   3.00   5.00   0.00  -
+1  kite       blood      bat-1              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       blood      bat-2              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       blood      bat-3              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       blood      mushroom-1       100   14.00   1.00   5.00   5.00   4.00   0.00  -
+1  kite       blood      mushroom-2         0   10.00   1.00   0.00   5.00   9.00   0.00  melee:Mushroom=50
+1  kite       blood      mushroom-3         0    9.00   0.00   0.00   4.00   9.00   0.00  melee:Mushroom=50
+1  kite       blood      undine-1         100   14.00   1.00   5.00   5.00   4.00   0.00  -
+1  kite       blood      undine-2           0   10.00   1.00   0.00   5.00   9.00   0.00  melee:Undine=50
+1  kite       blood      undine-3           0    9.00   0.00   0.00   4.00   9.00   0.00  melee:Undine=50
+1  kite       blood      cactus-1         100   14.00   1.00   5.00   5.00   4.00   0.00  -
+1  kite       blood      cactus-2           0   10.00   1.00   0.00   5.00   9.00   0.00  melee:Cactus=50
+1  kite       blood      cactus-3           0    9.00   0.00   0.00   4.00   9.00   0.00  melee:Cactus=50
+1  kite       blood      mandragora-1     100   14.00   1.00   5.00   5.00   4.00   0.00  -
+1  kite       blood      mandragora-2       0   10.00   1.00   0.00   5.00   9.00   0.00  melee:Mandragora=50
+1  kite       blood      mandragora-3       0    9.00   0.00   0.00   4.00   9.00   0.00  melee:Mandragora=50
+1  kite       blood      eye-1            100   14.00   1.00   5.00   5.00   4.00   0.00  -
+1  kite       blood      eye-2              0   10.00   1.00   0.00   5.00   9.00   0.00  melee:Eye=50
+1  kite       blood      eye-3              0    9.00   0.00   0.00   4.00   9.00   0.00  melee:Eye=50
+1  kite       lava       bat-1              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       lava       bat-2              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       lava       bat-3              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       lava       mushroom-1       100   11.00   1.00   7.00   2.00   1.00   0.00  -
+1  kite       lava       mushroom-2       100    8.00   2.00   4.00   3.00   3.00   0.00  -
+1  kite       lava       mushroom-3       100   10.00   3.00   2.00   3.00   5.00   0.00  -
+1  kite       lava       undine-1         100   11.00   1.00   7.00   2.00   1.00   0.00  -
+1  kite       lava       undine-2         100    8.00   2.00   4.00   3.00   3.00   0.00  -
+1  kite       lava       undine-3         100   10.00   3.00   2.00   3.00   5.00   0.00  -
+1  kite       lava       cactus-1         100   11.00   1.00   7.00   2.00   1.00   0.00  -
+1  kite       lava       cactus-2         100    8.00   2.00   4.00   3.00   3.00   0.00  -
+1  kite       lava       cactus-3         100   10.00   3.00   2.00   3.00   5.00   0.00  -
+1  kite       lava       mandragora-1     100   11.00   1.00   7.00   2.00   1.00   0.00  -
+1  kite       lava       mandragora-2     100    8.00   2.00   4.00   3.00   3.00   0.00  -
+1  kite       lava       mandragora-3     100   10.00   3.00   2.00   3.00   5.00   0.00  -
+1  kite       lava       eye-1            100   11.00   1.00   7.00   2.00   1.00   0.00  -
+1  kite       lava       eye-2            100    8.00   2.00   4.00   3.00   3.00   0.00  -
+1  kite       lava       eye-3            100   10.00   3.00   2.00   3.00   5.00   0.00  -
+1  kite       mercury    bat-1              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       mercury    bat-2              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       mercury    bat-3              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       mercury    mushroom-1         0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       mercury    mushroom-2         0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       mercury    mushroom-3         0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       mercury    undine-1           0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       mercury    undine-2           0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       mercury    undine-3           0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       mercury    cactus-1           0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       mercury    cactus-2           0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       mercury    cactus-3           0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       mercury    mandragora-1       0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       mercury    mandragora-2       0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       mercury    mandragora-3       0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       mercury    eye-1              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       mercury    eye-2              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+1  kite       mercury    eye-3              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
 2  newcomer   start      bat-1            100    3.26   1.00   3.46   2.00   0.54   0.00  -
 2  newcomer   start      bat-2             52    4.74   1.52   0.76   3.80   1.44   0.00  melee:Bat=24
 2  newcomer   start      bat-3              0   39.72   1.40   0.18   3.94   1.88   0.00  melee:Bat=41 timeout=9
@@ -758,6 +912,150 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 2  arranger   mercury    eye-1            100    4.72   1.00   3.00   5.00   2.00   0.00  -
 2  arranger   mercury    eye-2              0    6.34   0.90   0.00   6.30   3.70   0.00  melee:Eye=50
 2  arranger   mercury    eye-3              0    5.84   0.88   0.00   6.30   3.70   0.00  melee:Eye=50
+2  kite       start      bat-1              0  200.00   0.00   6.00   0.00   0.00   0.00  timeout=50
+2  kite       start      bat-2              0  200.00   0.00   6.00   0.00   0.00   0.00  timeout=50
+2  kite       start      bat-3              0  200.00   0.00   6.00   0.00   0.00   0.00  timeout=50
+2  kite       start      mushroom-1       100    6.00   1.00   4.00   2.00   0.00   0.00  -
+2  kite       start      mushroom-2         0    7.00   1.00   0.00   4.00   2.00   0.00  melee:Mushroom=50
+2  kite       start      mushroom-3         0    7.00   1.00   0.00   4.00   2.00   0.00  melee:Mushroom=50
+2  kite       start      undine-1         100    6.00   1.00   4.00   2.00   0.00   0.00  -
+2  kite       start      undine-2           0    7.00   1.00   0.00   4.00   2.00   0.00  melee:Undine=50
+2  kite       start      undine-3           0    7.00   1.00   0.00   4.00   2.00   0.00  melee:Undine=50
+2  kite       start      cactus-1         100    6.00   1.00   4.00   2.00   0.00   0.00  -
+2  kite       start      cactus-2           0    7.00   1.00   0.00   4.00   2.00   0.00  melee:Cactus=50
+2  kite       start      cactus-3           0    7.00   1.00   0.00   4.00   2.00   0.00  melee:Cactus=50
+2  kite       start      mandragora-1     100    6.00   1.00   4.00   2.00   0.00   0.00  -
+2  kite       start      mandragora-2       0    7.00   1.00   0.00   4.00   2.00   0.00  melee:Mandragora=50
+2  kite       start      mandragora-3       0    7.00   1.00   0.00   4.00   2.00   0.00  melee:Mandragora=50
+2  kite       start      eye-1            100    6.00   1.00   4.00   2.00   0.00   0.00  -
+2  kite       start      eye-2              0    7.00   1.00   0.00   4.00   2.00   0.00  melee:Eye=50
+2  kite       start      eye-3              0    7.00   1.00   0.00   4.00   2.00   0.00  melee:Eye=50
+2  kite       water      bat-1              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       water      bat-2              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       water      bat-3              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       water      mushroom-1       100    9.00   1.00   5.00   5.00   0.00   0.00  -
+2  kite       water      mushroom-2         0    8.00   1.00   0.00   6.00   4.00   0.00  melee:Mushroom=50
+2  kite       water      mushroom-3         0    8.00   1.00   0.00   5.00   5.00   0.00  melee:Mushroom=50
+2  kite       water      undine-1         100    9.00   1.00   5.00   5.00   0.00   0.00  -
+2  kite       water      undine-2           0    8.00   1.00   0.00   6.00   4.00   0.00  melee:Undine=50
+2  kite       water      undine-3           0    8.00   1.00   0.00   5.00   5.00   0.00  melee:Undine=50
+2  kite       water      cactus-1         100    9.00   1.00   5.00   5.00   0.00   0.00  -
+2  kite       water      cactus-2           0    8.00   1.00   0.00   6.00   4.00   0.00  melee:Cactus=50
+2  kite       water      cactus-3           0    8.00   1.00   0.00   5.00   5.00   0.00  melee:Cactus=50
+2  kite       water      mandragora-1     100    9.00   1.00   5.00   5.00   0.00   0.00  -
+2  kite       water      mandragora-2       0    8.00   1.00   0.00   6.00   4.00   0.00  melee:Mandragora=50
+2  kite       water      mandragora-3       0    8.00   1.00   0.00   5.00   5.00   0.00  melee:Mandragora=50
+2  kite       water      eye-1            100    9.00   1.00   5.00   5.00   0.00   0.00  -
+2  kite       water      eye-2              0    8.00   1.00   0.00   6.00   4.00   0.00  melee:Eye=50
+2  kite       water      eye-3              0    8.00   1.00   0.00   5.00   5.00   0.00  melee:Eye=50
+2  kite       oil        bat-1              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       oil        bat-2              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       oil        bat-3              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       oil        mushroom-1       100   17.00   1.00   5.00   5.00   0.00   0.00  -
+2  kite       oil        mushroom-2         0   14.00   1.00   0.00   7.00   3.00   0.00  melee:Mushroom=50
+2  kite       oil        mushroom-3         0    8.00   0.00   0.00   5.00   5.00   0.00  melee:Mushroom=50
+2  kite       oil        undine-1         100   17.00   1.00   5.00   5.00   0.00   0.00  -
+2  kite       oil        undine-2           0   14.00   1.00   0.00   7.00   3.00   0.00  melee:Undine=50
+2  kite       oil        undine-3           0    8.00   0.00   0.00   5.00   5.00   0.00  melee:Undine=50
+2  kite       oil        cactus-1         100   17.00   1.00   5.00   5.00   0.00   0.00  -
+2  kite       oil        cactus-2           0   14.00   1.00   0.00   7.00   3.00   0.00  melee:Cactus=50
+2  kite       oil        cactus-3           0    8.00   0.00   0.00   5.00   5.00   0.00  melee:Cactus=50
+2  kite       oil        mandragora-1     100   17.00   1.00   5.00   5.00   0.00   0.00  -
+2  kite       oil        mandragora-2       0   14.00   1.00   0.00   7.00   3.00   0.00  melee:Mandragora=50
+2  kite       oil        mandragora-3       0    8.00   0.00   0.00   5.00   5.00   0.00  melee:Mandragora=50
+2  kite       oil        eye-1            100   17.00   1.00   5.00   5.00   0.00   0.00  -
+2  kite       oil        eye-2              0   14.00   1.00   0.00   7.00   3.00   0.00  melee:Eye=50
+2  kite       oil        eye-3              0    8.00   0.00   0.00   5.00   5.00   0.00  melee:Eye=50
+2  kite       poison     bat-1              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       poison     bat-2              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       poison     bat-3              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       poison     mushroom-1       100    6.00   1.00   8.00   2.00   0.00   0.00  -
+2  kite       poison     mushroom-2       100    7.00   2.00   4.00   5.00   1.00   0.00  -
+2  kite       poison     mushroom-3       100    9.00   3.00   1.00   7.00   2.00   0.00  -
+2  kite       poison     undine-1         100    6.00   1.00   8.00   2.00   0.00   0.00  -
+2  kite       poison     undine-2         100    7.00   2.00   4.00   5.00   1.00   0.00  -
+2  kite       poison     undine-3         100    9.00   3.00   1.00   7.00   2.00   0.00  -
+2  kite       poison     cactus-1         100    6.00   1.00   8.00   2.00   0.00   0.00  -
+2  kite       poison     cactus-2         100    7.00   2.00   4.00   5.00   1.00   0.00  -
+2  kite       poison     cactus-3         100    9.00   3.00   1.00   7.00   2.00   0.00  -
+2  kite       poison     mandragora-1     100    6.00   1.00   8.00   2.00   0.00   0.00  -
+2  kite       poison     mandragora-2     100    7.00   2.00   4.00   5.00   1.00   0.00  -
+2  kite       poison     mandragora-3     100    9.00   3.00   1.00   7.00   2.00   0.00  -
+2  kite       poison     eye-1            100    6.00   1.00   8.00   2.00   0.00   0.00  -
+2  kite       poison     eye-2            100    7.00   2.00   4.00   5.00   1.00   0.00  -
+2  kite       poison     eye-3            100    9.00   3.00   1.00   7.00   2.00   0.00  -
+2  kite       acid       bat-1              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       acid       bat-2              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       acid       bat-3              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       acid       mushroom-1       100    6.00   1.00   8.00   2.00   0.00   0.00  -
+2  kite       acid       mushroom-2       100    7.00   2.00   4.00   5.00   1.00   0.00  -
+2  kite       acid       mushroom-3       100    9.00   3.00   1.00   7.00   2.00   0.00  -
+2  kite       acid       undine-1         100    6.00   1.00   8.00   2.00   0.00   0.00  -
+2  kite       acid       undine-2         100    7.00   2.00   4.00   5.00   1.00   0.00  -
+2  kite       acid       undine-3         100    9.00   3.00   1.00   7.00   2.00   0.00  -
+2  kite       acid       cactus-1         100    6.00   1.00   8.00   2.00   0.00   0.00  -
+2  kite       acid       cactus-2         100    7.00   2.00   4.00   5.00   1.00   0.00  -
+2  kite       acid       cactus-3         100    9.00   3.00   1.00   7.00   2.00   0.00  -
+2  kite       acid       mandragora-1     100    6.00   1.00   8.00   2.00   0.00   0.00  -
+2  kite       acid       mandragora-2     100    7.00   2.00   4.00   5.00   1.00   0.00  -
+2  kite       acid       mandragora-3     100    9.00   3.00   1.00   7.00   2.00   0.00  -
+2  kite       acid       eye-1            100    6.00   1.00   8.00   2.00   0.00   0.00  -
+2  kite       acid       eye-2            100    7.00   2.00   4.00   5.00   1.00   0.00  -
+2  kite       acid       eye-3            100    9.00   3.00   1.00   7.00   2.00   0.00  -
+2  kite       blood      bat-1              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       blood      bat-2              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       blood      bat-3              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       blood      mushroom-1       100    9.00   1.00   9.00   5.00   0.00   0.00  -
+2  kite       blood      mushroom-2         0    9.00   1.00   0.00   9.00   5.00   0.00  melee:Mushroom=50
+2  kite       blood      mushroom-3         0    8.00   1.00   0.00   7.00   6.00   0.00  melee:Mushroom=50
+2  kite       blood      undine-1         100    9.00   1.00   9.00   5.00   0.00   0.00  -
+2  kite       blood      undine-2           0    9.00   1.00   0.00   9.00   5.00   0.00  melee:Undine=50
+2  kite       blood      undine-3           0    8.00   1.00   0.00   7.00   6.00   0.00  melee:Undine=50
+2  kite       blood      cactus-1         100    9.00   1.00   9.00   5.00   0.00   0.00  -
+2  kite       blood      cactus-2           0    9.00   1.00   0.00   9.00   5.00   0.00  melee:Cactus=50
+2  kite       blood      cactus-3           0    8.00   1.00   0.00   7.00   6.00   0.00  melee:Cactus=50
+2  kite       blood      mandragora-1     100    9.00   1.00   9.00   5.00   0.00   0.00  -
+2  kite       blood      mandragora-2       0    9.00   1.00   0.00   9.00   5.00   0.00  melee:Mandragora=50
+2  kite       blood      mandragora-3       0    8.00   1.00   0.00   7.00   6.00   0.00  melee:Mandragora=50
+2  kite       blood      eye-1            100    9.00   1.00   9.00   5.00   0.00   0.00  -
+2  kite       blood      eye-2              0    9.00   1.00   0.00   9.00   5.00   0.00  melee:Eye=50
+2  kite       blood      eye-3              0    8.00   1.00   0.00   7.00   6.00   0.00  melee:Eye=50
+2  kite       lava       bat-1              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       lava       bat-2              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       lava       bat-3              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       lava       mushroom-1       100    6.00   1.00   8.00   2.00   0.00   0.00  -
+2  kite       lava       mushroom-2       100    7.00   2.00   4.00   5.00   1.00   0.00  -
+2  kite       lava       mushroom-3       100    9.00   3.00   1.00   7.00   2.00   0.00  -
+2  kite       lava       undine-1         100    6.00   1.00   8.00   2.00   0.00   0.00  -
+2  kite       lava       undine-2         100    7.00   2.00   4.00   5.00   1.00   0.00  -
+2  kite       lava       undine-3         100    9.00   3.00   1.00   7.00   2.00   0.00  -
+2  kite       lava       cactus-1         100    6.00   1.00   8.00   2.00   0.00   0.00  -
+2  kite       lava       cactus-2         100    7.00   2.00   4.00   5.00   1.00   0.00  -
+2  kite       lava       cactus-3         100    9.00   3.00   1.00   7.00   2.00   0.00  -
+2  kite       lava       mandragora-1     100    6.00   1.00   8.00   2.00   0.00   0.00  -
+2  kite       lava       mandragora-2     100    7.00   2.00   4.00   5.00   1.00   0.00  -
+2  kite       lava       mandragora-3     100    9.00   3.00   1.00   7.00   2.00   0.00  -
+2  kite       lava       eye-1            100    6.00   1.00   8.00   2.00   0.00   0.00  -
+2  kite       lava       eye-2            100    7.00   2.00   4.00   5.00   1.00   0.00  -
+2  kite       lava       eye-3            100    9.00   3.00   1.00   7.00   2.00   0.00  -
+2  kite       mercury    bat-1              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       mercury    bat-2              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       mercury    bat-3              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       mercury    mushroom-1         0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       mercury    mushroom-2         0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       mercury    mushroom-3         0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       mercury    undine-1           0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       mercury    undine-2           0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       mercury    undine-3           0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       mercury    cactus-1           0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       mercury    cactus-2           0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       mercury    cactus-3           0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       mercury    mandragora-1       0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       mercury    mandragora-2       0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       mercury    mandragora-3       0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       mercury    eye-1              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       mercury    eye-2              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
+2  kite       mercury    eye-3              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
 
 [economy]
 ap policy     build      encounter         spent bitten status  grown  swaps     net  by
@@ -1049,6 +1347,150 @@ ap policy     build      encounter         spent bitten status  grown  swaps    
 1  arranger   mercury    eye-1              5.00   4.00   0.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
 1  arranger   mercury    eye-2              5.00   4.00   0.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
 1  arranger   mercury    eye-3              4.88   4.26   0.00   0.00   0.00   -9.14  spent=Mercury:4.88 bitten=Mercury:4.26 status=-
+1  kite       start      bat-1              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       start      bat-2              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       start      bat-3              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       start      mushroom-1         2.00   1.00   0.00   0.00   0.00   -3.00  spent=Poison:1.00,Lava:1.00 bitten=Acid:1.00 status=-
+1  kite       start      mushroom-2         2.00   4.00   0.00   0.00   0.00   -6.00  spent=Oil:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
+1  kite       start      mushroom-3         2.00   4.00   0.00   0.00   0.00   -6.00  spent=Oil:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
+1  kite       start      undine-1           2.00   1.00   0.00   0.00   0.00   -3.00  spent=Poison:1.00,Lava:1.00 bitten=Acid:1.00 status=-
+1  kite       start      undine-2           2.00   4.00   0.00   0.00   0.00   -6.00  spent=Oil:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
+1  kite       start      undine-3           2.00   4.00   0.00   0.00   0.00   -6.00  spent=Oil:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
+1  kite       start      cactus-1           2.00   1.00   0.00   0.00   0.00   -3.00  spent=Poison:1.00,Lava:1.00 bitten=Acid:1.00 status=-
+1  kite       start      cactus-2           2.00   4.00   0.00   0.00   0.00   -6.00  spent=Oil:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
+1  kite       start      cactus-3           2.00   4.00   0.00   0.00   0.00   -6.00  spent=Oil:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
+1  kite       start      mandragora-1       2.00   1.00   0.00   0.00   0.00   -3.00  spent=Poison:1.00,Lava:1.00 bitten=Acid:1.00 status=-
+1  kite       start      mandragora-2       2.00   4.00   0.00   0.00   0.00   -6.00  spent=Oil:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
+1  kite       start      mandragora-3       2.00   4.00   0.00   0.00   0.00   -6.00  spent=Oil:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
+1  kite       start      eye-1              2.00   1.00   0.00   0.00   0.00   -3.00  spent=Poison:1.00,Lava:1.00 bitten=Acid:1.00 status=-
+1  kite       start      eye-2              2.00   4.00   0.00   0.00   0.00   -6.00  spent=Oil:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
+1  kite       start      eye-3              2.00   4.00   0.00   0.00   0.00   -6.00  spent=Oil:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
+1  kite       water      bat-1              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       water      bat-2              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       water      bat-3              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       water      mushroom-1         5.00   4.00   0.00   0.00   0.00   -9.00  spent=Water:5.00 bitten=Water:4.00 status=-
+1  kite       water      mushroom-2         3.00   7.00   0.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
+1  kite       water      mushroom-3         3.00   7.00   0.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
+1  kite       water      undine-1           5.00   4.00   0.00   0.00   0.00   -9.00  spent=Water:5.00 bitten=Water:4.00 status=-
+1  kite       water      undine-2           3.00   7.00   0.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
+1  kite       water      undine-3           3.00   7.00   0.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
+1  kite       water      cactus-1           5.00   4.00   0.00   0.00   0.00   -9.00  spent=Water:5.00 bitten=Water:4.00 status=-
+1  kite       water      cactus-2           3.00   7.00   0.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
+1  kite       water      cactus-3           3.00   7.00   0.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
+1  kite       water      mandragora-1       5.00   4.00   0.00   0.00   0.00   -9.00  spent=Water:5.00 bitten=Water:4.00 status=-
+1  kite       water      mandragora-2       3.00   7.00   0.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
+1  kite       water      mandragora-3       3.00   7.00   0.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
+1  kite       water      eye-1              5.00   4.00   0.00   0.00   0.00   -9.00  spent=Water:5.00 bitten=Water:4.00 status=-
+1  kite       water      eye-2              3.00   7.00   0.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
+1  kite       water      eye-3              3.00   7.00   0.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
+1  kite       oil        bat-1              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       oil        bat-2              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       oil        bat-3              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       oil        mushroom-1         5.00   4.00   0.00   0.00   0.00   -9.00  spent=Oil:5.00 bitten=Oil:4.00 status=-
+1  kite       oil        mushroom-2         3.00   7.00   0.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
+1  kite       oil        mushroom-3         3.00   7.00   0.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
+1  kite       oil        undine-1           5.00   4.00   0.00   0.00   0.00   -9.00  spent=Oil:5.00 bitten=Oil:4.00 status=-
+1  kite       oil        undine-2           3.00   7.00   0.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
+1  kite       oil        undine-3           3.00   7.00   0.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
+1  kite       oil        cactus-1           5.00   4.00   0.00   0.00   0.00   -9.00  spent=Oil:5.00 bitten=Oil:4.00 status=-
+1  kite       oil        cactus-2           3.00   7.00   0.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
+1  kite       oil        cactus-3           3.00   7.00   0.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
+1  kite       oil        mandragora-1       5.00   4.00   0.00   0.00   0.00   -9.00  spent=Oil:5.00 bitten=Oil:4.00 status=-
+1  kite       oil        mandragora-2       3.00   7.00   0.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
+1  kite       oil        mandragora-3       3.00   7.00   0.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
+1  kite       oil        eye-1              5.00   4.00   0.00   0.00   0.00   -9.00  spent=Oil:5.00 bitten=Oil:4.00 status=-
+1  kite       oil        eye-2              3.00   7.00   0.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
+1  kite       oil        eye-3              3.00   7.00   0.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
+1  kite       poison     bat-1              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       poison     bat-2              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       poison     bat-3              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       poison     mushroom-1         2.00   1.00   0.00   0.00   0.00   -3.00  spent=Poison:2.00 bitten=Poison:1.00 status=-
+1  kite       poison     mushroom-2         3.00   3.00   0.00   0.00   0.00   -6.00  spent=Poison:3.00 bitten=Poison:3.00 status=-
+1  kite       poison     mushroom-3         3.00   5.00   0.00   0.00   0.00   -8.00  spent=Poison:3.00 bitten=Poison:5.00 status=-
+1  kite       poison     undine-1           2.00   1.00   0.00   0.00   0.00   -3.00  spent=Poison:2.00 bitten=Poison:1.00 status=-
+1  kite       poison     undine-2           3.00   3.00   0.00   0.00   0.00   -6.00  spent=Poison:3.00 bitten=Poison:3.00 status=-
+1  kite       poison     undine-3           3.00   5.00   0.00   0.00   0.00   -8.00  spent=Poison:3.00 bitten=Poison:5.00 status=-
+1  kite       poison     cactus-1           2.00   1.00   0.00   0.00   0.00   -3.00  spent=Poison:2.00 bitten=Poison:1.00 status=-
+1  kite       poison     cactus-2           3.00   3.00   0.00   0.00   0.00   -6.00  spent=Poison:3.00 bitten=Poison:3.00 status=-
+1  kite       poison     cactus-3           3.00   5.00   0.00   0.00   0.00   -8.00  spent=Poison:3.00 bitten=Poison:5.00 status=-
+1  kite       poison     mandragora-1       2.00   1.00   0.00   0.00   0.00   -3.00  spent=Poison:2.00 bitten=Poison:1.00 status=-
+1  kite       poison     mandragora-2       3.00   3.00   0.00   0.00   0.00   -6.00  spent=Poison:3.00 bitten=Poison:3.00 status=-
+1  kite       poison     mandragora-3       3.00   5.00   0.00   0.00   0.00   -8.00  spent=Poison:3.00 bitten=Poison:5.00 status=-
+1  kite       poison     eye-1              2.00   1.00   0.00   0.00   0.00   -3.00  spent=Poison:2.00 bitten=Poison:1.00 status=-
+1  kite       poison     eye-2              3.00   3.00   0.00   0.00   0.00   -6.00  spent=Poison:3.00 bitten=Poison:3.00 status=-
+1  kite       poison     eye-3              3.00   5.00   0.00   0.00   0.00   -8.00  spent=Poison:3.00 bitten=Poison:5.00 status=-
+1  kite       acid       bat-1              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       acid       bat-2              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       acid       bat-3              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       acid       mushroom-1         2.00   1.00   0.00   0.00   0.00   -3.00  spent=Acid:2.00 bitten=Acid:1.00 status=-
+1  kite       acid       mushroom-2         3.00   3.00   0.00   0.00   0.00   -6.00  spent=Acid:3.00 bitten=Acid:3.00 status=-
+1  kite       acid       mushroom-3         3.00   5.00   0.00   0.00   0.00   -8.00  spent=Acid:3.00 bitten=Acid:5.00 status=-
+1  kite       acid       undine-1           2.00   1.00   0.00   0.00   0.00   -3.00  spent=Acid:2.00 bitten=Acid:1.00 status=-
+1  kite       acid       undine-2           3.00   3.00   0.00   0.00   0.00   -6.00  spent=Acid:3.00 bitten=Acid:3.00 status=-
+1  kite       acid       undine-3           3.00   5.00   0.00   0.00   0.00   -8.00  spent=Acid:3.00 bitten=Acid:5.00 status=-
+1  kite       acid       cactus-1           2.00   1.00   0.00   0.00   0.00   -3.00  spent=Acid:2.00 bitten=Acid:1.00 status=-
+1  kite       acid       cactus-2           3.00   3.00   0.00   0.00   0.00   -6.00  spent=Acid:3.00 bitten=Acid:3.00 status=-
+1  kite       acid       cactus-3           3.00   5.00   0.00   0.00   0.00   -8.00  spent=Acid:3.00 bitten=Acid:5.00 status=-
+1  kite       acid       mandragora-1       2.00   1.00   0.00   0.00   0.00   -3.00  spent=Acid:2.00 bitten=Acid:1.00 status=-
+1  kite       acid       mandragora-2       3.00   3.00   0.00   0.00   0.00   -6.00  spent=Acid:3.00 bitten=Acid:3.00 status=-
+1  kite       acid       mandragora-3       3.00   5.00   0.00   0.00   0.00   -8.00  spent=Acid:3.00 bitten=Acid:5.00 status=-
+1  kite       acid       eye-1              2.00   1.00   0.00   0.00   0.00   -3.00  spent=Acid:2.00 bitten=Acid:1.00 status=-
+1  kite       acid       eye-2              3.00   3.00   0.00   0.00   0.00   -6.00  spent=Acid:3.00 bitten=Acid:3.00 status=-
+1  kite       acid       eye-3              3.00   5.00   0.00   0.00   0.00   -8.00  spent=Acid:3.00 bitten=Acid:5.00 status=-
+1  kite       blood      bat-1              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       blood      bat-2              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       blood      bat-3              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       blood      mushroom-1         5.00   4.00   0.00   4.00   0.00   -5.00  spent=Blood:5.00 bitten=Blood:4.00 status=-
+1  kite       blood      mushroom-2         5.00   9.00   0.00   4.00   0.00  -10.00  spent=Blood:5.00 bitten=Blood:9.00 status=-
+1  kite       blood      mushroom-3         4.00   9.00   0.00   3.00   0.00  -10.00  spent=Blood:4.00 bitten=Blood:9.00 status=-
+1  kite       blood      undine-1           5.00   4.00   0.00   4.00   0.00   -5.00  spent=Blood:5.00 bitten=Blood:4.00 status=-
+1  kite       blood      undine-2           5.00   9.00   0.00   4.00   0.00  -10.00  spent=Blood:5.00 bitten=Blood:9.00 status=-
+1  kite       blood      undine-3           4.00   9.00   0.00   3.00   0.00  -10.00  spent=Blood:4.00 bitten=Blood:9.00 status=-
+1  kite       blood      cactus-1           5.00   4.00   0.00   4.00   0.00   -5.00  spent=Blood:5.00 bitten=Blood:4.00 status=-
+1  kite       blood      cactus-2           5.00   9.00   0.00   4.00   0.00  -10.00  spent=Blood:5.00 bitten=Blood:9.00 status=-
+1  kite       blood      cactus-3           4.00   9.00   0.00   3.00   0.00  -10.00  spent=Blood:4.00 bitten=Blood:9.00 status=-
+1  kite       blood      mandragora-1       5.00   4.00   0.00   4.00   0.00   -5.00  spent=Blood:5.00 bitten=Blood:4.00 status=-
+1  kite       blood      mandragora-2       5.00   9.00   0.00   4.00   0.00  -10.00  spent=Blood:5.00 bitten=Blood:9.00 status=-
+1  kite       blood      mandragora-3       4.00   9.00   0.00   3.00   0.00  -10.00  spent=Blood:4.00 bitten=Blood:9.00 status=-
+1  kite       blood      eye-1              5.00   4.00   0.00   4.00   0.00   -5.00  spent=Blood:5.00 bitten=Blood:4.00 status=-
+1  kite       blood      eye-2              5.00   9.00   0.00   4.00   0.00  -10.00  spent=Blood:5.00 bitten=Blood:9.00 status=-
+1  kite       blood      eye-3              4.00   9.00   0.00   3.00   0.00  -10.00  spent=Blood:4.00 bitten=Blood:9.00 status=-
+1  kite       lava       bat-1              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       lava       bat-2              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       lava       bat-3              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       lava       mushroom-1         2.00   1.00   0.00   0.00   0.00   -3.00  spent=Lava:2.00 bitten=Lava:1.00 status=-
+1  kite       lava       mushroom-2         3.00   3.00   0.00   0.00   0.00   -6.00  spent=Lava:3.00 bitten=Lava:3.00 status=-
+1  kite       lava       mushroom-3         3.00   5.00   0.00   0.00   0.00   -8.00  spent=Lava:3.00 bitten=Lava:5.00 status=-
+1  kite       lava       undine-1           2.00   1.00   0.00   0.00   0.00   -3.00  spent=Lava:2.00 bitten=Lava:1.00 status=-
+1  kite       lava       undine-2           3.00   3.00   0.00   0.00   0.00   -6.00  spent=Lava:3.00 bitten=Lava:3.00 status=-
+1  kite       lava       undine-3           3.00   5.00   0.00   0.00   0.00   -8.00  spent=Lava:3.00 bitten=Lava:5.00 status=-
+1  kite       lava       cactus-1           2.00   1.00   0.00   0.00   0.00   -3.00  spent=Lava:2.00 bitten=Lava:1.00 status=-
+1  kite       lava       cactus-2           3.00   3.00   0.00   0.00   0.00   -6.00  spent=Lava:3.00 bitten=Lava:3.00 status=-
+1  kite       lava       cactus-3           3.00   5.00   0.00   0.00   0.00   -8.00  spent=Lava:3.00 bitten=Lava:5.00 status=-
+1  kite       lava       mandragora-1       2.00   1.00   0.00   0.00   0.00   -3.00  spent=Lava:2.00 bitten=Lava:1.00 status=-
+1  kite       lava       mandragora-2       3.00   3.00   0.00   0.00   0.00   -6.00  spent=Lava:3.00 bitten=Lava:3.00 status=-
+1  kite       lava       mandragora-3       3.00   5.00   0.00   0.00   0.00   -8.00  spent=Lava:3.00 bitten=Lava:5.00 status=-
+1  kite       lava       eye-1              2.00   1.00   0.00   0.00   0.00   -3.00  spent=Lava:2.00 bitten=Lava:1.00 status=-
+1  kite       lava       eye-2              3.00   3.00   0.00   0.00   0.00   -6.00  spent=Lava:3.00 bitten=Lava:3.00 status=-
+1  kite       lava       eye-3              3.00   5.00   0.00   0.00   0.00   -8.00  spent=Lava:3.00 bitten=Lava:5.00 status=-
+1  kite       mercury    bat-1              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       mercury    bat-2              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       mercury    bat-3              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       mercury    mushroom-1         0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       mercury    mushroom-2         0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       mercury    mushroom-3         0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       mercury    undine-1           0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       mercury    undine-2           0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       mercury    undine-3           0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       mercury    cactus-1           0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       mercury    cactus-2           0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       mercury    cactus-3           0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       mercury    mandragora-1       0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       mercury    mandragora-2       0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       mercury    mandragora-3       0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       mercury    eye-1              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       mercury    eye-2              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+1  kite       mercury    eye-3              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
 2  newcomer   start      bat-1              2.00   0.54   0.00   0.00   0.00   -2.54  spent=Poison:0.54,Acid:0.46,Lava:1.00 bitten=Acid:0.54 status=-
 2  newcomer   start      bat-2              3.80   1.44   0.00   0.00   0.00   -5.24  spent=Water:0.56,Oil:0.72,Poison:1.00,Acid:0.52,Lava:1.00 bitten=Water:0.68,Oil:0.28,Acid:0.48 status=-
 2  newcomer   start      bat-3              3.94   1.88   0.00   0.00   0.00   -5.82  spent=Water:0.76,Oil:0.82,Poison:1.00,Acid:0.36,Lava:1.00 bitten=Water:1.06,Oil:0.18,Acid:0.64 status=-
@@ -1337,6 +1779,150 @@ ap policy     build      encounter         spent bitten status  grown  swaps    
 2  arranger   mercury    eye-1              5.00   2.00   0.00   0.00   0.00   -7.00  spent=Mercury:5.00 bitten=Mercury:2.00 status=-
 2  arranger   mercury    eye-2              6.30   3.70   0.00   0.00   0.00  -10.00  spent=Mercury:6.30 bitten=Mercury:3.70 status=-
 2  arranger   mercury    eye-3              6.30   3.70   0.00   0.00   0.00  -10.00  spent=Mercury:6.30 bitten=Mercury:3.70 status=-
+2  kite       start      bat-1              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       start      bat-2              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       start      bat-3              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       start      mushroom-1         2.00   0.00   0.00   0.00   0.00   -2.00  spent=Acid:1.00,Lava:1.00 bitten=- status=-
+2  kite       start      mushroom-2         4.00   2.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Poison:1.00,Acid:1.00,Lava:1.00 bitten=Water:1.00,Oil:1.00 status=-
+2  kite       start      mushroom-3         4.00   2.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Poison:1.00,Acid:1.00,Lava:1.00 bitten=Water:1.00,Oil:1.00 status=-
+2  kite       start      undine-1           2.00   0.00   0.00   0.00   0.00   -2.00  spent=Acid:1.00,Lava:1.00 bitten=- status=-
+2  kite       start      undine-2           4.00   2.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Poison:1.00,Acid:1.00,Lava:1.00 bitten=Water:1.00,Oil:1.00 status=-
+2  kite       start      undine-3           4.00   2.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Poison:1.00,Acid:1.00,Lava:1.00 bitten=Water:1.00,Oil:1.00 status=-
+2  kite       start      cactus-1           2.00   0.00   0.00   0.00   0.00   -2.00  spent=Acid:1.00,Lava:1.00 bitten=- status=-
+2  kite       start      cactus-2           4.00   2.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Poison:1.00,Acid:1.00,Lava:1.00 bitten=Water:1.00,Oil:1.00 status=-
+2  kite       start      cactus-3           4.00   2.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Poison:1.00,Acid:1.00,Lava:1.00 bitten=Water:1.00,Oil:1.00 status=-
+2  kite       start      mandragora-1       2.00   0.00   0.00   0.00   0.00   -2.00  spent=Acid:1.00,Lava:1.00 bitten=- status=-
+2  kite       start      mandragora-2       4.00   2.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Poison:1.00,Acid:1.00,Lava:1.00 bitten=Water:1.00,Oil:1.00 status=-
+2  kite       start      mandragora-3       4.00   2.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Poison:1.00,Acid:1.00,Lava:1.00 bitten=Water:1.00,Oil:1.00 status=-
+2  kite       start      eye-1              2.00   0.00   0.00   0.00   0.00   -2.00  spent=Acid:1.00,Lava:1.00 bitten=- status=-
+2  kite       start      eye-2              4.00   2.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Poison:1.00,Acid:1.00,Lava:1.00 bitten=Water:1.00,Oil:1.00 status=-
+2  kite       start      eye-3              4.00   2.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Poison:1.00,Acid:1.00,Lava:1.00 bitten=Water:1.00,Oil:1.00 status=-
+2  kite       water      bat-1              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       water      bat-2              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       water      bat-3              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       water      mushroom-1         5.00   0.00   0.00   0.00   0.00   -5.00  spent=Water:5.00 bitten=- status=-
+2  kite       water      mushroom-2         6.00   4.00   0.00   0.00   0.00  -10.00  spent=Water:6.00 bitten=Water:4.00 status=-
+2  kite       water      mushroom-3         5.00   5.00   0.00   0.00   0.00  -10.00  spent=Water:5.00 bitten=Water:5.00 status=-
+2  kite       water      undine-1           5.00   0.00   0.00   0.00   0.00   -5.00  spent=Water:5.00 bitten=- status=-
+2  kite       water      undine-2           6.00   4.00   0.00   0.00   0.00  -10.00  spent=Water:6.00 bitten=Water:4.00 status=-
+2  kite       water      undine-3           5.00   5.00   0.00   0.00   0.00  -10.00  spent=Water:5.00 bitten=Water:5.00 status=-
+2  kite       water      cactus-1           5.00   0.00   0.00   0.00   0.00   -5.00  spent=Water:5.00 bitten=- status=-
+2  kite       water      cactus-2           6.00   4.00   0.00   0.00   0.00  -10.00  spent=Water:6.00 bitten=Water:4.00 status=-
+2  kite       water      cactus-3           5.00   5.00   0.00   0.00   0.00  -10.00  spent=Water:5.00 bitten=Water:5.00 status=-
+2  kite       water      mandragora-1       5.00   0.00   0.00   0.00   0.00   -5.00  spent=Water:5.00 bitten=- status=-
+2  kite       water      mandragora-2       6.00   4.00   0.00   0.00   0.00  -10.00  spent=Water:6.00 bitten=Water:4.00 status=-
+2  kite       water      mandragora-3       5.00   5.00   0.00   0.00   0.00  -10.00  spent=Water:5.00 bitten=Water:5.00 status=-
+2  kite       water      eye-1              5.00   0.00   0.00   0.00   0.00   -5.00  spent=Water:5.00 bitten=- status=-
+2  kite       water      eye-2              6.00   4.00   0.00   0.00   0.00  -10.00  spent=Water:6.00 bitten=Water:4.00 status=-
+2  kite       water      eye-3              5.00   5.00   0.00   0.00   0.00  -10.00  spent=Water:5.00 bitten=Water:5.00 status=-
+2  kite       oil        bat-1              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       oil        bat-2              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       oil        bat-3              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       oil        mushroom-1         5.00   0.00   0.00   0.00   0.00   -5.00  spent=Oil:5.00 bitten=- status=-
+2  kite       oil        mushroom-2         7.00   3.00   0.00   0.00   0.00  -10.00  spent=Oil:7.00 bitten=Oil:3.00 status=-
+2  kite       oil        mushroom-3         5.00   5.00   0.00   0.00   0.00  -10.00  spent=Oil:5.00 bitten=Oil:5.00 status=-
+2  kite       oil        undine-1           5.00   0.00   0.00   0.00   0.00   -5.00  spent=Oil:5.00 bitten=- status=-
+2  kite       oil        undine-2           7.00   3.00   0.00   0.00   0.00  -10.00  spent=Oil:7.00 bitten=Oil:3.00 status=-
+2  kite       oil        undine-3           5.00   5.00   0.00   0.00   0.00  -10.00  spent=Oil:5.00 bitten=Oil:5.00 status=-
+2  kite       oil        cactus-1           5.00   0.00   0.00   0.00   0.00   -5.00  spent=Oil:5.00 bitten=- status=-
+2  kite       oil        cactus-2           7.00   3.00   0.00   0.00   0.00  -10.00  spent=Oil:7.00 bitten=Oil:3.00 status=-
+2  kite       oil        cactus-3           5.00   5.00   0.00   0.00   0.00  -10.00  spent=Oil:5.00 bitten=Oil:5.00 status=-
+2  kite       oil        mandragora-1       5.00   0.00   0.00   0.00   0.00   -5.00  spent=Oil:5.00 bitten=- status=-
+2  kite       oil        mandragora-2       7.00   3.00   0.00   0.00   0.00  -10.00  spent=Oil:7.00 bitten=Oil:3.00 status=-
+2  kite       oil        mandragora-3       5.00   5.00   0.00   0.00   0.00  -10.00  spent=Oil:5.00 bitten=Oil:5.00 status=-
+2  kite       oil        eye-1              5.00   0.00   0.00   0.00   0.00   -5.00  spent=Oil:5.00 bitten=- status=-
+2  kite       oil        eye-2              7.00   3.00   0.00   0.00   0.00  -10.00  spent=Oil:7.00 bitten=Oil:3.00 status=-
+2  kite       oil        eye-3              5.00   5.00   0.00   0.00   0.00  -10.00  spent=Oil:5.00 bitten=Oil:5.00 status=-
+2  kite       poison     bat-1              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       poison     bat-2              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       poison     bat-3              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       poison     mushroom-1         2.00   0.00   0.00   0.00   0.00   -2.00  spent=Poison:2.00 bitten=- status=-
+2  kite       poison     mushroom-2         5.00   1.00   0.00   0.00   0.00   -6.00  spent=Poison:5.00 bitten=Poison:1.00 status=-
+2  kite       poison     mushroom-3         7.00   2.00   0.00   0.00   0.00   -9.00  spent=Poison:7.00 bitten=Poison:2.00 status=-
+2  kite       poison     undine-1           2.00   0.00   0.00   0.00   0.00   -2.00  spent=Poison:2.00 bitten=- status=-
+2  kite       poison     undine-2           5.00   1.00   0.00   0.00   0.00   -6.00  spent=Poison:5.00 bitten=Poison:1.00 status=-
+2  kite       poison     undine-3           7.00   2.00   0.00   0.00   0.00   -9.00  spent=Poison:7.00 bitten=Poison:2.00 status=-
+2  kite       poison     cactus-1           2.00   0.00   0.00   0.00   0.00   -2.00  spent=Poison:2.00 bitten=- status=-
+2  kite       poison     cactus-2           5.00   1.00   0.00   0.00   0.00   -6.00  spent=Poison:5.00 bitten=Poison:1.00 status=-
+2  kite       poison     cactus-3           7.00   2.00   0.00   0.00   0.00   -9.00  spent=Poison:7.00 bitten=Poison:2.00 status=-
+2  kite       poison     mandragora-1       2.00   0.00   0.00   0.00   0.00   -2.00  spent=Poison:2.00 bitten=- status=-
+2  kite       poison     mandragora-2       5.00   1.00   0.00   0.00   0.00   -6.00  spent=Poison:5.00 bitten=Poison:1.00 status=-
+2  kite       poison     mandragora-3       7.00   2.00   0.00   0.00   0.00   -9.00  spent=Poison:7.00 bitten=Poison:2.00 status=-
+2  kite       poison     eye-1              2.00   0.00   0.00   0.00   0.00   -2.00  spent=Poison:2.00 bitten=- status=-
+2  kite       poison     eye-2              5.00   1.00   0.00   0.00   0.00   -6.00  spent=Poison:5.00 bitten=Poison:1.00 status=-
+2  kite       poison     eye-3              7.00   2.00   0.00   0.00   0.00   -9.00  spent=Poison:7.00 bitten=Poison:2.00 status=-
+2  kite       acid       bat-1              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       acid       bat-2              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       acid       bat-3              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       acid       mushroom-1         2.00   0.00   0.00   0.00   0.00   -2.00  spent=Acid:2.00 bitten=- status=-
+2  kite       acid       mushroom-2         5.00   1.00   0.00   0.00   0.00   -6.00  spent=Acid:5.00 bitten=Acid:1.00 status=-
+2  kite       acid       mushroom-3         7.00   2.00   0.00   0.00   0.00   -9.00  spent=Acid:7.00 bitten=Acid:2.00 status=-
+2  kite       acid       undine-1           2.00   0.00   0.00   0.00   0.00   -2.00  spent=Acid:2.00 bitten=- status=-
+2  kite       acid       undine-2           5.00   1.00   0.00   0.00   0.00   -6.00  spent=Acid:5.00 bitten=Acid:1.00 status=-
+2  kite       acid       undine-3           7.00   2.00   0.00   0.00   0.00   -9.00  spent=Acid:7.00 bitten=Acid:2.00 status=-
+2  kite       acid       cactus-1           2.00   0.00   0.00   0.00   0.00   -2.00  spent=Acid:2.00 bitten=- status=-
+2  kite       acid       cactus-2           5.00   1.00   0.00   0.00   0.00   -6.00  spent=Acid:5.00 bitten=Acid:1.00 status=-
+2  kite       acid       cactus-3           7.00   2.00   0.00   0.00   0.00   -9.00  spent=Acid:7.00 bitten=Acid:2.00 status=-
+2  kite       acid       mandragora-1       2.00   0.00   0.00   0.00   0.00   -2.00  spent=Acid:2.00 bitten=- status=-
+2  kite       acid       mandragora-2       5.00   1.00   0.00   0.00   0.00   -6.00  spent=Acid:5.00 bitten=Acid:1.00 status=-
+2  kite       acid       mandragora-3       7.00   2.00   0.00   0.00   0.00   -9.00  spent=Acid:7.00 bitten=Acid:2.00 status=-
+2  kite       acid       eye-1              2.00   0.00   0.00   0.00   0.00   -2.00  spent=Acid:2.00 bitten=- status=-
+2  kite       acid       eye-2              5.00   1.00   0.00   0.00   0.00   -6.00  spent=Acid:5.00 bitten=Acid:1.00 status=-
+2  kite       acid       eye-3              7.00   2.00   0.00   0.00   0.00   -9.00  spent=Acid:7.00 bitten=Acid:2.00 status=-
+2  kite       blood      bat-1              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       blood      bat-2              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       blood      bat-3              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       blood      mushroom-1         5.00   0.00   0.00   4.00   0.00   -1.00  spent=Blood:5.00 bitten=- status=-
+2  kite       blood      mushroom-2         9.00   5.00   0.00   4.00   0.00  -10.00  spent=Blood:9.00 bitten=Blood:5.00 status=-
+2  kite       blood      mushroom-3         7.00   6.00   0.00   3.00   0.00  -10.00  spent=Blood:7.00 bitten=Blood:6.00 status=-
+2  kite       blood      undine-1           5.00   0.00   0.00   4.00   0.00   -1.00  spent=Blood:5.00 bitten=- status=-
+2  kite       blood      undine-2           9.00   5.00   0.00   4.00   0.00  -10.00  spent=Blood:9.00 bitten=Blood:5.00 status=-
+2  kite       blood      undine-3           7.00   6.00   0.00   3.00   0.00  -10.00  spent=Blood:7.00 bitten=Blood:6.00 status=-
+2  kite       blood      cactus-1           5.00   0.00   0.00   4.00   0.00   -1.00  spent=Blood:5.00 bitten=- status=-
+2  kite       blood      cactus-2           9.00   5.00   0.00   4.00   0.00  -10.00  spent=Blood:9.00 bitten=Blood:5.00 status=-
+2  kite       blood      cactus-3           7.00   6.00   0.00   3.00   0.00  -10.00  spent=Blood:7.00 bitten=Blood:6.00 status=-
+2  kite       blood      mandragora-1       5.00   0.00   0.00   4.00   0.00   -1.00  spent=Blood:5.00 bitten=- status=-
+2  kite       blood      mandragora-2       9.00   5.00   0.00   4.00   0.00  -10.00  spent=Blood:9.00 bitten=Blood:5.00 status=-
+2  kite       blood      mandragora-3       7.00   6.00   0.00   3.00   0.00  -10.00  spent=Blood:7.00 bitten=Blood:6.00 status=-
+2  kite       blood      eye-1              5.00   0.00   0.00   4.00   0.00   -1.00  spent=Blood:5.00 bitten=- status=-
+2  kite       blood      eye-2              9.00   5.00   0.00   4.00   0.00  -10.00  spent=Blood:9.00 bitten=Blood:5.00 status=-
+2  kite       blood      eye-3              7.00   6.00   0.00   3.00   0.00  -10.00  spent=Blood:7.00 bitten=Blood:6.00 status=-
+2  kite       lava       bat-1              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       lava       bat-2              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       lava       bat-3              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       lava       mushroom-1         2.00   0.00   0.00   0.00   0.00   -2.00  spent=Lava:2.00 bitten=- status=-
+2  kite       lava       mushroom-2         5.00   1.00   0.00   0.00   0.00   -6.00  spent=Lava:5.00 bitten=Lava:1.00 status=-
+2  kite       lava       mushroom-3         7.00   2.00   0.00   0.00   0.00   -9.00  spent=Lava:7.00 bitten=Lava:2.00 status=-
+2  kite       lava       undine-1           2.00   0.00   0.00   0.00   0.00   -2.00  spent=Lava:2.00 bitten=- status=-
+2  kite       lava       undine-2           5.00   1.00   0.00   0.00   0.00   -6.00  spent=Lava:5.00 bitten=Lava:1.00 status=-
+2  kite       lava       undine-3           7.00   2.00   0.00   0.00   0.00   -9.00  spent=Lava:7.00 bitten=Lava:2.00 status=-
+2  kite       lava       cactus-1           2.00   0.00   0.00   0.00   0.00   -2.00  spent=Lava:2.00 bitten=- status=-
+2  kite       lava       cactus-2           5.00   1.00   0.00   0.00   0.00   -6.00  spent=Lava:5.00 bitten=Lava:1.00 status=-
+2  kite       lava       cactus-3           7.00   2.00   0.00   0.00   0.00   -9.00  spent=Lava:7.00 bitten=Lava:2.00 status=-
+2  kite       lava       mandragora-1       2.00   0.00   0.00   0.00   0.00   -2.00  spent=Lava:2.00 bitten=- status=-
+2  kite       lava       mandragora-2       5.00   1.00   0.00   0.00   0.00   -6.00  spent=Lava:5.00 bitten=Lava:1.00 status=-
+2  kite       lava       mandragora-3       7.00   2.00   0.00   0.00   0.00   -9.00  spent=Lava:7.00 bitten=Lava:2.00 status=-
+2  kite       lava       eye-1              2.00   0.00   0.00   0.00   0.00   -2.00  spent=Lava:2.00 bitten=- status=-
+2  kite       lava       eye-2              5.00   1.00   0.00   0.00   0.00   -6.00  spent=Lava:5.00 bitten=Lava:1.00 status=-
+2  kite       lava       eye-3              7.00   2.00   0.00   0.00   0.00   -9.00  spent=Lava:7.00 bitten=Lava:2.00 status=-
+2  kite       mercury    bat-1              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       mercury    bat-2              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       mercury    bat-3              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       mercury    mushroom-1         0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       mercury    mushroom-2         0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       mercury    mushroom-3         0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       mercury    undine-1           0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       mercury    undine-2           0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       mercury    undine-3           0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       mercury    cactus-1           0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       mercury    cactus-2           0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       mercury    cactus-3           0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       mercury    mandragora-1       0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       mercury    mandragora-2       0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       mercury    mandragora-3       0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       mercury    eye-1              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       mercury    eye-2              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
+2  kite       mercury    eye-3              0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
 
 [damage]
 ap policy     build      encounter        strike status  retal overkill doomed per_unit  status_by
@@ -1628,6 +2214,150 @@ ap policy     build      encounter        strike status  retal overkill doomed p
 1  arranger   mercury    eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
 1  arranger   mercury    eye-2              5.00   0.00   0.00     0.00   0.00     1.00  -
 1  arranger   mercury    eye-3              4.88   0.00   0.00     0.00   0.00     1.00  -
+1  kite       start      bat-1              0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       start      bat-2              0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       start      bat-3              0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       start      mushroom-1         2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Poisoned:1.00
+1  kite       start      mushroom-2         2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+1  kite       start      mushroom-3         2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+1  kite       start      undine-1           2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Poisoned:1.00
+1  kite       start      undine-2           2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+1  kite       start      undine-3           2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+1  kite       start      cactus-1           2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Poisoned:1.00
+1  kite       start      cactus-2           2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+1  kite       start      cactus-3           2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+1  kite       start      mandragora-1       2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Poisoned:1.00
+1  kite       start      mandragora-2       2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+1  kite       start      mandragora-3       2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+1  kite       start      eye-1              2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Poisoned:1.00
+1  kite       start      eye-2              2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+1  kite       start      eye-3              2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+1  kite       water      bat-1              0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       water      bat-2              0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       water      bat-3              0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       water      mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       water      mushroom-2         3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       water      mushroom-3         3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       water      undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       water      undine-2           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       water      undine-3           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       water      cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       water      cactus-2           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       water      cactus-3           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       water      mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       water      mandragora-2       3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       water      mandragora-3       3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       water      eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       water      eye-2              3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       water      eye-3              3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       oil        bat-1              0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       oil        bat-2              0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       oil        bat-3              0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       oil        mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       oil        mushroom-2         3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       oil        mushroom-3         3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       oil        undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       oil        undine-2           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       oil        undine-3           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       oil        cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       oil        cactus-2           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       oil        cactus-3           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       oil        mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       oil        mandragora-2       3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       oil        mandragora-3       3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       oil        eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       oil        eye-2              3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       oil        eye-3              3.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       poison     bat-1              0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       poison     bat-2              0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       poison     bat-3              0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       poison     mushroom-1         2.00   2.00   1.00     0.00   1.00     2.50  Poisoned:3.00
+1  kite       poison     mushroom-2         3.00   3.00   4.00     0.00   2.00     3.33  Poisoned:7.00
+1  kite       poison     mushroom-3         3.00   3.00   9.00     0.00   2.00     5.00  Poisoned:12.00
+1  kite       poison     undine-1           2.00   2.00   1.00     0.00   1.00     2.50  Poisoned:3.00
+1  kite       poison     undine-2           3.00   3.00   4.00     0.00   2.00     3.33  Poisoned:7.00
+1  kite       poison     undine-3           3.00   3.00   9.00     0.00   2.00     5.00  Poisoned:12.00
+1  kite       poison     cactus-1           2.00   2.00   1.00     0.00   1.00     2.50  Poisoned:3.00
+1  kite       poison     cactus-2           3.00   3.00   4.00     0.00   2.00     3.33  Poisoned:7.00
+1  kite       poison     cactus-3           3.00   3.00   9.00     0.00   2.00     5.00  Poisoned:12.00
+1  kite       poison     mandragora-1       2.00   2.00   1.00     0.00   1.00     2.50  Poisoned:3.00
+1  kite       poison     mandragora-2       3.00   3.00   4.00     0.00   2.00     3.33  Poisoned:7.00
+1  kite       poison     mandragora-3       3.00   3.00   9.00     0.00   2.00     5.00  Poisoned:12.00
+1  kite       poison     eye-1              2.00   2.00   1.00     0.00   1.00     2.50  Poisoned:3.00
+1  kite       poison     eye-2              3.00   3.00   4.00     0.00   2.00     3.33  Poisoned:7.00
+1  kite       poison     eye-3              3.00   3.00   9.00     0.00   2.00     5.00  Poisoned:12.00
+1  kite       acid       bat-1              0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       acid       bat-2              0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       acid       bat-3              0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       acid       mushroom-1         2.00   2.00   1.00     0.00   1.00     2.50  Corroding:3.00
+1  kite       acid       mushroom-2         3.00   3.00   4.00     0.00   2.00     3.33  Corroding:7.00
+1  kite       acid       mushroom-3         3.00   3.00   9.00     0.00   2.00     5.00  Corroding:12.00
+1  kite       acid       undine-1           2.00   2.00   1.00     0.00   1.00     2.50  Corroding:3.00
+1  kite       acid       undine-2           3.00   3.00   4.00     0.00   2.00     3.33  Corroding:7.00
+1  kite       acid       undine-3           3.00   3.00   9.00     0.00   2.00     5.00  Corroding:12.00
+1  kite       acid       cactus-1           2.00   2.00   1.00     0.00   1.00     2.50  Corroding:3.00
+1  kite       acid       cactus-2           3.00   3.00   4.00     0.00   2.00     3.33  Corroding:7.00
+1  kite       acid       cactus-3           3.00   3.00   9.00     0.00   2.00     5.00  Corroding:12.00
+1  kite       acid       mandragora-1       2.00   2.00   1.00     0.00   1.00     2.50  Corroding:3.00
+1  kite       acid       mandragora-2       3.00   3.00   4.00     0.00   2.00     3.33  Corroding:7.00
+1  kite       acid       mandragora-3       3.00   3.00   9.00     0.00   2.00     5.00  Corroding:12.00
+1  kite       acid       eye-1              2.00   2.00   1.00     0.00   1.00     2.50  Corroding:3.00
+1  kite       acid       eye-2              3.00   3.00   4.00     0.00   2.00     3.33  Corroding:7.00
+1  kite       acid       eye-3              3.00   3.00   9.00     0.00   2.00     5.00  Corroding:12.00
+1  kite       blood      bat-1              0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       blood      bat-2              0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       blood      bat-3              0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       blood      mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       blood      mushroom-2         5.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       blood      mushroom-3         4.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       blood      undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       blood      undine-2           5.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       blood      undine-3           4.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       blood      cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       blood      cactus-2           5.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       blood      cactus-3           4.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       blood      mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       blood      mandragora-2       5.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       blood      mandragora-3       4.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       blood      eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       blood      eye-2              5.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       blood      eye-3              4.00   0.00   0.00     0.00   0.00     1.00  -
+1  kite       lava       bat-1              0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       lava       bat-2              0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       lava       bat-3              0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       lava       mushroom-1         2.00   2.00   1.00     0.00   1.00     2.50  Burning:3.00
+1  kite       lava       mushroom-2         3.00   3.00   4.00     0.00   2.00     3.33  Burning:7.00
+1  kite       lava       mushroom-3         3.00   3.00   9.00     0.00   2.00     5.00  Burning:12.00
+1  kite       lava       undine-1           2.00   2.00   1.00     0.00   1.00     2.50  Burning:3.00
+1  kite       lava       undine-2           3.00   3.00   4.00     0.00   2.00     3.33  Burning:7.00
+1  kite       lava       undine-3           3.00   3.00   9.00     0.00   2.00     5.00  Burning:12.00
+1  kite       lava       cactus-1           2.00   2.00   1.00     0.00   1.00     2.50  Burning:3.00
+1  kite       lava       cactus-2           3.00   3.00   4.00     0.00   2.00     3.33  Burning:7.00
+1  kite       lava       cactus-3           3.00   3.00   9.00     0.00   2.00     5.00  Burning:12.00
+1  kite       lava       mandragora-1       2.00   2.00   1.00     0.00   1.00     2.50  Burning:3.00
+1  kite       lava       mandragora-2       3.00   3.00   4.00     0.00   2.00     3.33  Burning:7.00
+1  kite       lava       mandragora-3       3.00   3.00   9.00     0.00   2.00     5.00  Burning:12.00
+1  kite       lava       eye-1              2.00   2.00   1.00     0.00   1.00     2.50  Burning:3.00
+1  kite       lava       eye-2              3.00   3.00   4.00     0.00   2.00     3.33  Burning:7.00
+1  kite       lava       eye-3              3.00   3.00   9.00     0.00   2.00     5.00  Burning:12.00
+1  kite       mercury    bat-1              0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       mercury    bat-2              0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       mercury    bat-3              0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       mercury    mushroom-1         0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       mercury    mushroom-2         0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       mercury    mushroom-3         0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       mercury    undine-1           0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       mercury    undine-2           0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       mercury    undine-3           0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       mercury    cactus-1           0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       mercury    cactus-2           0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       mercury    cactus-3           0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       mercury    mandragora-1       0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       mercury    mandragora-2       0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       mercury    mandragora-3       0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       mercury    eye-1              0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       mercury    eye-2              0.00   0.00   0.00     0.00   0.00        -  -
+1  kite       mercury    eye-3              0.00   0.00   0.00     0.00   0.00        -  -
 2  newcomer   start      bat-1              2.00   1.00   0.00     0.00   1.00     1.50  Burning:1.00
 2  newcomer   start      bat-2              3.80   1.52   0.00     0.00   1.52     1.40  Burning:1.00,Poisoned:0.52
 2  newcomer   start      bat-3              3.94   1.44   0.00     0.00   1.36     1.37  Burning:1.04,Poisoned:0.40
@@ -1916,6 +2646,150 @@ ap policy     build      encounter        strike status  retal overkill doomed p
 2  arranger   mercury    eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
 2  arranger   mercury    eye-2              6.30   0.00   0.00     0.00   0.00     1.00  -
 2  arranger   mercury    eye-3              6.30   0.00   0.00     0.00   0.00     1.00  -
+2  kite       start      bat-1              0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       start      bat-2              0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       start      bat-3              0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       start      mushroom-1         2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Corroding:1.00
+2  kite       start      mushroom-2         4.00   2.00   0.00     0.00   1.00     1.50  Burning:2.00
+2  kite       start      mushroom-3         4.00   2.00   0.00     0.00   1.00     1.50  Burning:2.00
+2  kite       start      undine-1           2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Corroding:1.00
+2  kite       start      undine-2           4.00   2.00   0.00     0.00   1.00     1.50  Burning:2.00
+2  kite       start      undine-3           4.00   2.00   0.00     0.00   1.00     1.50  Burning:2.00
+2  kite       start      cactus-1           2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Corroding:1.00
+2  kite       start      cactus-2           4.00   2.00   0.00     0.00   1.00     1.50  Burning:2.00
+2  kite       start      cactus-3           4.00   2.00   0.00     0.00   1.00     1.50  Burning:2.00
+2  kite       start      mandragora-1       2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Corroding:1.00
+2  kite       start      mandragora-2       4.00   2.00   0.00     0.00   1.00     1.50  Burning:2.00
+2  kite       start      mandragora-3       4.00   2.00   0.00     0.00   1.00     1.50  Burning:2.00
+2  kite       start      eye-1              2.00   3.00   0.00     0.00   0.00     2.50  Burning:2.00,Corroding:1.00
+2  kite       start      eye-2              4.00   2.00   0.00     0.00   1.00     1.50  Burning:2.00
+2  kite       start      eye-3              4.00   2.00   0.00     0.00   1.00     1.50  Burning:2.00
+2  kite       water      bat-1              0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       water      bat-2              0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       water      bat-3              0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       water      mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       water      mushroom-2         6.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       water      mushroom-3         5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       water      undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       water      undine-2           6.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       water      undine-3           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       water      cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       water      cactus-2           6.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       water      cactus-3           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       water      mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       water      mandragora-2       6.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       water      mandragora-3       5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       water      eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       water      eye-2              6.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       water      eye-3              5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       oil        bat-1              0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       oil        bat-2              0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       oil        bat-3              0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       oil        mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       oil        mushroom-2         7.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       oil        mushroom-3         5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       oil        undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       oil        undine-2           7.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       oil        undine-3           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       oil        cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       oil        cactus-2           7.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       oil        cactus-3           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       oil        mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       oil        mandragora-2       7.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       oil        mandragora-3       5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       oil        eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       oil        eye-2              7.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       oil        eye-3              5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       poison     bat-1              0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       poison     bat-2              0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       poison     bat-3              0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       poison     mushroom-1         2.00   3.00   0.00     0.00   0.00     2.50  Poisoned:3.00
+2  kite       poison     mushroom-2         5.00   4.00   1.00     0.00   2.00     2.00  Poisoned:5.00
+2  kite       poison     mushroom-3         7.00   5.00   3.00     0.00   3.00     2.14  Poisoned:8.00
+2  kite       poison     undine-1           2.00   3.00   0.00     0.00   0.00     2.50  Poisoned:3.00
+2  kite       poison     undine-2           5.00   4.00   1.00     0.00   2.00     2.00  Poisoned:5.00
+2  kite       poison     undine-3           7.00   5.00   3.00     0.00   3.00     2.14  Poisoned:8.00
+2  kite       poison     cactus-1           2.00   3.00   0.00     0.00   0.00     2.50  Poisoned:3.00
+2  kite       poison     cactus-2           5.00   4.00   1.00     0.00   2.00     2.00  Poisoned:5.00
+2  kite       poison     cactus-3           7.00   5.00   3.00     0.00   3.00     2.14  Poisoned:8.00
+2  kite       poison     mandragora-1       2.00   3.00   0.00     0.00   0.00     2.50  Poisoned:3.00
+2  kite       poison     mandragora-2       5.00   4.00   1.00     0.00   2.00     2.00  Poisoned:5.00
+2  kite       poison     mandragora-3       7.00   5.00   3.00     0.00   3.00     2.14  Poisoned:8.00
+2  kite       poison     eye-1              2.00   3.00   0.00     0.00   0.00     2.50  Poisoned:3.00
+2  kite       poison     eye-2              5.00   4.00   1.00     0.00   2.00     2.00  Poisoned:5.00
+2  kite       poison     eye-3              7.00   5.00   3.00     0.00   3.00     2.14  Poisoned:8.00
+2  kite       acid       bat-1              0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       acid       bat-2              0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       acid       bat-3              0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       acid       mushroom-1         2.00   3.00   0.00     0.00   0.00     2.50  Corroding:3.00
+2  kite       acid       mushroom-2         5.00   4.00   1.00     0.00   2.00     2.00  Corroding:5.00
+2  kite       acid       mushroom-3         7.00   5.00   3.00     0.00   3.00     2.14  Corroding:8.00
+2  kite       acid       undine-1           2.00   3.00   0.00     0.00   0.00     2.50  Corroding:3.00
+2  kite       acid       undine-2           5.00   4.00   1.00     0.00   2.00     2.00  Corroding:5.00
+2  kite       acid       undine-3           7.00   5.00   3.00     0.00   3.00     2.14  Corroding:8.00
+2  kite       acid       cactus-1           2.00   3.00   0.00     0.00   0.00     2.50  Corroding:3.00
+2  kite       acid       cactus-2           5.00   4.00   1.00     0.00   2.00     2.00  Corroding:5.00
+2  kite       acid       cactus-3           7.00   5.00   3.00     0.00   3.00     2.14  Corroding:8.00
+2  kite       acid       mandragora-1       2.00   3.00   0.00     0.00   0.00     2.50  Corroding:3.00
+2  kite       acid       mandragora-2       5.00   4.00   1.00     0.00   2.00     2.00  Corroding:5.00
+2  kite       acid       mandragora-3       7.00   5.00   3.00     0.00   3.00     2.14  Corroding:8.00
+2  kite       acid       eye-1              2.00   3.00   0.00     0.00   0.00     2.50  Corroding:3.00
+2  kite       acid       eye-2              5.00   4.00   1.00     0.00   2.00     2.00  Corroding:5.00
+2  kite       acid       eye-3              7.00   5.00   3.00     0.00   3.00     2.14  Corroding:8.00
+2  kite       blood      bat-1              0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       blood      bat-2              0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       blood      bat-3              0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       blood      mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       blood      mushroom-2         9.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       blood      mushroom-3         7.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       blood      undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       blood      undine-2           9.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       blood      undine-3           7.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       blood      cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       blood      cactus-2           9.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       blood      cactus-3           7.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       blood      mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       blood      mandragora-2       9.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       blood      mandragora-3       7.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       blood      eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       blood      eye-2              9.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       blood      eye-3              7.00   0.00   0.00     0.00   0.00     1.00  -
+2  kite       lava       bat-1              0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       lava       bat-2              0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       lava       bat-3              0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       lava       mushroom-1         2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+2  kite       lava       mushroom-2         5.00   4.00   1.00     0.00   2.00     2.00  Burning:5.00
+2  kite       lava       mushroom-3         7.00   5.00   3.00     0.00   3.00     2.14  Burning:8.00
+2  kite       lava       undine-1           2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+2  kite       lava       undine-2           5.00   4.00   1.00     0.00   2.00     2.00  Burning:5.00
+2  kite       lava       undine-3           7.00   5.00   3.00     0.00   3.00     2.14  Burning:8.00
+2  kite       lava       cactus-1           2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+2  kite       lava       cactus-2           5.00   4.00   1.00     0.00   2.00     2.00  Burning:5.00
+2  kite       lava       cactus-3           7.00   5.00   3.00     0.00   3.00     2.14  Burning:8.00
+2  kite       lava       mandragora-1       2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+2  kite       lava       mandragora-2       5.00   4.00   1.00     0.00   2.00     2.00  Burning:5.00
+2  kite       lava       mandragora-3       7.00   5.00   3.00     0.00   3.00     2.14  Burning:8.00
+2  kite       lava       eye-1              2.00   3.00   0.00     0.00   0.00     2.50  Burning:3.00
+2  kite       lava       eye-2              5.00   4.00   1.00     0.00   2.00     2.00  Burning:5.00
+2  kite       lava       eye-3              7.00   5.00   3.00     0.00   3.00     2.14  Burning:8.00
+2  kite       mercury    bat-1              0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       mercury    bat-2              0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       mercury    bat-3              0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       mercury    mushroom-1         0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       mercury    mushroom-2         0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       mercury    mushroom-3         0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       mercury    undine-1           0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       mercury    undine-2           0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       mercury    undine-3           0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       mercury    cactus-1           0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       mercury    cactus-2           0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       mercury    cactus-3           0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       mercury    mandragora-1       0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       mercury    mandragora-2       0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       mercury    mandragora-3       0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       mercury    eye-1              0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       mercury    eye-2              0.00   0.00   0.00     0.00   0.00        -  -
+2  kite       mercury    eye-3              0.00   0.00   0.00     0.00   0.00        -  -
 
 [levels]
 level          stage kind     detail         reached win before  spent bitten status  grown corpse  eaten  drunk wasted  after     net
@@ -1943,6 +2817,7 @@ map-vision4    strafe       0  1.82   10.38   1.60     0.00    73.75    26.25   
 map-lure2      lure         6  2.16   12.40   1.84     0.00    93.48     6.52      0.00         -5.30
 map-lure3      lure         0  1.56   11.24   1.80     0.00    88.89    11.11      0.00         -5.56
 map-lure4      lure         0  1.48   12.60   1.68     0.00    85.71    14.29      0.00         -5.95
+map-kite3      kite         0  1.78   19.22   1.90     0.00    84.21    15.79      0.00         -5.26
 
 [map-level-ends]
 level          end    min worst  stops
@@ -1952,3 +2827,4 @@ map-vision4      0   0.00     0  room1:melee:Mushroom=8 room1:melee:Mandragora=7
 map-lure2        6   0.24     0  room1:melee:Cactus=5 room2:melee:Cactus=5 room1:melee:Eye=4 room1:melee:Mandragora=4 room2:melee:Eye=4 room2:melee:Mandragora=4 room3:melee:Mandragora=4 room2:melee:Undine=3 room3:melee:Mushroom=3 room1:melee:Mushroom=2 room1:melee:Undine=2 room4:melee:Mandragora=2 room2:melee:Mushroom=1 room3:melee:Cactus=1 room3:melee:Eye=1 room3:melee:Undine=1 room4:melee:Cactus=1
 map-lure3        0   0.00     0  room1:melee:Mandragora=8 room1:melee:Mushroom=8 room1:melee:Cactus=5 room1:melee:Eye=5 room1:melee:Undine=4 room2:melee:Mandragora=4 room2:melee:Eye=3 room2:melee:Cactus=2 room2:melee:Mushroom=2 room2:melee:Undine=2 room3:melee:Mushroom=2 room3:melee:Cactus=1 room3:melee:Eye=1 room3:melee:Mandragora=1 room3:melee:Undine=1 room4:melee:Undine=1
 map-lure4        0   0.00     0  room1:melee:Mushroom=9 room1:melee:Eye=8 room1:melee:Mandragora=8 room1:melee:Undine=5 room2:melee:Mandragora=5 room1:melee:Cactus=3 room2:melee:Eye=3 room3:melee:Mushroom=3 room3:melee:Undine=2 room2:melee:Cactus=1 room2:melee:Undine=1 room3:melee:Eye=1 room3:melee:Mandragora=1
+map-kite3        0   0.00     0  room1:melee:Mushroom=8 room1:melee:Mandragora=5 room2:melee:Cactus=5 room1:melee:Undine=4 room2:melee:Mandragora=4 room1:melee:Cactus=3 room1:melee:Eye=3 room2:melee:Mushroom=3 room3:melee:Undine=3 room3:melee:Bat=2 room3:melee:Mushroom=2 room4:melee:Cactus=2 room1:melee:Bat=1 room2:melee:Bat=1 room2:melee:Eye=1 room2:melee:Undine=1 room3:melee:Cactus=1 room3:melee:Mandragora=1

@@ -38,7 +38,8 @@ cargo test
   Eye), in a column 5 cells east of the slime at (1, 5).
 - **Policies:** newcomer — walk to the nearest enemy, strike with the unit on the body's edge,
   wait when the last unit cannot be spent, never swap; arranger — the same with at most one
-  swap of the two edge units before a strike.
+  swap of the two edge units before a strike; kite — strike, then step out of reach on the
+  round's last action.
 - **Action points:** 1 per round (the game today) and 2 (the design).
 - **Seeds:** 50 per cell; the same seed gives the same fight.
 
