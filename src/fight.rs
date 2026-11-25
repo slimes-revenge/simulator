@@ -222,6 +222,27 @@ struct OpenEpisode {
     alive_at_open: Vec<bool>,
 }
 
+/// How the slime chooses its strikes (matrix and stage levels; map levels walk by their own
+/// policy and strike like `Newcomer`).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Policy {
+    /// Strikes with whatever is on the edge; never swaps.
+    Newcomer,
+    /// Before a strike, at most one swap(0, 1) by the balance session's rules (`arranger_swap`).
+    Arranger { keep: Option<Liquid> },
+}
+
+impl Policy {
+    pub fn from_name(name: &str, d: &Design) -> Policy {
+        match name {
+            "arranger" => Policy::Arranger {
+                keep: d.policies.keep(),
+            },
+            _ => Policy::Newcomer,
+        }
+    }
+}
+
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum Intent {
     Attack,
@@ -282,6 +303,9 @@ pub struct Fight<'a> {
     pub max_rounds: u32,
     /// Set for map levels: the slime walks to the exit (`strafe`, `lure`) instead of hunting.
     pub map: Option<MapState>,
+    pub policy: Policy,
+    /// `arranger` swapped before its pending strike: the next strike action strikes.
+    swapped: bool,
     rng: Rng,
     actions_per_round: u32,
     pub slime: Creature,
@@ -362,6 +386,8 @@ impl<'a> Fight<'a> {
             vision: d.rules.vision_range,
             max_rounds: d.rules.max_rounds,
             map: None,
+            policy: Policy::Newcomer,
+            swapped: false,
             rng: Rng::new(seed),
             actions_per_round,
             slime,
@@ -670,7 +696,12 @@ impl<'a> Fight<'a> {
         };
         if chebyshev(self.slime.cell, self.enemies[target].cell) == 1 {
             // `Volume.CanSpend`: the last unit is the slime's life.
-            if self.slime.volume.len() > 1 {
+            if self.slime.volume.len() > 1 && !self.swapped && self.arranger_swap(target) {
+                self.slime_swap(0);
+                self.swapped = true;
+                self.note(|f| format!("Slime swaps: {:?} to the edge", f.edge()));
+            } else if self.slime.volume.len() > 1 {
+                self.swapped = false;
                 let liquid = self.edge();
                 let hp = self.enemies[target].hit_points;
                 self.slime_strike(target, liquid);
@@ -692,6 +723,8 @@ impl<'a> Fight<'a> {
             }
             return;
         }
+        // A pending swap belongs to the strike next to it: walking off (a new target) drops it.
+        self.swapped = false;
         let from = self.slime.cell;
         if let Some(to) = self.walk_toward(from, self.enemies[target].cell, 1) {
             self.slime.cell = to;
@@ -816,6 +849,30 @@ impl<'a> Fight<'a> {
         } else {
             self.note(|_| "Slime waits: the last unit cannot be spent".into());
         }
+    }
+
+    /// `arranger`: whether to swap(0, 1) before striking `target`. The first rule that applies:
+    /// 1. keep the kept liquid deep: the edge is it and unit 1 is not;
+    /// 2. no water on fire: the edge is Water, the target burns or corrodes, unit 1 is not Water;
+    /// 3. Lava on Flammable: unit 1 is Lava, the edge is not, the target is Flammable.
+    fn arranger_swap(&self, target: usize) -> bool {
+        let Policy::Arranger { keep } = self.policy else {
+            return false;
+        };
+        let n = self.slime.volume.len();
+        if n < 2 {
+            return false;
+        }
+        let (edge, next) = (self.slime.volume[n - 1], self.slime.volume[n - 2]);
+        let has =
+            |k: fn(&StatusKind) -> bool| self.enemies[target].statuses.iter().any(|s| k(&s.kind));
+        (keep == Some(edge) && next != edge)
+            || (edge == Liquid::Water
+                && next != Liquid::Water
+                && has(|k| matches!(k, StatusKind::Burning | StatusKind::Corroding { .. })))
+            || (next == Liquid::Lava
+                && edge != Liquid::Lava
+                && has(|k| *k == StatusKind::Flammable))
     }
 
     /// The unit a strike spends: the edge of the body (the end bites pop too).

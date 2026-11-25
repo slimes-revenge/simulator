@@ -43,7 +43,7 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
     Lists are joined by spaces.
   - When `--design` was given, the first line is `design.file = <path as given>`.
 - **`[cells]`:** one header line, then one line per cell.
-  - Sorted by `ap` (ascending), `policy`, then build in design order (`start`, then
+  - Sorted by `ap` (ascending), `policy` (in `matrix.policies` order), then build in design order (`start`, then
     `[[liquids]]` order), then encounter in design order (roster order, then count). Build and
     encounter order are not alphabetical.
   - Fixed-width columns, separated by spaces.
@@ -53,7 +53,7 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 | Column | Meaning |
 | --- | --- |
 | `ap` | Slime actions per round |
-| `policy` | How the slime plays: `newcomer` (walk to the nearest enemy, strike with the edge unit, never swap) |
+| `policy` | How the slime plays: `newcomer` (walk to the nearest enemy, strike with the edge unit, never swap) or `arranger` (the same, plus at most one swap before a strike; `docs/rules-model.md`) |
 | `build`, `encounter` | Ids, the same as in the JSON |
 | `win` | Win rate in percent, an integer (exact with 50 seeds) |
 | `rounds` | Average rounds until the fight ended |
@@ -197,8 +197,9 @@ Locally `cargo run --release` writes `design-guard.json` in the repository root.
 
 ## Shape
 
-The file is a **JSON array of reports**, one per value of `matrix.action_points` in
-`data/design.toml` (today `[1, 2]`: 1 action per round is the game today, 2 is the design).
+The file is a **JSON array of reports**, one per value of `matrix.action_points` × policy in
+`matrix.policies` (`data/design.toml`; today actions `[1, 2]` × `newcomer`, `arranger`),
+ordered by actions, then policy.
 Every report is complete on its own.
 
 ```json
@@ -245,7 +246,7 @@ Every report is complete on its own.
 | `schemaVersion` | int | `1` |
 | `generatedUtc` | string | When the report was built, `YYYY-MM-DDTHH:MM:SSZ` |
 | `commit` | string | The simulator commit (`GITHUB_SHA` in CI, else `git rev-parse HEAD`, else `unknown`) |
-| `policy` | string | How the simulated slime plays; `newcomer` for the matrix and stage levels |
+| `policy` | string | How the simulated slime plays: `newcomer` or `arranger` |
 | `actionsPerRound` | int | Slime actions per round; enemies always act once |
 | `seeds` | int | Fights per cell; seeds `0 .. seeds-1` |
 | `builds[]` | object | `id` (stable key), `name` (label), `units` (liquid → count). Order: `start`, then one pure build per liquid in `[[liquids]]` order |

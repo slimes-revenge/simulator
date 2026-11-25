@@ -157,12 +157,15 @@ fn main() -> ExitCode {
     let mut action_points = d.matrix.action_points.clone();
     action_points.sort();
     action_points.dedup();
+    // Sorted by actions per round, then policy in `matrix.policies` order.
     let reports: Vec<report::Report> = action_points
         .iter()
-        .map(|&ap| {
-            report::run(
+        .flat_map(|&ap| d.matrix.policies.iter().map(move |p| (ap, p)))
+        .map(|(ap, policy)| {
+            report::run_policy(
                 &d,
                 ap,
+                policy,
                 builds.clone(),
                 encounters.clone(),
                 &generated,
