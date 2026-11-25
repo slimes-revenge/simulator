@@ -258,6 +258,11 @@ pair = ["Lava", "Aquavita"]
 makes = []
 
 [[reactions]]
+pair = ["Resin", "Lava"]
+makes = ["Lava"]              # the Resin burns away; the Lava stays and the chain goes on
+stone = true                  # amber: a blocker like the stone
+
+[[reactions]]
 pair = ["Poison", "Blood"]
 makes = ["Pus", "Pus"]
 
@@ -267,7 +272,7 @@ makes = ["Water"]
 
 # D3 (balance sim-3d-spec.md): Pus as a bad affinity, burps, Infected. Design, not in the game.
 [pus]
-affinity_percent = 60         # bad affinity: Pus >= this % of the capacity
+affinity_percent = 60         # bad affinity: Pus >= this % of the body now (Oleg: every affinity)
 burp_every = 3                # while it holds, every 3rd slime round: skip the turn and burp
 burp_puddles = 2              # new 1-unit Pus puddles on free neighbouring cells (from nothing)
 infected_pulses = 3           # Infected (Living enemies): pulses...

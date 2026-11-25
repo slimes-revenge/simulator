@@ -202,10 +202,12 @@ Agreed design rules (balance `sim-reactions-spec.md`); not in the game yet.
 - **When:** after the slime's actions each round, before Pus spreads, the sun and the enemies.
 - **Chain:** the reacting pair of neighbours nearest the edge (either order) becomes its
   `makes` in place; the body closes up; repeat until no neighbours react. Water + Lava and
-  Lava + Aquavita vanish, Poison + Blood become 2 Pus, Alkali + Acid become 1 Water.
+  Lava + Aquavita vanish, Poison + Blood become 2 Pus, Alkali + Acid become 1 Water, Resin +
+  Lava leave the Lava (the chain goes on from it).
 - **Death:** a chain that empties the body kills (cause `reaction`). With
   `rules.reaction_can_kill = false` a pair that would empty it does not react.
-- **Stone:** a chain with a `stone` pair (Water + Lava) drops one stone on the free open
+- **Stone:** a chain drops one blocker per `stone` pair that reacted in it (Water + Lava: a
+  stone; Resin + Lava: amber), each on the free open
   neighbour of the slime nearest the nearest living enemy (ties: row, then column), never on
   the exit or a drip. A stone
   blocks walking like a creature and crumbles after `rules.stone_rounds` slime rounds.
@@ -276,7 +278,7 @@ Agreed design rules; not in the game.
   steps into one (any move that ends there) gets the liquid's effect without damage, as from a
   strike (`Source::Puddle`, counted in the status damage); a Pus puddle gives Infected instead.
   On a sun tick (slime in a surface room) every Water puddle in a surface room loses 1 unit.
-- **Pus as a bad affinity:** Pus at least `pus.affinity_percent` (60) of the capacity. While
+- **Pus as a bad affinity:** Pus at least `pus.affinity_percent` (60) of the body now. While
   it holds, every `pus.burp_every`-th (3rd) slime round is a burp: the slime takes no actions
   and `pus.burp_puddles` (2) new 1-unit Pus puddles fall on free neighbouring cells (empty
   cells first, then 1-unit Pus puddles; row-major), from nothing, in or out of a fight.
@@ -291,8 +293,8 @@ Agreed design rules; not in the game.
   2. in a fight: hold among the puddles (the Living come through them);
   3. calm and not full, and no hunter in: gather its Pus puddles (stand on one: 1 unit per
      action; or step onto a neighbouring one), else wait for a burp;
-  4. otherwise walk on like `kite` (the river at the exit cannot lower a share of the
-     capacity, so it drinks it).
+  4. otherwise walk on like `kite`; it drinks a drip or the river only while Pus stays a bad
+     affinity, and at the exit it leaves the rest of the river once a drink would end it.
 - **Dross:** dead cargo a stop leaves (no power, no effect, a cell).
 
 ## Where the docs and the code disagree

@@ -111,7 +111,7 @@ pub struct Design {
 #[derive(Deserialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct PusRules {
-    /// Bad affinity: Pus at least this percent of the capacity.
+    /// Bad affinity: Pus at least this percent of the body now.
     pub affinity_percent: usize,
     /// While it holds, every this many slime rounds the slime burps: it skips its turn and
     /// `burp_puddles` new 1-unit Pus puddles fall on free neighbouring cells.

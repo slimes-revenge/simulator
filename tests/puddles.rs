@@ -172,3 +172,29 @@ fn the_pus_policy_burps_and_gathers_until_full_then_leaves() {
     assert_eq!(state.body.iter().filter(|&&l| l == Liquid::Pus).count(), 9);
     assert!(r.tally.burped >= 3 && state.pus_affinity);
 }
+
+#[test]
+fn the_pus_policy_never_drinks_itself_out_of_its_bad_affinity() {
+    // 6 Pus of 10 at the exit; a Water river would make it 6 of 11: it leaves the river.
+    let text =
+        std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/data/design.toml")).unwrap();
+    let mut text = text[..text.find("[[levels]]").unwrap()].to_string();
+    text += "[[levels]]\nid = \"q\"\ncapacity = 12\nstart = [\"Water\", \"Water\", \"Water\", \"Water\", \
+             \"Pus\", \"Pus\", \"Pus\", \"Pus\", \"Pus\", \"Pus\"]\naction_points = 2\npolicy = \"pus\"\n\
+             map = { rooms = 1, room_side = [5, 5], enemies_per_room = [0, 0], \
+             enemy_kinds = [\"Mushroom\"], corridor = 1, vision = 2, river = 6, \
+             river_liquids = [\"Water\"] }\n";
+    let d = Design::parse(&text).unwrap();
+    let level = &d.levels[0];
+    let (r, state) = map::play(
+        &d,
+        level,
+        level.map.as_ref().unwrap(),
+        &map::start_body(level),
+        0,
+    );
+    assert!(r.won && state.pus_affinity, "{r:?} {:?}", state.body);
+    let water = state.body.iter().filter(|&&l| l == Liquid::Water).count();
+    let pus = state.body.len() - water;
+    assert!(pus * 100 >= state.body.len() * 60, "{:?}", state.body);
+}

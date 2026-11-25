@@ -696,6 +696,20 @@ impl<'a> Fight<'a> {
     fn drink(&mut self, keep: bool) -> bool {
         let cell = self.slime.cell;
         let full = self.slime.volume.len() >= self.d.slime.capacity;
+        // D5: `pus` never drinks itself out of its bad affinity; at the exit it leaves the rest
+        // of the river.
+        let n = self.slime.volume.len() + 1;
+        if self.policy == Policy::Pus
+            && self.pus_affinity()
+            && self.next_drink().is_some_and(|l| l != Liquid::Pus)
+            && self.slime.count(Liquid::Pus) * 100 < n * self.d.pus.affinity_percent
+        {
+            if let Some(m) = self.map.as_mut().filter(|m| m.exit == cell) {
+                m.river = 0;
+                self.note(|_| "Slime leaves the river: its Pus would thin".into());
+            }
+            return false;
+        }
         let Some(m) = self.map.as_mut().filter(|_| !full) else {
             return false;
         };
@@ -1824,9 +1838,11 @@ impl<'a> Fight<'a> {
         room
     }
 
-    /// D3: the slime holds Pus as a bad affinity (a share of the capacity).
+    /// D3: the slime holds Pus as a bad affinity (a share of the body now, like every
+    /// affinity).
     pub fn pus_affinity(&self) -> bool {
-        self.slime.count(Liquid::Pus) * 100 >= self.d.slime.capacity * self.d.pus.affinity_percent
+        let n = self.slime.volume.len();
+        n > 0 && self.slime.count(Liquid::Pus) * 100 >= n * self.d.pus.affinity_percent
     }
 
     /// D3: this round is a burp round.
@@ -1911,7 +1927,8 @@ impl<'a> Fight<'a> {
         }
         self.stones.retain(|s| s.1 > 0);
         let d = self.d;
-        let mut stone = false;
+        // One blocker per stone pair that reacted in the chain (a stone, an amber).
+        let mut stones: Vec<(Liquid, Liquid)> = Vec::new();
         for _ in 0..1000 {
             let v = &self.slime.volume;
             let pair = (0..v.len().saturating_sub(1)).rev().find_map(|k| {
@@ -1924,7 +1941,7 @@ impl<'a> Fight<'a> {
                     .map(|r| (k, r))
             });
             let Some((k, r)) = pair else {
-                if stone {
+                for _ in 0..stones.len() {
                     self.drop_stone();
                 }
                 let d = self.d;
@@ -1935,7 +1952,9 @@ impl<'a> Fight<'a> {
             self.slime.volume.splice(k..k + 2, r.makes.iter().copied());
             self.tally.reactions += 1;
             self.tally.react_loss += 2 - r.makes.len();
-            stone |= r.stone;
+            if r.stone && !stones.contains(&r.pair) {
+                stones.push(r.pair);
+            }
             self.note(|_| format!("Slime's {a:?} and {b:?} react: {:?}", r.makes));
             if !self.slime.alive() {
                 self.last_harm = Some("reaction".into());
