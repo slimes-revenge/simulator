@@ -190,6 +190,16 @@ pub struct MapState {
     /// Counters and living enemies as of the last check with no episode open: the action that
     /// opens an episode (a first strike, a first bite) belongs to it.
     calm: Option<OpenEpisode>,
+    /// Units left in the river at the exit, and its liquids in drinking order (cycling).
+    pub river: usize,
+    pub river_liquids: Vec<Liquid>,
+    /// Water drip cells and the units left on each.
+    pub drips: Vec<(Cell, usize)>,
+    /// Rooms under the sky and how often (slime rounds) the sun dries the edge-most Water.
+    pub surface: Vec<Rect>,
+    pub sun_every: u32,
+    /// The slime's body when the run ended (carried to the next ladder level).
+    pub body: Vec<Liquid>,
 }
 
 /// One fight on a map: from the first enemy aggroed on the slime until none is.
@@ -218,6 +228,7 @@ impl MapState {
             calm: None,
             lure: false,
             waited: 0,
+            ..MapState::default()
         }
     }
 }
@@ -519,6 +530,10 @@ impl<'a> Fight<'a> {
                     return self.result(true, round);
                 }
             }
+            self.sun(round);
+            if !self.slime.alive() {
+                return self.result(false, round);
+            }
             for i in 0..self.enemies.len() {
                 if !self.enemies[i].alive() {
                     continue;
@@ -547,10 +562,61 @@ impl<'a> Fight<'a> {
         self.result(false, self.max_rounds)
     }
 
-    /// Matrix fights end when every enemy is dead; map runs when the slime stands on the exit.
+    /// The sun: after slime round `round`, in a surface room, every `sun_every` rounds, it
+    /// dries the edge-most Water. Taking the last unit kills.
+    fn sun(&mut self, round: u32) {
+        let Some(m) = self.map.as_ref() else { return };
+        let cell = self.slime.cell;
+        if m.sun_every == 0
+            || !round.is_multiple_of(m.sun_every)
+            || !m.surface.iter().any(|&r| in_rect(r, cell))
+        {
+            return;
+        }
+        let Some(i) = self.slime.volume.iter().rposition(|&l| l == Liquid::Water) else {
+            return;
+        };
+        self.slime.volume.remove(i);
+        self.last_harm = Some("sun".into());
+        let d = self.d;
+        refresh_dominance(d, &mut self.slime, &mut self.next_status_id);
+        self.note(|_| "The sun dries a Water unit".into());
+    }
+
+    /// Drinks one unit where the slime stands: a drip cell's Water, or the river at the exit.
+    /// `false` when full or nothing is here.
+    fn drink(&mut self) -> bool {
+        let cell = self.slime.cell;
+        let full = self.slime.volume.len() >= self.d.slime.capacity;
+        let Some(m) = self.map.as_mut().filter(|_| !full) else {
+            return false;
+        };
+        let liquid = if let Some(drip) = m.drips.iter_mut().find(|(c, n)| *c == cell && *n > 0) {
+            drip.1 -= 1;
+            Liquid::Water
+        } else if cell == m.exit && m.river > 0 {
+            m.river -= 1;
+            m.river_liquids.rotate_left(1);
+            *m.river_liquids.last().expect("river_liquids go with river")
+        } else {
+            return false;
+        };
+        self.slime.volume.push(liquid);
+        let d = self.d;
+        refresh_dominance(d, &mut self.slime, &mut self.next_status_id);
+        self.note(|_| format!("Slime drinks {liquid:?}"));
+        true
+    }
+
+    /// Matrix fights end when every enemy is dead; map runs when the slime stands on the exit
+    /// and has drunk the river (full or empty).
     fn goal_reached(&self) -> bool {
         match &self.map {
-            Some(m) => self.slime.alive() && self.slime.cell == m.exit,
+            Some(m) => {
+                self.slime.alive()
+                    && self.slime.cell == m.exit
+                    && (m.river == 0 || self.slime.volume.len() >= self.d.slime.capacity)
+            }
             None => self.slime.alive() && self.enemies_dead(),
         }
     }
@@ -634,6 +700,7 @@ impl<'a> Fight<'a> {
         let result = self.rounds();
         self.close_episode();
         let mut state = self.map.take().unwrap_or_default();
+        state.body = self.slime.volume.clone();
         if !self.slime.alive() {
             state.min_body = 0;
         }
@@ -803,6 +870,9 @@ impl<'a> Fight<'a> {
         }
         if let Some(i) = adjacent(self, true) {
             return self.strike_or_wait(i);
+        }
+        if self.drink() {
+            return;
         }
         let m = self.map.as_ref().expect("map runs");
         let (lure, exit, waited) = (m.lure, m.exit, m.waited);

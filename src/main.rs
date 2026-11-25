@@ -125,12 +125,8 @@ fn main() -> ExitCode {
             return ExitCode::from(2);
         };
         let spec = level.map.as_ref().expect("a map level");
-        let mut ld = d.clone();
-        ld.slime.capacity = level.capacity;
-        let body = level
-            .start
-            .clone()
-            .unwrap_or_else(|| vec![simulator::data::Liquid::Water; level.capacity]);
+        let ld = simulator::map::level_design(&d, level);
+        let body = simulator::map::start_body(level);
         print!(
             "{}",
             simulator::map::ascii(&simulator::map::generate(spec, seed))
@@ -191,11 +187,15 @@ fn main() -> ExitCode {
     let maps: Vec<simulator::map::MapLevelResult> = d
         .levels
         .par_iter()
-        .filter(|l| l.map.is_some())
+        .filter(|l| l.map.is_some() && l.ladder.is_none())
         .map(|l| simulator::map::run(&d, l))
         .collect();
-    let txt = simulator::text::render(&text, design.as_deref(), &reports, &levels, &maps)
+    let mut txt = simulator::text::render(&text, design.as_deref(), &reports, &levels, &maps)
         .expect("the design file parsed above");
+    if d.levels.iter().any(|l| l.ladder.is_some()) {
+        let (rows, summary) = simulator::ladder::run(&d);
+        txt += &simulator::text::render_ladder(&rows, &summary);
+    }
     if out_txt == "-" {
         print!("{txt}");
     } else if let Err(e) = std::fs::write(&out_txt, txt) {

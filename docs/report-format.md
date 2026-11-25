@@ -175,6 +175,44 @@ map-vision3      0   0.00     0  room1:melee:Mushroom=8 room1:melee:Mandragora=7
 | `min`, `worst` | Average and worst smallest body (start and after each episode) |
 | `stops` | Where runs ended without the exit: `room<k>:<cause>=seeds`, by count descending |
 
+### `[ladder]` and `[ladder-summary]`
+
+These appear only when the design file has ladder rows, after every other section. The rules
+are in [ladder.md](ladder.md). Ladder rows are not repeated in `[map-levels]`.
+
+```
+[ladder]
+mode  difficulty policy   branch                   level end fights net_per_fight engaged2+ min_body body_out  stops
+level E          strafe   -                            1   8   1.74         -5.14      9.20     0.24    10.00  room3:sun=11 ...
+run   E          strafe   Lava                         2   0   2.00         -5.50      0.00     0.00        -  room2:melee:Cactus=1
+
+[ladder-summary]
+mode  difficulty policy   branch                   rule   furthest_level first_fail_level  cause
+run   E          strafe   Lava                     min90               -                1  room3:sun
+```
+
+`[ladder]` has one row per mode × ladder row, sorted by mode (`level`, `run`), difficulty
+(E, N, H), policy, branch, level. `-` is the empty branch.
+
+| Column | Meaning |
+| --- | --- |
+| `mode` | `level`: from the row's own start; `run`: the body carried from the previous level's exit |
+| `end` | Percent of seeds that reached the exit; in `run` mode, of all seeds that started the ladder |
+| `fights`, `net_per_fight`, `min_body` | As in `[map-levels]`, over the seeds that played the level |
+| `engaged2+` | `engaged2` + `engaged3+` of `[map-levels]` |
+| `body_out` | Average body at the exit, after drinking, over the seeds that reached it (in `run` mode: the next level's entry body); `-` when none did |
+| `stops` | As in `[map-level-ends]` |
+
+`[ladder-summary]` has one row per mode × `[ladder]` threshold × leaf row (one that is no other
+row's parent), in threshold order, then branch.
+
+| Column | Meaning |
+| --- | --- |
+| `rule` | `min90`: passes at `end` ≥ 90; `max10`: passes at `end` ≤ 10 |
+| `furthest_level` | The last level of the unbroken passing streak from the branch's lowest level; `-` when the first fails |
+| `first_fail_level` | The level that broke the streak; `-` when none |
+| `cause` | That level's most frequent stop; `-` when none |
+
 ### CLI for experiments
 
 ```bash

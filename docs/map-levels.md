@@ -23,6 +23,10 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
 | `vision` | Enemy sight range (Chebyshev), blocked by walls |
 | `blockers` | Optional: kinds placed in passages (doorways and corridor cells) instead of rooms, a random pick each |
 | `blockers_per_level` | How many blockers; goes together with `blockers` |
+| `river`, `river_liquids` | Optional: units the slime can drink at the exit, and their liquids in drinking order (cycling); go together |
+| `drips` | Optional `{ cells, units }`: Water drip cells in passages, `units` each |
+| `surface_rooms`, `sun_every` | Optional: the middle rooms under the sky, and how often the sun dries there (slime rounds; 1 day, 2 night); go together |
+| — | A level may also carry `ladder = { level, difficulty, branch }` ([ladder.md](ladder.md)) |
 
 ## The map (`map::generate`, deterministic per seed)
 
@@ -36,8 +40,12 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
 - **Blockers** stand on random open cells outside every room (doorways, corridors). They have
   no home room. A corridor is 1 cell wide, so a blocker on a corridor cell closes it until it
   dies; one in a doorway may leave a way around through the room.
-- `--trace-map LEVEL SEED` prints the map (`#` wall, `S` start, `X` exit, an enemy by its first
-  letter) and the turn-by-turn log of that seed.
+- **Drips** stand on random passage cells free of blockers. Every passage lies on the only way
+  between two rooms, so the slime crosses each drip on its walk.
+- **Surface rooms** are the `surface_rooms` rooms in the middle of the chain (from index
+  `(rooms − surface_rooms) / 2`).
+- `--trace-map LEVEL SEED` prints the map (`#` wall, `S` start, `X` exit, `~` drip, an enemy by
+  its first letter) and the turn-by-turn log of that seed.
 
 ## Rules on top of the fight model
 
@@ -82,6 +90,13 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
     capacity. There is no walking and no time.
   - `net` = corpse units + grown − spent − bitten − status − thorns during the episode, ignoring
     capacity.
+- **Drinking (every policy).** When no aggroed enemy is adjacent, the slime standing on a drip
+  cell or on the exit drinks 1 unit per action until it is full or the source is empty. Drunk
+  units go onto the edge. The run ends on the exit once the river is empty or the slime is
+  full. Drunk units are not part of an episode's `net`.
+- **Sun.** After the slime's actions of round `r`, when `r` divides by `sun_every` and the
+  slime stands in a surface room, the edge-most Water unit dries. Taking the last unit kills
+  (cause `sun`). Sun losses are not part of an episode's `net`.
 - **Min body:** the body at the start and after each closed episode; 0 when the slime dies.
 - **Engagement checks** run after every slime action, every enemy turn and every pulse of the
   slime's statuses.
@@ -96,5 +111,5 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
 - An enemy killed by a single strike outside an episode opens no episode, so its corpse and
   the spent unit are not counted. Today that cannot happen: no live enemy dies to one strike.
 - An enemy standing on the exit blocks it; the slime waits (or strikes it when adjacent).
-- No fountains, puddles or spit on map levels yet.
+- No fountains or puddles on map levels; drink sources are only the river at the exit and drips.
 - One corridor shape: straight, 1 cell wide.

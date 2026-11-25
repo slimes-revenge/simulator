@@ -52,6 +52,61 @@ pub struct Design {
     /// Level runs for the body economy (`src/level.rs`); none is fine.
     #[serde(default)]
     pub levels: Vec<Level>,
+    /// Pass rules for the ladder summary (`src/ladder.rs`); none is fine.
+    #[serde(default)]
+    pub ladder: LadderRules,
+}
+
+/// `[ladder]`: what counts as passing a ladder level, per difficulty and policy.
+#[derive(Deserialize, Clone, Debug, Default)]
+#[serde(deny_unknown_fields)]
+pub struct LadderRules {
+    #[serde(default)]
+    pub thresholds: Vec<Threshold>,
+}
+
+/// A level passes when its `end` is at least `min` (or at most `max`) percent.
+#[derive(Deserialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct Threshold {
+    pub difficulty: String,
+    pub policy: String,
+    pub min: Option<f64>,
+    pub max: Option<f64>,
+}
+
+impl Threshold {
+    /// `min90` or `max10`.
+    pub fn rule(&self) -> String {
+        match (self.min, self.max) {
+            (Some(v), _) => format!("min{v}"),
+            (_, Some(v)) => format!("max{v}"),
+            _ => unreachable!("checked in parse"),
+        }
+    }
+
+    pub fn meets(&self, end: f64) -> bool {
+        self.min.is_none_or(|v| end >= v) && self.max.is_none_or(|v| end <= v)
+    }
+}
+
+/// A map level's place on the 20-level ladder.
+#[derive(Deserialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct LadderPlace {
+    pub level: u32,
+    /// `E`, `N` or `H`.
+    pub difficulty: String,
+    /// The city choices made so far, joined with `-`; empty before the first city.
+    #[serde(default)]
+    pub branch: String,
+}
+
+impl LadderPlace {
+    /// `parent` is a branch this one continues: the same, or this one with choices dropped.
+    pub fn continues(&self, parent: &str) -> bool {
+        parent.is_empty() || self.branch == parent || self.branch.starts_with(&format!("{parent}-"))
+    }
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -163,6 +218,8 @@ pub struct Level {
     pub stages: Vec<Stage>,
     /// A map level: rooms the slime walks through to the exit (`src/map.rs`).
     pub map: Option<MapSpec>,
+    /// A map level on the ladder (`src/ladder.rs`); it is reported in `[ladder]` only.
+    pub ladder: Option<LadderPlace>,
 }
 
 /// A generated map: a west-to-east chain of rooms joined by corridors.
@@ -184,6 +241,29 @@ pub struct MapSpec {
     pub blockers: Vec<String>,
     #[serde(default)]
     pub blockers_per_level: usize,
+    /// Units the slime can drink at the exit before leaving, 1 per action, until full.
+    #[serde(default)]
+    pub river: usize,
+    /// The river's liquids, drunk in this order, cycling.
+    #[serde(default)]
+    pub river_liquids: Vec<Liquid>,
+    /// Water drips on corridor and doorway cells (which the slime always crosses).
+    pub drips: Option<Drips>,
+    /// The middle rooms of the chain lie under the open sky (sun).
+    #[serde(default)]
+    pub surface_rooms: usize,
+    /// In a surface room the sun takes the edge-most Water after every this many slime rounds;
+    /// 0 without sun.
+    #[serde(default)]
+    pub sun_every: u32,
+}
+
+#[derive(Deserialize, Clone, Copy, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct Drips {
+    pub cells: usize,
+    /// Water units on each drip cell.
+    pub units: usize,
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -299,6 +379,11 @@ impl Design {
                     Some("map.enemy_kinds must name at least one enemy".into())
                 } else if m.blockers.is_empty() != (m.blockers_per_level == 0) {
                     Some("map.blockers and map.blockers_per_level go together".into())
+                } else if m.river_liquids.is_empty() != (m.river == 0) {
+                    Some("map.river and map.river_liquids go together".into())
+                } else if m.surface_rooms > m.rooms || (m.surface_rooms == 0) != (m.sun_every == 0)
+                {
+                    Some("map.surface_rooms (<= rooms) and map.sun_every go together".into())
                 } else {
                     m.enemy_kinds
                         .iter()
@@ -323,6 +408,59 @@ impl Design {
                         ));
                     }
                 }
+            }
+        }
+        let rows = crate::ladder::rows(&design);
+        for (i, &(level, p)) in rows.iter().enumerate() {
+            let same = |&(l, q): &(&Level, &LadderPlace)| {
+                q.difficulty == p.difficulty && l.policy == level.policy
+            };
+            let lowest = rows
+                .iter()
+                .filter(|r| same(r))
+                .all(|r| r.1.level >= p.level);
+            // A branch grows by at most one choice per level and never drops one.
+            let grows = |parent: &str| {
+                p.branch == parent
+                    || (p.continues(parent)
+                        && !p.branch[parent.len()..]
+                            .trim_start_matches('-')
+                            .contains('-'))
+            };
+            let problem = if level.map.is_none() {
+                Some("ladder needs a map level".to_string())
+            } else if !["E", "N", "H"].contains(&p.difficulty.as_str()) || p.level == 0 {
+                Some("ladder.difficulty must be E, N or H and ladder.level >= 1".into())
+            } else if !p.branch.is_empty() && p.branch.split('-').any(|c| c.is_empty()) {
+                Some(format!("ladder.branch {:?} has an empty choice", p.branch))
+            } else if rows[..i]
+                .iter()
+                .any(|r| same(r) && r.1.level == p.level && r.1.branch == p.branch)
+            {
+                Some("two rows share level, difficulty, policy and branch".into())
+            } else if !lowest
+                && crate::ladder::parent(&rows, i).is_none_or(|j| !grows(&rows[j].1.branch))
+            {
+                Some(format!(
+                    "the level {} row this continues must have the same branch or one choice fewer",
+                    p.level - 1
+                ))
+            } else {
+                None
+            };
+            if let Some(problem) = problem {
+                return Err(format!("level {:?}: {problem}", level.id));
+            }
+        }
+        for t in &design.ladder.thresholds {
+            if t.min.is_some() == t.max.is_some()
+                || !["E", "N", "H"].contains(&t.difficulty.as_str())
+                || !["strafe", "lure", "kite"].contains(&t.policy.as_str())
+            {
+                return Err(format!(
+                    "ladder.thresholds {} {}: difficulty E, N or H, a map policy, exactly one of min, max",
+                    t.difficulty, t.policy
+                ));
             }
         }
         Ok(design)
