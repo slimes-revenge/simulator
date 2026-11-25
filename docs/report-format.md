@@ -19,7 +19,7 @@ the diff of every pull request that changes rules or numbers shows how the matri
 ## `design-guard.txt`
 
 ```
-# Slime's Revenge design guard — plain-text report, format 1
+# Slime's Revenge design guard — plain-text report, format 2
 
 [design]
 rules.board_width = 10
@@ -34,7 +34,7 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 1  face-tank  start      bat-3              0  176.82   0.88   0.88   2.92   2.20   0.00  timeout=44 melee:Bat=6
 ```
 
-- **Header line:** format version. No time, commit or seed list. The release notes and the
+- **Header line:** format version. It goes up when an existing section's columns change. No time, commit or seed list. The release notes and the
   JSON carry the commit.
 - **`[design]`:** every value of the design file the run used, one `key = value` per line, in
   file order. An empty list prints as `key = ` with nothing after it.
@@ -112,9 +112,9 @@ These appear only when the design file has `[[levels]]`. The rules are in [level
 
 ```
 [levels]
-level          stage kind     detail         reached win before  spent bitten status  grown  eaten  drunk wasted  after     net
-sample-ap2         1 fight    mushroom-1         100 100  10.00   5.00   2.00   0.00   0.00   1.00   0.00   0.00   4.00   -6.00
-sample-ap2         3 fountain Water x3             0   -   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   +0.00
+level          stage kind     detail         reached win before  spent bitten status  grown corpse  eaten  drunk wasted  after     net
+sample-ap2         1 fight    mushroom-1         100 100  10.00   5.00   2.00   0.00   0.00   1.00   1.00   0.00   0.00   4.00   -6.00
+sample-ap2         3 fountain Water x3             0   -   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   +0.00
 
 [level-ends]
 level          end    min worst wasted  stops
@@ -133,9 +133,10 @@ the seeds that reached the stage, with 2 decimals; `net` carries a sign.
 | `before`, `after` | Body at the stage start and end (after eating or drinking; 0 after a death, what was left after a timeout) |
 | `spent`, `bitten`, `status` | Units lost to strikes, bites, the slime's own status pulses |
 | `grown` | Blood grown by Regeneration during the fight |
+| `corpse` | Units the corpses offered: `eaten` plus what did not fit |
 | `eaten`, `drunk` | Units gained from corpses and from the fountain |
 | `wasted` | Corpse or fountain units that did not fit into capacity |
-| `net` | `eaten + drunk + grown − spent − bitten − status`, ignoring capacity |
+| `net` | `corpse + drunk + grown − spent − bitten − status`: the stage's own yield, ignoring capacity (a fountain's undrunk rest is not counted) |
 
 `[level-ends]` has one line per level:
 

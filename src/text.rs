@@ -14,7 +14,7 @@ pub fn render(
     levels: &[LevelResult],
 ) -> Result<String, String> {
     let design: toml::Table = toml::from_str(design_toml).map_err(|e| e.to_string())?;
-    let mut out = String::from("# Slime's Revenge design guard — plain-text report, format 1\n");
+    let mut out = String::from("# Slime's Revenge design guard — plain-text report, format 2\n");
     out += "\n[design]\n";
     if let Some(file) = design_file {
         let _ = writeln!(out, "design.file = {file}");
@@ -78,7 +78,7 @@ fn render_levels(levels: &[LevelResult], out: &mut String) {
     *out += "\n[levels]\n";
     let _ = writeln!(
         out,
-        "{:<14} {:>5} {:<8} {:<14} {:>7} {:>3} {:>6} {:>6} {:>6} {:>6} {:>6} {:>6} {:>6} {:>6} {:>6} {:>7}",
+        "{:<14} {:>5} {:<8} {:<14} {:>7} {:>3} {:>6} {:>6} {:>6} {:>6} {:>6} {:>6} {:>6} {:>6} {:>6} {:>6} {:>7}",
         "level",
         "stage",
         "kind",
@@ -90,6 +90,7 @@ fn render_levels(levels: &[LevelResult], out: &mut String) {
         "bitten",
         "status",
         "grown",
+        "corpse",
         "eaten",
         "drunk",
         "wasted",
@@ -101,7 +102,7 @@ fn render_levels(levels: &[LevelResult], out: &mut String) {
             let win = r.win.map_or("-".to_string(), |w| format!("{w:.0}"));
             let _ = writeln!(
                 out,
-                "{:<14} {:>5} {:<8} {:<14} {:>7.0} {:>3} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>+7.2}",
+                "{:<14} {:>5} {:<8} {:<14} {:>7.0} {:>3} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>+7.2}",
                 l.id,
                 r.stage,
                 r.kind,
@@ -113,6 +114,7 @@ fn render_levels(levels: &[LevelResult], out: &mut String) {
                 r.bitten,
                 r.status,
                 r.grown,
+                r.corpse,
                 r.eaten,
                 r.drunk,
                 r.wasted,

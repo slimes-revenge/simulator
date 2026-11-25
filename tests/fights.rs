@@ -596,3 +596,20 @@ fn overkill_counts_a_status_pulse_beyond_the_hp_left() {
     assert!(r.won);
     assert_eq!((r.tally.status_dmg, r.tally.overkill), (1, 1));
 }
+
+// The balance session's case: 10 Lava vs a Mushroom whose corpse is 4 Water. The fight leaves
+// 7 (2 spent, 1 bitten); 3 fit, 1 is wasted; net counts the whole corpse: 4 − 3 = +1.
+#[test]
+fn level_net_counts_the_whole_corpse() {
+    let mut d = level_design(r#"{ kind = "fight", enemy = "Mushroom", enemies = 1 }"#);
+    d.enemies
+        .iter_mut()
+        .find(|e| e.name == "Mushroom")
+        .unwrap()
+        .volume = vec![Liquid::Water; 4];
+    let r = &simulator::level::run(&d, &d.levels[0]).rows[0];
+    assert_eq!(
+        (r.corpse, r.eaten, r.wasted, r.after, r.net),
+        (4.0, 3.0, 1.0, 10.0, 1.0)
+    );
+}
