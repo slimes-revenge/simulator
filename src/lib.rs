@@ -6,3 +6,4 @@ pub mod fight;
 pub mod path;
 pub mod report;
 pub mod rng;
+pub mod text;

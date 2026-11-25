@@ -37,6 +37,11 @@ pub struct CellResult {
     pub avg_rounds: f64,
     pub avg_units_left: f64,
     pub avg_units_spent: f64,
+    /// Units lost to enemy bites.
+    pub avg_units_bitten: f64,
+    /// Units lost to the slime's own status pulses.
+    pub avg_units_status: f64,
+    pub avg_enemies_killed: f64,
     /// The most common cause of a loss; `None` when every fight was won.
     pub cause: Option<String>,
     /// Every cause of a loss with the number of fights it ended.
@@ -100,13 +105,13 @@ pub fn encounters(d: &Design) -> Vec<Encounter> {
 }
 
 /// One fight: the slime at `matrix.slime_cell`, the enemies in a column east of it.
-pub fn play(
-    d: &Design,
+pub fn fight<'a>(
+    d: &'a Design,
     build: &Build,
     encounter: &Encounter,
     actions_per_round: u32,
     seed: u64,
-) -> FightResult {
+) -> Fight<'a> {
     let (x, _) = d.matrix.slime_cell;
     let enemies: Vec<(&str, (i32, i32))> = d.matrix.enemy_rows[..encounter.enemies]
         .iter()
@@ -125,12 +130,27 @@ pub fn play(
         d.matrix.slime_cell,
         &enemies,
     )
-    .run()
 }
 
-pub fn run(d: &Design, actions_per_round: u32, generated_utc: &str, commit: &str) -> Report {
-    let builds = builds(d);
-    let encounters = encounters(d);
+pub fn play(
+    d: &Design,
+    build: &Build,
+    encounter: &Encounter,
+    actions_per_round: u32,
+    seed: u64,
+) -> FightResult {
+    fight(d, build, encounter, actions_per_round, seed).run()
+}
+
+/// Every build × encounter given (normally `builds(d)` × `encounters(d)`), `matrix.seeds` each.
+pub fn run(
+    d: &Design,
+    actions_per_round: u32,
+    builds: Vec<Build>,
+    encounters: Vec<Encounter>,
+    generated_utc: &str,
+    commit: &str,
+) -> Report {
     let mut cells = Vec::new();
     for b in &builds {
         for e in &encounters {
@@ -174,6 +194,9 @@ fn summarize(b: &Build, e: &Encounter, results: &[FightResult]) -> CellResult {
         avg_rounds: avg(|r| r.rounds as f64),
         avg_units_left: avg(|r| r.units_left as f64),
         avg_units_spent: avg(|r| r.units_spent as f64),
+        avg_units_bitten: avg(|r| r.units_bitten as f64),
+        avg_units_status: avg(|r| r.units_status as f64),
+        avg_enemies_killed: avg(|r| r.enemies_killed as f64),
         cause,
         causes,
     }
@@ -181,29 +204,4 @@ fn summarize(b: &Build, e: &Encounter, results: &[FightResult]) -> CellResult {
 
 fn round2(x: f64) -> f64 {
     (x * 100.0).round() / 100.0
-}
-
-/// A plain-text matrix for the console: win rate in percent per build × encounter.
-pub fn table(report: &Report) -> String {
-    let mut out = format!(
-        "actionsPerRound = {}, policy = {}, seeds = {}\n{:<10}",
-        report.actions_per_round, report.policy, report.seeds, "build"
-    );
-    for e in &report.encounters {
-        out += &format!("{:>14}", e.id);
-    }
-    out += "\n";
-    for b in &report.builds {
-        out += &format!("{:<10}", b.id);
-        for e in &report.encounters {
-            let c = report
-                .cells
-                .iter()
-                .find(|c| c.build == b.id && c.encounter == e.id)
-                .expect("every build × encounter has a cell");
-            out += &format!("{:>13}%", (c.win_rate * 100.0).round());
-        }
-        out += "\n";
-    }
-    out
 }

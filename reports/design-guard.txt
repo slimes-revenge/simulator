@@ -1,0 +1,379 @@
+# Slime's Revenge design guard — plain-text report, format 1
+
+[design]
+rules.board_width = 10
+rules.board_height = 10
+rules.vision_range = 5
+rules.dominance_percent = 80
+rules.pursuit_memory_turns = 3
+rules.max_rounds = 200
+slime.capacity = 10
+slime.speed = 1
+slime.start = Water Water Oil Poison Acid Lava
+statuses.wet = 3
+statuses.burning = 3
+statuses.poisoned = 3
+statuses.corroding = 3
+statuses.instability = 3
+statuses.flammable = 3
+statuses.burning_pulse = 1
+statuses.poisoned_pulse = 1
+statuses.corroding_pulse = 1
+statuses.flammable_multiplier = 2
+statuses.instability_speed = -1
+statuses.vampirism_heal = 2
+statuses.regeneration_growth = 1
+liquids.Water.power = 1
+liquids.Water.corrosion = 0
+liquids.Oil.power = 1
+liquids.Oil.corrosion = 0
+liquids.Poison.power = 1
+liquids.Poison.corrosion = 0
+liquids.Acid.power = 1
+liquids.Acid.corrosion = 1
+liquids.Blood.power = 1
+liquids.Blood.corrosion = 0
+liquids.Lava.power = 1
+liquids.Lava.corrosion = 0
+liquids.Mercury.power = 1
+liquids.Mercury.corrosion = 0
+enemies.Bat.hit_points = 3
+enemies.Bat.armor = 0
+enemies.Bat.speed = 1
+enemies.Bat.melee_power = 1
+enemies.Bat.volume = Blood Blood
+enemies.Bat.personality = Passive
+enemies.Bat.traits = Vampirism
+enemies.Mushroom.hit_points = 5
+enemies.Mushroom.armor = 0
+enemies.Mushroom.speed = 1
+enemies.Mushroom.melee_power = 1
+enemies.Mushroom.volume = Water
+enemies.Mushroom.personality = Aggressive
+enemies.Mushroom.traits = 
+enemies.Undine.hit_points = 5
+enemies.Undine.armor = 0
+enemies.Undine.speed = 1
+enemies.Undine.melee_power = 1
+enemies.Undine.volume = Water
+enemies.Undine.personality = Aggressive
+enemies.Undine.traits = 
+enemies.Cactus.hit_points = 5
+enemies.Cactus.armor = 0
+enemies.Cactus.speed = 1
+enemies.Cactus.melee_power = 1
+enemies.Cactus.volume = Water
+enemies.Cactus.personality = Aggressive
+enemies.Cactus.traits = 
+enemies.Mandragora.hit_points = 5
+enemies.Mandragora.armor = 0
+enemies.Mandragora.speed = 1
+enemies.Mandragora.melee_power = 1
+enemies.Mandragora.volume = Water
+enemies.Mandragora.personality = Aggressive
+enemies.Mandragora.traits = 
+enemies.Eye.hit_points = 5
+enemies.Eye.armor = 0
+enemies.Eye.speed = 1
+enemies.Eye.melee_power = 1
+enemies.Eye.volume = Water
+enemies.Eye.personality = Aggressive
+enemies.Eye.traits = 
+matrix.seeds = 50
+matrix.action_points = 1 2
+matrix.pure_build_units = 10
+matrix.enemy_counts = 1 2 3
+matrix.slime_cell = 1 5
+matrix.enemy_column_offset = 5
+matrix.enemy_rows = 5 4 6
+
+[cells]
+ap policy     build      encounter        win  rounds killed   left  spent bitten status  cause
+1  face-tank  start      bat-1            100    7.18   1.00   1.00   3.00   2.00   0.00  -
+1  face-tank  start      bat-2              0  200.00   1.00   1.00   3.00   2.00   0.00  timeout=50
+1  face-tank  start      bat-3              0  176.82   0.88   0.88   2.92   2.20   0.00  timeout=44 melee:Bat=6
+1  face-tank  start      mushroom-1         0    5.00   0.00   0.00   3.00   3.00   0.00  melee:Mushroom=50
+1  face-tank  start      mushroom-2         0    4.00   0.00   0.00   2.00   4.00   0.00  melee:Mushroom=50
+1  face-tank  start      mushroom-3         0    4.00   0.00   0.00   2.00   4.00   0.00  melee:Mushroom=50
+1  face-tank  start      undine-1           0    5.00   0.00   0.00   3.00   3.00   0.00  melee:Undine=50
+1  face-tank  start      undine-2           0    4.00   0.00   0.00   2.00   4.00   0.00  melee:Undine=50
+1  face-tank  start      undine-3           0    4.00   0.00   0.00   2.00   4.00   0.00  melee:Undine=50
+1  face-tank  start      cactus-1           0    5.00   0.00   0.00   3.00   3.00   0.00  melee:Cactus=50
+1  face-tank  start      cactus-2           0    4.00   0.00   0.00   2.00   4.00   0.00  melee:Cactus=50
+1  face-tank  start      cactus-3           0    4.00   0.00   0.00   2.00   4.00   0.00  melee:Cactus=50
+1  face-tank  start      mandragora-1       0    5.00   0.00   0.00   3.00   3.00   0.00  melee:Mandragora=50
+1  face-tank  start      mandragora-2       0    4.00   0.00   0.00   2.00   4.00   0.00  melee:Mandragora=50
+1  face-tank  start      mandragora-3       0    4.00   0.00   0.00   2.00   4.00   0.00  melee:Mandragora=50
+1  face-tank  start      eye-1              0    5.00   0.00   0.00   3.00   3.00   0.00  melee:Eye=50
+1  face-tank  start      eye-2              0    4.00   0.00   0.00   2.00   4.00   0.00  melee:Eye=50
+1  face-tank  start      eye-3              0    4.00   0.00   0.00   2.00   4.00   0.00  melee:Eye=50
+1  face-tank  water      bat-1            100    7.18   1.00   5.00   3.00   2.00   0.00  -
+1  face-tank  water      bat-2              0   11.88   1.00   0.00   5.00   5.00   0.00  melee:Bat=50
+1  face-tank  water      bat-3              0   10.36   0.96   0.00   4.88   5.12   0.00  melee:Bat=50
+1  face-tank  water      mushroom-1       100    7.00   1.00   1.00   5.00   4.00   0.00  -
+1  face-tank  water      mushroom-2         0    6.00   0.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
+1  face-tank  water      mushroom-3         0    5.00   0.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
+1  face-tank  water      undine-1         100    7.00   1.00   1.00   5.00   4.00   0.00  -
+1  face-tank  water      undine-2           0    6.00   0.00   0.00   3.00   7.00   0.00  melee:Undine=50
+1  face-tank  water      undine-3           0    5.00   0.00   0.00   3.00   7.00   0.00  melee:Undine=50
+1  face-tank  water      cactus-1         100    7.00   1.00   1.00   5.00   4.00   0.00  -
+1  face-tank  water      cactus-2           0    6.00   0.00   0.00   3.00   7.00   0.00  melee:Cactus=50
+1  face-tank  water      cactus-3           0    5.00   0.00   0.00   3.00   7.00   0.00  melee:Cactus=50
+1  face-tank  water      mandragora-1     100    7.00   1.00   1.00   5.00   4.00   0.00  -
+1  face-tank  water      mandragora-2       0    6.00   0.00   0.00   3.00   7.00   0.00  melee:Mandragora=50
+1  face-tank  water      mandragora-3       0    5.00   0.00   0.00   3.00   7.00   0.00  melee:Mandragora=50
+1  face-tank  water      eye-1            100    7.00   1.00   1.00   5.00   4.00   0.00  -
+1  face-tank  water      eye-2              0    6.00   0.00   0.00   3.00   7.00   0.00  melee:Eye=50
+1  face-tank  water      eye-3              0    5.00   0.00   0.00   3.00   7.00   0.00  melee:Eye=50
+1  face-tank  oil        bat-1            100    7.18   1.00   5.00   3.00   2.00   0.00  -
+1  face-tank  oil        bat-2              0   11.88   1.00   0.00   5.00   5.00   0.00  melee:Bat=50
+1  face-tank  oil        bat-3              0   10.36   0.96   0.00   4.88   5.12   0.00  melee:Bat=50
+1  face-tank  oil        mushroom-1       100    7.00   1.00   1.00   5.00   4.00   0.00  -
+1  face-tank  oil        mushroom-2         0    6.00   0.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
+1  face-tank  oil        mushroom-3         0    5.00   0.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
+1  face-tank  oil        undine-1         100    7.00   1.00   1.00   5.00   4.00   0.00  -
+1  face-tank  oil        undine-2           0    6.00   0.00   0.00   3.00   7.00   0.00  melee:Undine=50
+1  face-tank  oil        undine-3           0    5.00   0.00   0.00   3.00   7.00   0.00  melee:Undine=50
+1  face-tank  oil        cactus-1         100    7.00   1.00   1.00   5.00   4.00   0.00  -
+1  face-tank  oil        cactus-2           0    6.00   0.00   0.00   3.00   7.00   0.00  melee:Cactus=50
+1  face-tank  oil        cactus-3           0    5.00   0.00   0.00   3.00   7.00   0.00  melee:Cactus=50
+1  face-tank  oil        mandragora-1     100    7.00   1.00   1.00   5.00   4.00   0.00  -
+1  face-tank  oil        mandragora-2       0    6.00   0.00   0.00   3.00   7.00   0.00  melee:Mandragora=50
+1  face-tank  oil        mandragora-3       0    5.00   0.00   0.00   3.00   7.00   0.00  melee:Mandragora=50
+1  face-tank  oil        eye-1            100    7.00   1.00   1.00   5.00   4.00   0.00  -
+1  face-tank  oil        eye-2              0    6.00   0.00   0.00   3.00   7.00   0.00  melee:Eye=50
+1  face-tank  oil        eye-3              0    5.00   0.00   0.00   3.00   7.00   0.00  melee:Eye=50
+1  face-tank  poison     bat-1            100    6.18   1.00   7.00   2.00   1.00   0.00  -
+1  face-tank  poison     bat-2            100    9.74   2.00   4.00   4.00   2.00   0.00  -
+1  face-tank  poison     bat-3            100   12.64   3.00   1.10   5.90   3.00   0.00  -
+1  face-tank  poison     mushroom-1       100    4.00   1.00   7.00   2.00   1.00   0.00  -
+1  face-tank  poison     mushroom-2       100    5.00   2.00   4.00   3.00   3.00   0.00  -
+1  face-tank  poison     mushroom-3       100    6.00   3.00   1.00   3.00   6.00   0.00  -
+1  face-tank  poison     undine-1         100    4.00   1.00   7.00   2.00   1.00   0.00  -
+1  face-tank  poison     undine-2         100    5.00   2.00   4.00   3.00   3.00   0.00  -
+1  face-tank  poison     undine-3         100    6.00   3.00   1.00   3.00   6.00   0.00  -
+1  face-tank  poison     cactus-1         100    4.00   1.00   7.00   2.00   1.00   0.00  -
+1  face-tank  poison     cactus-2         100    5.00   2.00   4.00   3.00   3.00   0.00  -
+1  face-tank  poison     cactus-3         100    6.00   3.00   1.00   3.00   6.00   0.00  -
+1  face-tank  poison     mandragora-1     100    4.00   1.00   7.00   2.00   1.00   0.00  -
+1  face-tank  poison     mandragora-2     100    5.00   2.00   4.00   3.00   3.00   0.00  -
+1  face-tank  poison     mandragora-3     100    6.00   3.00   1.00   3.00   6.00   0.00  -
+1  face-tank  poison     eye-1            100    4.00   1.00   7.00   2.00   1.00   0.00  -
+1  face-tank  poison     eye-2            100    5.00   2.00   4.00   3.00   3.00   0.00  -
+1  face-tank  poison     eye-3            100    6.00   3.00   1.00   3.00   6.00   0.00  -
+1  face-tank  acid       bat-1            100    6.18   1.00   7.00   2.00   1.00   0.00  -
+1  face-tank  acid       bat-2            100    9.74   2.00   4.00   4.00   2.00   0.00  -
+1  face-tank  acid       bat-3            100   12.64   3.00   1.10   5.90   3.00   0.00  -
+1  face-tank  acid       mushroom-1       100    4.00   1.00   7.00   2.00   1.00   0.00  -
+1  face-tank  acid       mushroom-2       100    5.00   2.00   4.00   3.00   3.00   0.00  -
+1  face-tank  acid       mushroom-3       100    6.00   3.00   1.00   3.00   6.00   0.00  -
+1  face-tank  acid       undine-1         100    4.00   1.00   7.00   2.00   1.00   0.00  -
+1  face-tank  acid       undine-2         100    5.00   2.00   4.00   3.00   3.00   0.00  -
+1  face-tank  acid       undine-3         100    6.00   3.00   1.00   3.00   6.00   0.00  -
+1  face-tank  acid       cactus-1         100    4.00   1.00   7.00   2.00   1.00   0.00  -
+1  face-tank  acid       cactus-2         100    5.00   2.00   4.00   3.00   3.00   0.00  -
+1  face-tank  acid       cactus-3         100    6.00   3.00   1.00   3.00   6.00   0.00  -
+1  face-tank  acid       mandragora-1     100    4.00   1.00   7.00   2.00   1.00   0.00  -
+1  face-tank  acid       mandragora-2     100    5.00   2.00   4.00   3.00   3.00   0.00  -
+1  face-tank  acid       mandragora-3     100    6.00   3.00   1.00   3.00   6.00   0.00  -
+1  face-tank  acid       eye-1            100    4.00   1.00   7.00   2.00   1.00   0.00  -
+1  face-tank  acid       eye-2            100    5.00   2.00   4.00   3.00   3.00   0.00  -
+1  face-tank  acid       eye-3            100    6.00   3.00   1.00   3.00   6.00   0.00  -
+1  face-tank  blood      bat-1              0   13.18   0.00   0.00   9.00   9.00   0.00  melee:Bat=50
+1  face-tank  blood      bat-2              0   12.66   0.00   0.00   9.00   9.00   0.00  melee:Bat=50
+1  face-tank  blood      bat-3              0   11.92   0.00   0.00   8.48   9.00   0.00  melee:Bat=50
+1  face-tank  blood      mushroom-1       100    7.00   1.00   5.00   5.00   4.00   0.00  -
+1  face-tank  blood      mushroom-2         0    7.00   1.00   0.00   5.00   9.00   0.00  melee:Mushroom=50
+1  face-tank  blood      mushroom-3         0    5.00   0.00   0.00   3.00   9.00   0.00  melee:Mushroom=50
+1  face-tank  blood      undine-1         100    7.00   1.00   5.00   5.00   4.00   0.00  -
+1  face-tank  blood      undine-2           0    7.00   1.00   0.00   5.00   9.00   0.00  melee:Undine=50
+1  face-tank  blood      undine-3           0    5.00   0.00   0.00   3.00   9.00   0.00  melee:Undine=50
+1  face-tank  blood      cactus-1         100    7.00   1.00   5.00   5.00   4.00   0.00  -
+1  face-tank  blood      cactus-2           0    7.00   1.00   0.00   5.00   9.00   0.00  melee:Cactus=50
+1  face-tank  blood      cactus-3           0    5.00   0.00   0.00   3.00   9.00   0.00  melee:Cactus=50
+1  face-tank  blood      mandragora-1     100    7.00   1.00   5.00   5.00   4.00   0.00  -
+1  face-tank  blood      mandragora-2       0    7.00   1.00   0.00   5.00   9.00   0.00  melee:Mandragora=50
+1  face-tank  blood      mandragora-3       0    5.00   0.00   0.00   3.00   9.00   0.00  melee:Mandragora=50
+1  face-tank  blood      eye-1            100    7.00   1.00   5.00   5.00   4.00   0.00  -
+1  face-tank  blood      eye-2              0    7.00   1.00   0.00   5.00   9.00   0.00  melee:Eye=50
+1  face-tank  blood      eye-3              0    5.00   0.00   0.00   3.00   9.00   0.00  melee:Eye=50
+1  face-tank  lava       bat-1            100    6.18   1.00   7.00   2.00   1.00   0.00  -
+1  face-tank  lava       bat-2            100    9.74   2.00   4.00   4.00   2.00   0.00  -
+1  face-tank  lava       bat-3            100   12.64   3.00   1.10   5.90   3.00   0.00  -
+1  face-tank  lava       mushroom-1       100    4.00   1.00   7.00   2.00   1.00   0.00  -
+1  face-tank  lava       mushroom-2       100    5.00   2.00   4.00   3.00   3.00   0.00  -
+1  face-tank  lava       mushroom-3       100    6.00   3.00   1.00   3.00   6.00   0.00  -
+1  face-tank  lava       undine-1         100    4.00   1.00   7.00   2.00   1.00   0.00  -
+1  face-tank  lava       undine-2         100    5.00   2.00   4.00   3.00   3.00   0.00  -
+1  face-tank  lava       undine-3         100    6.00   3.00   1.00   3.00   6.00   0.00  -
+1  face-tank  lava       cactus-1         100    4.00   1.00   7.00   2.00   1.00   0.00  -
+1  face-tank  lava       cactus-2         100    5.00   2.00   4.00   3.00   3.00   0.00  -
+1  face-tank  lava       cactus-3         100    6.00   3.00   1.00   3.00   6.00   0.00  -
+1  face-tank  lava       mandragora-1     100    4.00   1.00   7.00   2.00   1.00   0.00  -
+1  face-tank  lava       mandragora-2     100    5.00   2.00   4.00   3.00   3.00   0.00  -
+1  face-tank  lava       mandragora-3     100    6.00   3.00   1.00   3.00   6.00   0.00  -
+1  face-tank  lava       eye-1            100    4.00   1.00   7.00   2.00   1.00   0.00  -
+1  face-tank  lava       eye-2            100    5.00   2.00   4.00   3.00   3.00   0.00  -
+1  face-tank  lava       eye-3            100    6.00   3.00   1.00   3.00   6.00   0.00  -
+1  face-tank  mercury    bat-1            100    7.18   1.00   5.00   3.00   2.00   0.00  -
+1  face-tank  mercury    bat-2              0   11.88   1.00   0.00   5.00   5.00   0.00  melee:Bat=50
+1  face-tank  mercury    bat-3              0   10.36   0.96   0.00   4.88   5.12   0.00  melee:Bat=50
+1  face-tank  mercury    mushroom-1       100    9.18   1.00   1.00   5.00   4.00   0.00  -
+1  face-tank  mercury    mushroom-2         0  200.00   1.00   1.00   5.00   4.00   0.00  timeout=50
+1  face-tank  mercury    mushroom-3         0  173.10   0.86   0.86   4.88   4.26   0.00  timeout=43 melee:Mushroom=7
+1  face-tank  mercury    undine-1         100    9.18   1.00   1.00   5.00   4.00   0.00  -
+1  face-tank  mercury    undine-2           0  200.00   1.00   1.00   5.00   4.00   0.00  timeout=50
+1  face-tank  mercury    undine-3           0  173.10   0.86   0.86   4.88   4.26   0.00  timeout=43 melee:Undine=7
+1  face-tank  mercury    cactus-1         100    9.18   1.00   1.00   5.00   4.00   0.00  -
+1  face-tank  mercury    cactus-2           0  200.00   1.00   1.00   5.00   4.00   0.00  timeout=50
+1  face-tank  mercury    cactus-3           0  173.10   0.86   0.86   4.88   4.26   0.00  timeout=43 melee:Cactus=7
+1  face-tank  mercury    mandragora-1     100    9.18   1.00   1.00   5.00   4.00   0.00  -
+1  face-tank  mercury    mandragora-2       0  200.00   1.00   1.00   5.00   4.00   0.00  timeout=50
+1  face-tank  mercury    mandragora-3       0  173.10   0.86   0.86   4.88   4.26   0.00  timeout=43 melee:Mandragora=7
+1  face-tank  mercury    eye-1            100    9.18   1.00   1.00   5.00   4.00   0.00  -
+1  face-tank  mercury    eye-2              0  200.00   1.00   1.00   5.00   4.00   0.00  timeout=50
+1  face-tank  mercury    eye-3              0  173.10   0.86   0.86   4.88   4.26   0.00  timeout=43 melee:Eye=7
+2  face-tank  start      bat-1            100    3.72   1.00   2.00   3.00   1.00   0.00  -
+2  face-tank  start      bat-2              0    4.72   1.00   0.00   4.00   2.00   0.00  melee:Bat=50
+2  face-tank  start      bat-3              0    4.28   0.96   0.00   3.96   2.04   0.00  melee:Bat=50
+2  face-tank  start      mushroom-1         0    4.00   0.00   0.00   3.00   3.00   0.00  melee:Mushroom=50
+2  face-tank  start      mushroom-2         0    3.00   0.00   0.00   3.00   3.00   0.00  melee:Mushroom=50
+2  face-tank  start      mushroom-3         0    3.00   0.00   0.00   2.00   4.00   0.00  melee:Mushroom=50
+2  face-tank  start      undine-1           0    4.00   0.00   0.00   3.00   3.00   0.00  melee:Undine=50
+2  face-tank  start      undine-2           0    3.00   0.00   0.00   3.00   3.00   0.00  melee:Undine=50
+2  face-tank  start      undine-3           0    3.00   0.00   0.00   2.00   4.00   0.00  melee:Undine=50
+2  face-tank  start      cactus-1           0    4.00   0.00   0.00   3.00   3.00   0.00  melee:Cactus=50
+2  face-tank  start      cactus-2           0    3.00   0.00   0.00   3.00   3.00   0.00  melee:Cactus=50
+2  face-tank  start      cactus-3           0    3.00   0.00   0.00   2.00   4.00   0.00  melee:Cactus=50
+2  face-tank  start      mandragora-1       0    4.00   0.00   0.00   3.00   3.00   0.00  melee:Mandragora=50
+2  face-tank  start      mandragora-2       0    3.00   0.00   0.00   3.00   3.00   0.00  melee:Mandragora=50
+2  face-tank  start      mandragora-3       0    3.00   0.00   0.00   2.00   4.00   0.00  melee:Mandragora=50
+2  face-tank  start      eye-1              0    4.00   0.00   0.00   3.00   3.00   0.00  melee:Eye=50
+2  face-tank  start      eye-2              0    3.00   0.00   0.00   3.00   3.00   0.00  melee:Eye=50
+2  face-tank  start      eye-3              0    3.00   0.00   0.00   2.00   4.00   0.00  melee:Eye=50
+2  face-tank  water      bat-1            100    3.72   1.00   6.00   3.00   1.00   0.00  -
+2  face-tank  water      bat-2            100    5.72   2.00   1.96   6.00   2.04   0.00  -
+2  face-tank  water      bat-3              0   14.38   1.96   0.04   6.88   3.08   0.00  melee:Bat=48 timeout=2
+2  face-tank  water      mushroom-1       100    4.00   1.00   3.00   5.00   2.00   0.00  -
+2  face-tank  water      mushroom-2         0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Mushroom=50
+2  face-tank  water      mushroom-3         0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
+2  face-tank  water      undine-1         100    4.00   1.00   3.00   5.00   2.00   0.00  -
+2  face-tank  water      undine-2           0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Undine=50
+2  face-tank  water      undine-3           0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Undine=50
+2  face-tank  water      cactus-1         100    4.00   1.00   3.00   5.00   2.00   0.00  -
+2  face-tank  water      cactus-2           0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Cactus=50
+2  face-tank  water      cactus-3           0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Cactus=50
+2  face-tank  water      mandragora-1     100    4.00   1.00   3.00   5.00   2.00   0.00  -
+2  face-tank  water      mandragora-2       0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Mandragora=50
+2  face-tank  water      mandragora-3       0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Mandragora=50
+2  face-tank  water      eye-1            100    4.00   1.00   3.00   5.00   2.00   0.00  -
+2  face-tank  water      eye-2              0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Eye=50
+2  face-tank  water      eye-3              0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Eye=50
+2  face-tank  oil        bat-1            100    3.72   1.00   6.00   3.00   1.00   0.00  -
+2  face-tank  oil        bat-2            100    5.72   2.00   1.96   6.00   2.04   0.00  -
+2  face-tank  oil        bat-3              0   14.38   1.96   0.04   6.88   3.08   0.00  melee:Bat=48 timeout=2
+2  face-tank  oil        mushroom-1       100    4.00   1.00   3.00   5.00   2.00   0.00  -
+2  face-tank  oil        mushroom-2         0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Mushroom=50
+2  face-tank  oil        mushroom-3         0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
+2  face-tank  oil        undine-1         100    4.00   1.00   3.00   5.00   2.00   0.00  -
+2  face-tank  oil        undine-2           0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Undine=50
+2  face-tank  oil        undine-3           0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Undine=50
+2  face-tank  oil        cactus-1         100    4.00   1.00   3.00   5.00   2.00   0.00  -
+2  face-tank  oil        cactus-2           0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Cactus=50
+2  face-tank  oil        cactus-3           0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Cactus=50
+2  face-tank  oil        mandragora-1     100    4.00   1.00   3.00   5.00   2.00   0.00  -
+2  face-tank  oil        mandragora-2       0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Mandragora=50
+2  face-tank  oil        mandragora-3       0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Mandragora=50
+2  face-tank  oil        eye-1            100    4.00   1.00   3.00   5.00   2.00   0.00  -
+2  face-tank  oil        eye-2              0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Eye=50
+2  face-tank  oil        eye-3              0    4.00   0.00   0.00   3.00   7.00   0.00  melee:Eye=50
+2  face-tank  poison     bat-1            100    3.26   1.00   7.46   2.00   0.54   0.00  -
+2  face-tank  poison     bat-2            100    4.74   2.00   5.04   4.00   0.96   0.00  -
+2  face-tank  poison     bat-3            100    6.16   3.00   2.44   5.92   1.64   0.00  -
+2  face-tank  poison     mushroom-1       100    3.00   1.00   6.00   3.00   1.00   0.00  -
+2  face-tank  poison     mushroom-2       100    4.00   2.00   2.00   5.00   3.00   0.00  -
+2  face-tank  poison     mushroom-3         0    4.00   2.00   0.00   4.00   6.00   0.00  melee:Mushroom=50
+2  face-tank  poison     undine-1         100    3.00   1.00   6.00   3.00   1.00   0.00  -
+2  face-tank  poison     undine-2         100    4.00   2.00   2.00   5.00   3.00   0.00  -
+2  face-tank  poison     undine-3           0    4.00   2.00   0.00   4.00   6.00   0.00  melee:Undine=50
+2  face-tank  poison     cactus-1         100    3.00   1.00   6.00   3.00   1.00   0.00  -
+2  face-tank  poison     cactus-2         100    4.00   2.00   2.00   5.00   3.00   0.00  -
+2  face-tank  poison     cactus-3           0    4.00   2.00   0.00   4.00   6.00   0.00  melee:Cactus=50
+2  face-tank  poison     mandragora-1     100    3.00   1.00   6.00   3.00   1.00   0.00  -
+2  face-tank  poison     mandragora-2     100    4.00   2.00   2.00   5.00   3.00   0.00  -
+2  face-tank  poison     mandragora-3       0    4.00   2.00   0.00   4.00   6.00   0.00  melee:Mandragora=50
+2  face-tank  poison     eye-1            100    3.00   1.00   6.00   3.00   1.00   0.00  -
+2  face-tank  poison     eye-2            100    4.00   2.00   2.00   5.00   3.00   0.00  -
+2  face-tank  poison     eye-3              0    4.00   2.00   0.00   4.00   6.00   0.00  melee:Eye=50
+2  face-tank  acid       bat-1            100    3.26   1.00   7.46   2.00   0.54   0.00  -
+2  face-tank  acid       bat-2            100    4.74   2.00   5.04   4.00   0.96   0.00  -
+2  face-tank  acid       bat-3            100    6.16   3.00   2.44   5.92   1.64   0.00  -
+2  face-tank  acid       mushroom-1       100    3.00   1.00   6.00   3.00   1.00   0.00  -
+2  face-tank  acid       mushroom-2       100    4.00   2.00   2.00   5.00   3.00   0.00  -
+2  face-tank  acid       mushroom-3         0    4.00   2.00   0.00   4.00   6.00   0.00  melee:Mushroom=50
+2  face-tank  acid       undine-1         100    3.00   1.00   6.00   3.00   1.00   0.00  -
+2  face-tank  acid       undine-2         100    4.00   2.00   2.00   5.00   3.00   0.00  -
+2  face-tank  acid       undine-3           0    4.00   2.00   0.00   4.00   6.00   0.00  melee:Undine=50
+2  face-tank  acid       cactus-1         100    3.00   1.00   6.00   3.00   1.00   0.00  -
+2  face-tank  acid       cactus-2         100    4.00   2.00   2.00   5.00   3.00   0.00  -
+2  face-tank  acid       cactus-3           0    4.00   2.00   0.00   4.00   6.00   0.00  melee:Cactus=50
+2  face-tank  acid       mandragora-1     100    3.00   1.00   6.00   3.00   1.00   0.00  -
+2  face-tank  acid       mandragora-2     100    4.00   2.00   2.00   5.00   3.00   0.00  -
+2  face-tank  acid       mandragora-3       0    4.00   2.00   0.00   4.00   6.00   0.00  melee:Mandragora=50
+2  face-tank  acid       eye-1            100    3.00   1.00   6.00   3.00   1.00   0.00  -
+2  face-tank  acid       eye-2            100    4.00   2.00   2.00   5.00   3.00   0.00  -
+2  face-tank  acid       eye-3              0    4.00   2.00   0.00   4.00   6.00   0.00  melee:Eye=50
+2  face-tank  blood      bat-1              0    6.72   0.00   0.00   9.00   5.00   0.00  melee:Bat=50
+2  face-tank  blood      bat-2              0    6.54   0.00   0.00   8.82   5.08   0.00  melee:Bat=50
+2  face-tank  blood      bat-3              0    6.24   0.00   0.00   8.76   5.10   0.00  melee:Bat=50
+2  face-tank  blood      mushroom-1       100    4.00   1.00   5.00   5.00   2.00   0.00  -
+2  face-tank  blood      mushroom-2         0    5.00   1.00   0.00   7.00   6.00   0.00  melee:Mushroom=50
+2  face-tank  blood      mushroom-3         0    4.00   1.00   0.00   5.00   7.00   0.00  melee:Mushroom=50
+2  face-tank  blood      undine-1         100    4.00   1.00   5.00   5.00   2.00   0.00  -
+2  face-tank  blood      undine-2           0    5.00   1.00   0.00   7.00   6.00   0.00  melee:Undine=50
+2  face-tank  blood      undine-3           0    4.00   1.00   0.00   5.00   7.00   0.00  melee:Undine=50
+2  face-tank  blood      cactus-1         100    4.00   1.00   5.00   5.00   2.00   0.00  -
+2  face-tank  blood      cactus-2           0    5.00   1.00   0.00   7.00   6.00   0.00  melee:Cactus=50
+2  face-tank  blood      cactus-3           0    4.00   1.00   0.00   5.00   7.00   0.00  melee:Cactus=50
+2  face-tank  blood      mandragora-1     100    4.00   1.00   5.00   5.00   2.00   0.00  -
+2  face-tank  blood      mandragora-2       0    5.00   1.00   0.00   7.00   6.00   0.00  melee:Mandragora=50
+2  face-tank  blood      mandragora-3       0    4.00   1.00   0.00   5.00   7.00   0.00  melee:Mandragora=50
+2  face-tank  blood      eye-1            100    4.00   1.00   5.00   5.00   2.00   0.00  -
+2  face-tank  blood      eye-2              0    5.00   1.00   0.00   7.00   6.00   0.00  melee:Eye=50
+2  face-tank  blood      eye-3              0    4.00   1.00   0.00   5.00   7.00   0.00  melee:Eye=50
+2  face-tank  lava       bat-1            100    3.26   1.00   7.46   2.00   0.54   0.00  -
+2  face-tank  lava       bat-2            100    4.74   2.00   5.04   4.00   0.96   0.00  -
+2  face-tank  lava       bat-3            100    6.16   3.00   2.44   5.92   1.64   0.00  -
+2  face-tank  lava       mushroom-1       100    3.00   1.00   6.00   3.00   1.00   0.00  -
+2  face-tank  lava       mushroom-2       100    4.00   2.00   2.00   5.00   3.00   0.00  -
+2  face-tank  lava       mushroom-3         0    4.00   2.00   0.00   4.00   6.00   0.00  melee:Mushroom=50
+2  face-tank  lava       undine-1         100    3.00   1.00   6.00   3.00   1.00   0.00  -
+2  face-tank  lava       undine-2         100    4.00   2.00   2.00   5.00   3.00   0.00  -
+2  face-tank  lava       undine-3           0    4.00   2.00   0.00   4.00   6.00   0.00  melee:Undine=50
+2  face-tank  lava       cactus-1         100    3.00   1.00   6.00   3.00   1.00   0.00  -
+2  face-tank  lava       cactus-2         100    4.00   2.00   2.00   5.00   3.00   0.00  -
+2  face-tank  lava       cactus-3           0    4.00   2.00   0.00   4.00   6.00   0.00  melee:Cactus=50
+2  face-tank  lava       mandragora-1     100    3.00   1.00   6.00   3.00   1.00   0.00  -
+2  face-tank  lava       mandragora-2     100    4.00   2.00   2.00   5.00   3.00   0.00  -
+2  face-tank  lava       mandragora-3       0    4.00   2.00   0.00   4.00   6.00   0.00  melee:Mandragora=50
+2  face-tank  lava       eye-1            100    3.00   1.00   6.00   3.00   1.00   0.00  -
+2  face-tank  lava       eye-2            100    4.00   2.00   2.00   5.00   3.00   0.00  -
+2  face-tank  lava       eye-3              0    4.00   2.00   0.00   4.00   6.00   0.00  melee:Eye=50
+2  face-tank  mercury    bat-1            100    3.72   1.00   6.00   3.00   1.00   0.00  -
+2  face-tank  mercury    bat-2            100    5.72   2.00   1.96   6.00   2.04   0.00  -
+2  face-tank  mercury    bat-3              0   14.38   1.96   0.04   6.88   3.08   0.00  melee:Bat=48 timeout=2
+2  face-tank  mercury    mushroom-1       100    4.72   1.00   3.00   5.00   2.00   0.00  -
+2  face-tank  mercury    mushroom-2         0    6.34   0.90   0.00   6.30   3.70   0.00  melee:Mushroom=50
+2  face-tank  mercury    mushroom-3         0    5.84   0.88   0.00   6.30   3.70   0.00  melee:Mushroom=50
+2  face-tank  mercury    undine-1         100    4.72   1.00   3.00   5.00   2.00   0.00  -
+2  face-tank  mercury    undine-2           0    6.34   0.90   0.00   6.30   3.70   0.00  melee:Undine=50
+2  face-tank  mercury    undine-3           0    5.84   0.88   0.00   6.30   3.70   0.00  melee:Undine=50
+2  face-tank  mercury    cactus-1         100    4.72   1.00   3.00   5.00   2.00   0.00  -
+2  face-tank  mercury    cactus-2           0    6.34   0.90   0.00   6.30   3.70   0.00  melee:Cactus=50
+2  face-tank  mercury    cactus-3           0    5.84   0.88   0.00   6.30   3.70   0.00  melee:Cactus=50
+2  face-tank  mercury    mandragora-1     100    4.72   1.00   3.00   5.00   2.00   0.00  -
+2  face-tank  mercury    mandragora-2       0    6.34   0.90   0.00   6.30   3.70   0.00  melee:Mandragora=50
+2  face-tank  mercury    mandragora-3       0    5.84   0.88   0.00   6.30   3.70   0.00  melee:Mandragora=50
+2  face-tank  mercury    eye-1            100    4.72   1.00   3.00   5.00   2.00   0.00  -
+2  face-tank  mercury    eye-2              0    6.34   0.90   0.00   6.30   3.70   0.00  melee:Eye=50
+2  face-tank  mercury    eye-3              0    5.84   0.88   0.00   6.30   3.70   0.00  melee:Eye=50

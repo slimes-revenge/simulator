@@ -6,7 +6,8 @@ encounters, so a change to a basic number cannot silently break the design.
 
 - Every tunable number is in [`data/design.toml`](data/design.toml).
 - The rules and how they map to the game code: [`docs/rules-model.md`](docs/rules-model.md).
-- The output contract the site reads: [`docs/report-format.md`](docs/report-format.md).
+- The two report formats (plain text for the balance session, JSON for the site):
+  [`docs/report-format.md`](docs/report-format.md).
 
 ## Run
 
@@ -16,9 +17,15 @@ Needs a stable Rust toolchain (`rustup`).
 cargo run --release
 ```
 
-Prints a win-rate matrix per action-point value and writes `design-guard.json` (one JSON array,
-one report per `matrix.action_points` value). Options: `--design <path>` for another design
-file, `--out <path>` for another output file.
+Writes `design-guard.txt` (plain text, diffable) and `design-guard.json` (for the site).
+`reports/design-guard.txt` is the committed copy; after changing rules or numbers, regenerate it:
+
+```bash
+cargo run --release -- --no-json --out-txt reports/design-guard.txt
+```
+
+Other options (another design file, filters, a turn-by-turn trace of one fight):
+see [`docs/report-format.md`](docs/report-format.md#cli-for-experiments).
 
 ```bash
 cargo test
@@ -36,5 +43,6 @@ cargo test
 
 ## Published report
 
-CI publishes the report of every push to `dev` as an asset of the rolling `latest` release:
+CI publishes the reports of every push to `dev` as assets of the rolling `latest` release:
+<https://github.com/slimes-revenge/simulator/releases/download/latest/design-guard.txt> and
 <https://github.com/slimes-revenge/simulator/releases/download/latest/design-guard.json>
