@@ -5,11 +5,12 @@ use simulator::fight::{Fight, FightResult, Policy, Tally};
 use simulator::report::{self, Build, Encounter};
 use simulator::text;
 
-/// The bundled design without R2 elements: these fights are checked by hand against the
-/// game's rules, which have no elements (R2 is tested in `tests/elements.rs`).
+/// The bundled design without R1 reactions and R2 elements: these fights are checked by hand
+/// against the game's rules, which have neither (`tests/reactions.rs`, `tests/elements.rs`).
 fn design() -> Design {
     let mut d = Design::bundled();
     d.elements = simulator::data::Elements::default();
+    d.reactions.clear();
     d
 }
 

@@ -319,8 +319,8 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 1  newcomer   start      mushroom-2         0    4.00   0.00   0.00   2.00   4.00   0.00  melee:Mushroom=50
 1  newcomer   start      mushroom-3         0    4.00   0.00   0.00   1.00   5.00   0.00  melee:Mushroom=50
 1  newcomer   start      undine-1           0    6.00   0.00   2.00   2.00   2.00   0.00  stalemate=50
-1  newcomer   start      undine-2           0    6.00   0.00   2.00   2.00   2.00   0.00  stalemate=50
-1  newcomer   start      undine-3           0    5.00   0.00   2.00   1.00   3.00   0.00  stalemate=50
+1  newcomer   start      undine-2           0    7.00   0.00   2.00   2.00   2.00   0.00  stalemate=50
+1  newcomer   start      undine-3           0    7.00   0.00   2.00   1.00   3.00   0.00  stalemate=50
 1  newcomer   start      cactus-1         100    4.00   1.00   3.00   2.00   1.00   0.00  -
 1  newcomer   start      cactus-2           0    4.00   0.00   0.00   2.00   4.00   0.00  melee:Cactus=50
 1  newcomer   start      cactus-3           0    4.00   0.00   0.00   1.00   5.00   0.00  melee:Cactus=50
@@ -337,8 +337,8 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 1  newcomer   water      mushroom-2         0    6.00   0.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
 1  newcomer   water      mushroom-3         0    5.00   0.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
 1  newcomer   water      undine-1           0    4.00   0.00  10.00   0.00   0.00   0.00  stalemate=50
-1  newcomer   water      undine-2           0    4.00   0.00  10.00   0.00   0.00   0.00  stalemate=50
-1  newcomer   water      undine-3           0    4.00   0.00  10.00   0.00   0.00   0.00  stalemate=50
+1  newcomer   water      undine-2           0    5.00   0.00  10.00   0.00   0.00   0.00  stalemate=50
+1  newcomer   water      undine-3           0    6.00   0.00  10.00   0.00   0.00   0.00  stalemate=50
 1  newcomer   water      cactus-1         100    7.00   1.00   1.00   5.00   4.00   0.00  -
 1  newcomer   water      cactus-2           0    6.00   0.00   0.00   3.00   7.00   0.00  melee:Cactus=50
 1  newcomer   water      cactus-3           0    5.00   0.00   0.00   3.00   7.00   0.00  melee:Cactus=50
@@ -896,7 +896,7 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 2  newcomer   start      mushroom-3         0    3.00   0.00   0.00   1.00   5.00   0.00  melee:Mushroom=50
 2  newcomer   start      undine-1           0    4.00   0.00   2.00   3.00   1.00   0.00  stalemate=50
 2  newcomer   start      undine-2           0    4.00   0.00   2.00   2.00   2.00   0.00  stalemate=50
-2  newcomer   start      undine-3           0    3.00   0.00   2.00   1.00   3.00   0.00  stalemate=50
+2  newcomer   start      undine-3           0    4.00   0.00   2.00   1.00   3.00   0.00  stalemate=50
 2  newcomer   start      cactus-1         100    3.00   1.00   2.00   3.00   1.00   0.00  -
 2  newcomer   start      cactus-2           0    3.00   0.00   0.00   2.00   4.00   0.00  melee:Cactus=50
 2  newcomer   start      cactus-3           0    3.00   0.00   0.00   1.00   5.00   0.00  melee:Cactus=50
@@ -914,7 +914,7 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 2  newcomer   water      mushroom-3         0    4.00   1.00   0.00   3.00   7.00   0.00  melee:Mushroom=50
 2  newcomer   water      undine-1           0    3.00   0.00  10.00   0.00   0.00   0.00  stalemate=50
 2  newcomer   water      undine-2           0    3.00   0.00  10.00   0.00   0.00   0.00  stalemate=50
-2  newcomer   water      undine-3           0    3.00   0.00  10.00   0.00   0.00   0.00  stalemate=50
+2  newcomer   water      undine-3           0    4.00   0.00  10.00   0.00   0.00   0.00  stalemate=50
 2  newcomer   water      cactus-1         100    4.00   1.00   3.00   5.00   2.00   0.00  -
 2  newcomer   water      cactus-2           0    4.00   1.00   0.00   5.00   5.00   0.00  melee:Cactus=50
 2  newcomer   water      cactus-3           0    4.00   1.00   0.00   3.00   7.00   0.00  melee:Cactus=50
@@ -3795,32 +3795,32 @@ sample-ap2       0   2.00     2   0.00  stage5:melee:Eye=50
 
 [map-levels]
 level          policy     end rooms  rounds fights engaged0 engaged1 engaged2 engaged3+ net_per_fight      hunter hunter_net reactions react_loss stones elem_plus elem_miss
-map-vision2    strafe      10  2.52   14.00   1.64     0.00    84.15    15.85      0.00         -5.71           -          -      0.00       0.00   0.00      0.00      0.00
-map-vision3    strafe       2  2.14   31.86   1.64     0.00    71.95    26.83      1.22         -6.00           -          -      0.00       0.00   0.00      0.00      0.00
-map-vision4    strafe       2  2.30   32.18   1.46     0.00    64.38    35.62      0.00         -6.67           -          -      0.00       0.00   0.00      0.00      0.00
+map-vision2    strafe       8  2.56   14.22   1.64     0.00    82.93    17.07      0.00         -5.76           -          -      0.00       0.00   0.00      0.00      0.00
+map-vision3    strafe       2  2.14   31.88   1.64     0.00    73.17    25.61      1.22         -6.00           -          -      0.00       0.00   0.00      0.00      0.00
+map-vision4    strafe       2  2.28   32.20   1.46     0.00    65.75    34.25      0.00         -6.67           -          -      0.00       0.00   0.00      0.00      0.00
 map-lure2      lure         8  2.50   33.58   1.64     0.00    85.37    14.63      0.00         -5.63           -          -      0.00       0.00   0.00      0.00      0.00
 map-lure3      lure         2  1.90   71.96   1.68     0.00    79.76    19.05      1.19         -5.69           -          -      0.00       0.00   0.00      0.00      0.00
 map-lure4      lure         2  1.94   73.40   1.54     0.00    72.73    25.97      1.30         -6.21           -          -      0.00       0.00   0.00      0.00      0.00
-map-kite3      kite        26  3.32  156.26   2.84     0.00    79.58    19.72      0.70         -3.00           -          -      0.00       0.00   0.00      0.00      0.00
+map-kite3      kite        26  3.34  146.58   2.84     0.00    79.58    19.72      0.70         -3.00           -          -      0.00       0.00   0.00      0.00      0.00
 
 [map-level-ends]
 level          end    min worst  stops
-map-vision2     10   0.64     0  room1:melee:Mandragora=5 room3:melee:Mandragora=5 room2:melee:Mandragora=4 room3:melee:Eye=4 room4:melee:Mandragora=4 room1:melee:Eye=3 room1:melee:Mushroom=3 room2:melee:Cactus=3 room2:melee:Eye=3 room2:melee:Mushroom=3 room3:melee:Mushroom=3 room1:melee:Cactus=2 room3:melee:Cactus=2 room4:melee:Mushroom=1
+map-vision2      8   0.56     0  room1:melee:Mandragora=5 room3:melee:Mandragora=5 room2:melee:Mandragora=4 room4:melee:Mandragora=4 room1:melee:Eye=3 room1:melee:Mushroom=3 room2:melee:Cactus=3 room2:melee:Eye=3 room2:melee:Mushroom=3 room3:melee:Eye=3 room3:melee:Mushroom=3 room1:melee:Cactus=2 room3:melee:Cactus=2 room5:melee:Mandragora=2 room4:melee:Mushroom=1
 map-vision3      2   0.16     0  room1:melee:Mushroom=7 room1:melee:Mandragora=6 room3:melee:Mushroom=6 room2:melee:Eye=5 room2:melee:Cactus=4 room2:melee:Mandragora=4 room1:melee:Eye=3 room2:melee:Mushroom=3 room3:melee:Eye=2 room4:melee:Mushroom=2 room1:melee:Cactus=1 room1:timeout=1 room3:melee:Cactus=1 room3:melee:Mandragora=1 room4:melee:Mandragora=1 room5:melee:Eye=1 room5:melee:Mandragora=1
-map-vision4      2   0.26     0  room1:melee:Mushroom=7 room1:melee:Mandragora=5 room1:melee:Eye=4 room2:melee:Cactus=4 room2:melee:Eye=4 room2:melee:Mandragora=4 room2:melee:Mushroom=3 room3:melee:Mandragora=3 room3:melee:Mushroom=3 room3:melee:Cactus=2 room3:melee:Eye=2 room4:melee:Mandragora=2 room4:melee:Mushroom=2 room4:melee:Eye=1 room4:timeout=1 room5:melee:Eye=1 room5:melee:Mandragora=1
+map-vision4      2   0.26     0  room1:melee:Mushroom=7 room1:melee:Mandragora=5 room1:melee:Eye=4 room2:melee:Cactus=4 room2:melee:Eye=4 room2:melee:Mandragora=4 room3:melee:Mushroom=4 room2:melee:Mushroom=3 room3:melee:Mandragora=3 room3:melee:Eye=2 room4:melee:Mandragora=2 room4:melee:Mushroom=2 room3:melee:Cactus=1 room3:timeout=1 room4:melee:Eye=1 room5:melee:Eye=1 room5:melee:Mandragora=1
 map-lure2        8   0.76     0  room1:melee:Mandragora=5 room3:melee:Mandragora=5 room1:melee:Eye=4 room2:melee:Mandragora=4 room3:melee:Eye=4 room1:melee:Mushroom=3 room2:melee:Cactus=3 room2:melee:Eye=3 room3:melee:Mushroom=3 room4:melee:Mandragora=3 room1:melee:Cactus=2 room2:melee:Mushroom=2 room5:melee:Cactus=2 room2:timeout=1 room3:melee:Cactus=1 room4:melee:Mushroom=1
 map-lure3        2   0.44     0  room1:melee:Mushroom=8 room1:melee:Mandragora=6 room1:melee:Eye=5 room2:melee:Eye=5 room1:melee:Cactus=4 room2:melee:Mandragora=4 room3:melee:Mushroom=4 room1:timeout=2 room2:melee:Cactus=2 room3:melee:Cactus=2 room2:timeout=1 room3:melee:Eye=1 room3:melee:Mandragora=1 room4:melee:Eye=1 room4:melee:Mandragora=1 room4:melee:Mushroom=1 room5:melee:Mandragora=1
 map-lure4        2   0.44     0  room1:melee:Mushroom=8 room1:melee:Eye=7 room2:melee:Mandragora=6 room1:melee:Mandragora=5 room3:melee:Mushroom=4 room1:melee:Cactus=3 room2:melee:Cactus=3 room2:melee:Eye=2 room2:timeout=2 room4:melee:Eye=2 room4:melee:Mandragora=2 room2:melee:Mushroom=1 room3:melee:Cactus=1 room3:melee:Mandragora=1 room3:timeout=1 room4:melee:Mushroom=1
-map-kite3       26   1.18     0  room2:melee:Eye=4 room1:melee:Mushroom=3 room3:melee:Mandragora=3 room1:melee:Cactus=2 room1:melee:Mandragora=2 room2:melee:Mandragora=2 room2:timeout=2 room3:melee:Mushroom=2 room3:timeout=2 room4:melee:Mandragora=2 room5:melee:Eye=2 room5:melee:Mushroom=2 room1:melee:Eye=1 room1:timeout=1 room2:melee:Cactus=1 room3:melee:Eye=1 room4:melee:Bat=1 room4:melee:Cactus=1 room4:melee:Eye=1 room5:melee:Cactus=1 room5:melee:Mandragora=1
+map-kite3       26   1.18     0  room2:melee:Eye=4 room1:melee:Mushroom=3 room4:melee:Mandragora=3 room1:melee:Cactus=2 room1:melee:Mandragora=2 room2:melee:Mandragora=2 room2:timeout=2 room3:melee:Mandragora=2 room3:melee:Mushroom=2 room3:timeout=2 room5:melee:Eye=2 room5:melee:Mushroom=2 room1:melee:Eye=1 room1:timeout=1 room2:melee:Cactus=1 room3:melee:Eye=1 room4:melee:Bat=1 room4:melee:Cactus=1 room4:melee:Eye=1 room5:melee:Cactus=1 room5:melee:Mandragora=1
 
 [ladder]
 mode  difficulty policy   branch                   level end fights net_per_fight engaged2+ min_body body_out      hunter hunter_net reactions react_loss stones elem_plus elem_miss  stops
-level E          strafe   -                            1  28   1.44         -4.92     20.83     2.54     9.07           -          -      0.00       0.00   0.00      0.00      0.00  room3:sun=12 room2:melee:Mushroom=10 room4:melee:Mushroom=4 room5:melee:Mushroom=4 room1:melee:Mushroom=3 room3:melee:Mushroom=2 room1:timeout=1
+level E          strafe   -                            1  28   1.44         -4.86     20.83     2.52     9.00           -          -      0.00       0.00   0.00      0.00      0.00  room3:sun=11 room2:melee:Mushroom=10 room5:melee:Mushroom=5 room1:melee:Mushroom=3 room3:melee:Mushroom=3 room4:melee:Mushroom=3 room1:timeout=1
 level E          strafe   Acid                         2   0   1.80         -5.56     15.56     0.00        -           -          -      0.00       0.00   0.00      0.00      0.00  room2:melee:Cactus=9 room1:melee:Mandragora=8 room1:melee:Cactus=7 room1:melee:Eye=6 room2:melee:Eye=6 room2:melee:Mandragora=4 room3:melee:Mandragora=3 room3:melee:Eye=2 room4:melee:Mandragora=2 room3:melee:Cactus=1 room4:melee:Cactus=1 room4:melee:Eye=1
 level E          strafe   Lava                         2   2   1.88         -6.00     14.89     0.04     2.00           -          -      0.00       0.00   0.00      0.00      0.00  room1:melee:Cactus=7 room1:melee:Mandragora=7 room2:melee:Eye=7 room1:melee:Eye=6 room2:melee:Cactus=6 room2:melee:Mandragora=5 room3:melee:Eye=4 room3:melee:Mandragora=2 room4:melee:Eye=2 room3:melee:Cactus=1 room4:melee:Cactus=1 room4:melee:Mandragora=1
-run   E          strafe   -                            1  28   1.44         -4.92     20.83     2.54     9.07           -          -      0.00       0.00   0.00      0.00      0.00  room3:sun=12 room2:melee:Mushroom=10 room4:melee:Mushroom=4 room5:melee:Mushroom=4 room1:melee:Mushroom=3 room3:melee:Mushroom=2 room1:timeout=1
-run   E          strafe   Acid                         2   0   1.93         -4.70      3.70     0.00        -           -          -      0.00       0.00   0.00      0.00      0.00  room2:melee:Eye=4 room1:melee:Cactus=2 room2:melee:Cactus=2 room1:melee:Eye=1 room1:melee:Mandragora=1 room3:melee:Eye=1 room4:melee:Cactus=1 room4:melee:Eye=1 room4:melee:Mandragora=1
-run   E          strafe   Lava                         2   0   2.14         -5.10      6.67     0.00        -           -          -      0.00       0.00   0.00      0.00      0.00  room2:melee:Eye=5 room1:melee:Cactus=2 room3:melee:Eye=2 room4:melee:Eye=2 room1:melee:Eye=1 room1:melee:Mandragora=1 room4:melee:Cactus=1
+run   E          strafe   -                            1  28   1.44         -4.86     20.83     2.52     9.00           -          -      0.00       0.00   0.00      0.00      0.00  room3:sun=11 room2:melee:Mushroom=10 room5:melee:Mushroom=5 room1:melee:Mushroom=3 room3:melee:Mushroom=3 room4:melee:Mushroom=3 room1:timeout=1
+run   E          strafe   Acid                         2   0   1.93         -4.67      3.70     0.00        -           -          -      0.00       0.00   0.00      0.00      0.00  room2:melee:Eye=4 room1:melee:Cactus=2 room2:melee:Cactus=2 room1:melee:Eye=1 room1:melee:Mandragora=1 room3:melee:Eye=1 room4:melee:Cactus=1 room4:melee:Eye=1 room4:melee:Mandragora=1
+run   E          strafe   Lava                         2   0   2.14         -5.07      6.67     0.00        -           -          -      0.00       0.00   0.00      0.00      0.00  room2:melee:Eye=5 room1:melee:Cactus=2 room3:melee:Eye=2 room4:melee:Eye=2 room1:melee:Eye=1 room1:melee:Mandragora=1 room4:melee:Cactus=1
 
 [ladder-summary]
 mode  difficulty policy   branch                   rule   furthest_level first_fail_level  cause

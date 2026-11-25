@@ -257,3 +257,29 @@ fn no_strike_is_repeated_on_its_own_element() {
         "{log:?}"
     );
 }
+
+#[test]
+fn a_stationary_blocker_it_cannot_hurt_ends_the_run() {
+    // Water Cacti (speed 0) in the passages, a pure Water slime: no endless useless strikes.
+    let text =
+        std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/data/design.toml")).unwrap();
+    let mut text = text[..text.find("[[levels]]").unwrap()].to_string();
+    text += "[[levels]]\nid = \"b\"\ncapacity = 10\naction_points = 2\npolicy = \"strafe\"\n\
+             map = { rooms = 3, room_side = [5, 5], enemies_per_room = [0, 0], \
+             enemy_kinds = [\"Mushroom\"], corridor = 2, vision = 2, blockers = [\"Cactus\"], \
+             blockers_per_level = 2 }\n";
+    let mut d = Design::parse(&text).unwrap();
+    let c = d.enemies.iter_mut().find(|e| e.name == "Cactus").unwrap();
+    (c.element, c.speed) = (Some(Liquid::Water), 0);
+    let r = simulator::map::run(&d, &d.levels[0]);
+    assert!(
+        !r.stops.keys().any(|k| k.ends_with(":timeout")),
+        "{:?}",
+        r.stops
+    );
+    assert!(
+        r.stops.keys().any(|k| k.ends_with(":stalemate")),
+        "{:?}",
+        r.stops
+    );
+}

@@ -373,8 +373,8 @@ pub struct Fight<'a> {
     stones: Vec<(Cell, u32)>,
     /// This slime turn's encouragement bonus is used.
     encouraged: bool,
-    /// `newcomer`/`strafe` already wasted its one same-element strike (R2 stalls).
-    wasted: bool,
+    /// Enemies `newcomer`/`strafe` already wasted its one same-element strike on (R2 stalls).
+    wasted: Vec<usize>,
     /// Matrix fights: no living enemy can be hurt any more (R2 stalls).
     stalemate: bool,
     round: u32,
@@ -452,7 +452,7 @@ impl<'a> Fight<'a> {
             rooted: 0,
             stones: Vec::new(),
             encouraged: false,
-            wasted: false,
+            wasted: Vec::new(),
             stalemate: false,
             round: 0,
             rng: Rng::new(seed),
@@ -903,7 +903,11 @@ impl<'a> Fight<'a> {
         let living: Vec<usize> = (0..self.enemies.len())
             .filter(|&i| self.enemies[i].alive())
             .collect();
-        if !living.is_empty() && living.iter().all(|&i| self.gives_up(i)) {
+        let doomed = |i: usize| {
+            let e = &self.enemies[i];
+            pending_status_damage(self.d, e) >= e.hit_points
+        };
+        if !living.is_empty() && living.iter().all(|&i| self.gives_up(i) && !doomed(i)) {
             self.stalemate = true;
             return self.note(|_| "Slime cannot hurt anyone left: a stalemate".into());
         }
@@ -944,6 +948,7 @@ impl<'a> Fight<'a> {
                 && !self.swapped
                 && self.arranger_swap(target)
                 && !self.would_react(self.slime.volume.len() - 1, self.slime.volume.len() - 2)
+                && !self.useless_against(self.slime.volume[self.slime.volume.len() - 2], target)
             {
                 self.slime_swap(0);
                 self.swapped = true;
@@ -1005,8 +1010,8 @@ impl<'a> Fight<'a> {
                     && !f.gives_up(i)
             })
         };
-        let aggro =
-            (0..self.enemies.len()).any(|i| self.engaging(&self.enemies[i]) && !self.gives_up(i));
+        let aggro = (0..self.enemies.len())
+            .any(|i| self.engaging(&self.enemies[i]) && !self.gives_up(i) && self.can_reach(i));
         if self.kites() && aggro && self.kite_adjacent() {
             return;
         }
@@ -1069,7 +1074,14 @@ impl<'a> Fight<'a> {
             let next = through.map(|r| r[0]);
             let blocker =
                 next.and_then(|c| self.enemies.iter().position(|e| e.alive() && e.cell == c));
-            if let Some(i) = blocker.or_else(|| adjacent(self, true)) {
+            if let Some(i) = blocker.filter(|&i| self.gives_up(i)) {
+                // A blocker it cannot hurt: wait for it to move; one that never moves ends it.
+                if self.enemies[i].base_speed == 0 {
+                    self.stalemate = true;
+                    return self.note(|f| format!("{} blocks the way for good", f.label(i)));
+                }
+                self.note(|f| format!("Slime waits: {} blocks the way", f.label(i)));
+            } else if let Some(i) = blocker.or_else(|| adjacent(self, true)) {
                 self.strike_or_wait(i);
             } else if let Some(to) = next.filter(|&c| !self.occupied().contains(&c)) {
                 let from = self.slime.cell;
@@ -1090,6 +1102,8 @@ impl<'a> Fight<'a> {
             return false;
         }
         self.slime.cell = to;
+        // A pending swap or bring-up belongs to the strike next to it.
+        self.swapped = false;
         if let Some(m) = self.map.as_mut()
             && let Some(k) = m.rooms.iter().position(|&r| in_rect(r, to))
         {
@@ -1301,11 +1315,40 @@ impl<'a> Fight<'a> {
                 && has(|k| *k == StatusKind::Flammable))
     }
 
+    /// Whether enemy `i` has a way to the slime past walls, stones and the enemies the slime
+    /// gave up on (they never clear the way; other creatures move).
+    fn can_reach(&self, i: usize) -> bool {
+        let e = self.enemies[i].cell;
+        if chebyshev(e, self.slime.cell) <= 1 {
+            return true;
+        }
+        let walls: Vec<Cell> = (0..self.enemies.len())
+            .filter(|&j| j != i && self.enemies[j].alive() && self.gives_up(j))
+            .map(|j| self.enemies[j].cell)
+            .chain(self.stones.iter().map(|s| s.0))
+            .collect();
+        path::find(
+            self.board.width,
+            self.board.height,
+            e,
+            &[self.slime.cell],
+            |c| self.board.wall(c) || walls.contains(&c),
+        )
+        .is_some()
+    }
+
     /// R2 stalls: the edge unit is enemy `i`'s own element, so a strike would do nothing.
     fn edge_useless(&self, i: usize) -> bool {
-        let el = &self.d.elements;
+        self.slime
+            .volume
+            .last()
+            .is_some_and(|&l| self.useless_against(l, i))
+    }
+
+    /// `unit` is enemy `i`'s own element (R2).
+    fn useless_against(&self, unit: Liquid, i: usize) -> bool {
         let theirs = self.enemies[i].element;
-        theirs.is_some() && self.slime.volume.last().and_then(|&l| el.of(l)) == theirs
+        theirs.is_some() && self.d.elements.of(unit) == theirs
     }
 
     /// A unit 1 or 2 under the edge that is not enemy `i`'s element, when bringing it up
@@ -1322,7 +1365,7 @@ impl<'a> Fight<'a> {
             let mut after = v.clone();
             let unit = after.remove(k);
             after.push(unit);
-            el.of(unit) != theirs && (!self.reacts_anywhere(&after) || self.reacts_anywhere(v))
+            el.of(unit) != theirs && self.reacting_pairs(&after) <= self.reacting_pairs(v)
         })
     }
 
@@ -1334,7 +1377,9 @@ impl<'a> Fight<'a> {
     /// The slime gives up on enemy `i`: its edge cannot hurt it, no unit within 2 of the edge
     /// can, and (for `newcomer`/`strafe`) its one wasted strike is spent.
     fn gives_up(&self, i: usize) -> bool {
-        self.edge_useless(i) && self.unstall_pick(i).is_none() && (self.careful() || self.wasted)
+        self.edge_useless(i)
+            && self.unstall_pick(i).is_none()
+            && (self.careful() || self.wasted.contains(&i))
     }
 
     /// Before a strike on `i` with a useless edge: `newcomer`/`strafe` waste one strike first;
@@ -1344,8 +1389,8 @@ impl<'a> Fight<'a> {
         if !self.edge_useless(i) || !self.can_strike() {
             return false;
         }
-        if !self.careful() && !self.wasted {
-            self.wasted = true;
+        if !self.careful() && !self.wasted.contains(&i) {
+            self.wasted.push(i);
             return false;
         }
         let Some(k) = self.unstall_pick(i) else {
@@ -1378,13 +1423,14 @@ impl<'a> Fight<'a> {
             let mut after = v.clone();
             let unit = after.remove(k);
             after.push(unit);
-            dominates(unit) && (!self.reacts_anywhere(&after) || self.reacts_anywhere(v))
+            dominates(unit) && self.reacting_pairs(&after) <= self.reacting_pairs(v)
         })
     }
 
-    /// Whether any two neighbours of `body` react (R1).
-    fn reacts_anywhere(&self, body: &[Liquid]) -> bool {
-        body.windows(2).any(|w| self.pair_reacts(w[0], w[1]))
+    fn reacting_pairs(&self, body: &[Liquid]) -> usize {
+        body.windows(2)
+            .filter(|w| self.pair_reacts(w[0], w[1]))
+            .count()
     }
 
     fn pair_reacts(&self, a: Liquid, b: Liquid) -> bool {
@@ -1398,7 +1444,7 @@ impl<'a> Fight<'a> {
     fn would_react(&self, i: usize, j: usize) -> bool {
         let mut after = self.slime.volume.clone();
         after.swap(i, j);
-        self.reacts_anywhere(&after) && !self.reacts_anywhere(&self.slime.volume)
+        self.reacting_pairs(&after) > self.reacting_pairs(&self.slime.volume)
     }
 
     /// The unit a strike spends: the edge of the body (the end bites pop too).
