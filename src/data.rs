@@ -1,6 +1,7 @@
 //! The design numbers, loaded from `data/design.toml`. Nothing tunable lives in code.
 
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 use std::path::Path;
 
 #[derive(Deserialize, Serialize, Clone, Copy, PartialEq, Eq, Hash, Debug, PartialOrd, Ord)]
@@ -14,9 +15,21 @@ pub enum Liquid {
     Mercury,
     /// An infected Blood unit (`Infects`): no power, no effect, spat off the edge.
     Pus,
+    // The rest of the 18 liquids (lore `forum.md`): strike rows come from the balance session;
+    // until then a strike hits for its `power` with no status.
+    Phosphorus,
+    Aquavita,
+    Vitriol,
+    Alkali,
+    Ambrosia,
+    Fat,
+    Resin,
+    Sulfur,
+    Tar,
+    Aphrodisiac,
 }
 
-pub const ALL_LIQUIDS: [Liquid; 8] = [
+pub const ALL_LIQUIDS: [Liquid; 18] = [
     Liquid::Water,
     Liquid::Oil,
     Liquid::Poison,
@@ -25,6 +38,16 @@ pub const ALL_LIQUIDS: [Liquid; 8] = [
     Liquid::Lava,
     Liquid::Mercury,
     Liquid::Pus,
+    Liquid::Phosphorus,
+    Liquid::Aquavita,
+    Liquid::Vitriol,
+    Liquid::Alkali,
+    Liquid::Ambrosia,
+    Liquid::Fat,
+    Liquid::Resin,
+    Liquid::Sulfur,
+    Liquid::Tar,
+    Liquid::Aphrodisiac,
 ];
 
 #[derive(Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
@@ -131,6 +154,14 @@ pub struct Rules {
     pub board_height: i32,
     pub vision_range: i32,
     pub dominance_percent: usize,
+    /// What `dominance_percent` is a share of: `capacity` (the design) or `volume` (the game).
+    pub dominance_basis: String,
+    /// Retaliation statuses last this many pulses (the game: the liquid's usual duration, 0).
+    pub retaliation_pulses: i32,
+    /// Heavy liquids: holding at least this many units costs 1 action point each (the design).
+    pub heavy: BTreeMap<Liquid, usize>,
+    /// Heaviness never lowers the action points below this, or below the base when that is lower.
+    pub heavy_min_action_points: u32,
     pub pursuit_memory_turns: i32,
     pub max_rounds: u32,
     /// П15, an agreed design rule: at 1 unit a strike hits and spends nothing. The game does
@@ -200,6 +231,8 @@ pub struct Matrix {
     pub slime_cell: (i32, i32),
     pub enemy_column_offset: i32,
     pub enemy_rows: Vec<i32>,
+    /// The liquids with a pure build in the matrix.
+    pub build_liquids: Vec<Liquid>,
     /// Slime policies the matrix runs (`newcomer`, `arranger`).
     pub policies: Vec<String>,
 }
@@ -346,6 +379,24 @@ impl Design {
                 "matrix.enemy_rows has {} rows, encounters need {max_count}",
                 design.matrix.enemy_rows.len()
             ));
+        }
+        if !["capacity", "volume"].contains(&design.rules.dominance_basis.as_str()) {
+            return Err("rules.dominance_basis must be \"capacity\" or \"volume\"".into());
+        }
+        if design.rules.retaliation_pulses < 0 {
+            return Err(
+                "rules.retaliation_pulses must be >= 0 (0: the liquid's own duration)".into(),
+            );
+        }
+        if design.rules.heavy.values().any(|&n| n == 0) {
+            return Err("rules.heavy: each count must be at least 1".into());
+        }
+        if design.rules.heavy_min_action_points == 0 {
+            return Err("rules.heavy_min_action_points must be at least 1".into());
+        }
+        let b = &design.matrix.build_liquids;
+        if b.is_empty() || (1..b.len()).any(|i| b[..i].contains(&b[i])) {
+            return Err("matrix.build_liquids: list at least one liquid, each once".into());
         }
         if design.rules.spit_range != 1 {
             return Err("rules.spit_range: only 1 is modelled".into());

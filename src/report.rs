@@ -85,10 +85,9 @@ pub struct Report {
 /// The starting mix and one pure build per liquid.
 pub fn builds(d: &Design) -> Vec<Build> {
     let mut builds = vec![build("start", "Starting mix", d.slime.start.clone())];
-    // Pus only comes from an infected bite: no slime is built of it.
-    for l in d.liquids.iter().filter(|l| l.name != Liquid::Pus) {
-        let name = format!("{:?}", l.name);
-        let volume = vec![l.name; d.matrix.pure_build_units];
+    for &l in &d.matrix.build_liquids {
+        let name = format!("{l:?}");
+        let volume = vec![l; d.matrix.pure_build_units];
         builds.push(build(
             &name.to_lowercase(),
             &format!("{} {name}", volume.len()),

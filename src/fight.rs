@@ -525,8 +525,9 @@ impl<'a> Fight<'a> {
         for round in 1..=self.max_rounds {
             self.round = round;
             self.note(|_| format!("round {round}"));
-            for k in 0..self.actions_per_round {
-                self.last_action = k + 1 == self.actions_per_round;
+            let actions = self.action_points();
+            for k in 0..actions {
+                self.last_action = k + 1 == actions;
                 self.slime_act();
                 self.track_engagement();
                 // Thorns can kill the slime on its own strike.
@@ -570,6 +571,19 @@ impl<'a> Fight<'a> {
         }
         self.last_harm = Some("timeout".into());
         self.result(false, self.max_rounds)
+    }
+
+    /// This round's action points: the base, minus 1 per heavy liquid held at its count
+    /// (`rules.heavy`), never below `rules.heavy_min_action_points`, or the base when lower.
+    fn action_points(&self) -> u32 {
+        let r = &self.d.rules;
+        let heavy = r
+            .heavy
+            .iter()
+            .filter(|&(&l, &n)| self.slime.count(l) >= n)
+            .count() as u32;
+        let floor = r.heavy_min_action_points.min(self.actions_per_round);
+        self.actions_per_round.saturating_sub(heavy).max(floor)
     }
 
     /// The sun: after slime round `round`, in a surface room, every `sun_every` rounds, it
@@ -1830,7 +1844,16 @@ fn modify_incoming_harm(d: &Design, c: &Creature, mut amount: i32) -> i32 {
 /// then `NotifyReceivedSubstance` (Vampirism drinks Blood).
 fn apply_liquid(d: &Design, target: &mut Creature, liquid: Liquid, from: Source, ids: &mut u32) {
     let s = &d.statuses;
-    let mut add = |kind, duration| add_status(target, kind, duration, from, ids);
+    // `rules.retaliation_pulses` (design): Retaliation statuses are short.
+    let pulses = d.rules.retaliation_pulses;
+    let mut add = |kind, duration| {
+        let duration = if from == Source::Retaliation && pulses > 0 {
+            pulses
+        } else {
+            duration
+        };
+        add_status(target, kind, duration, from, ids)
+    };
     match liquid {
         Liquid::Water => add(StatusKind::Wet, s.wet),
         Liquid::Oil => {
@@ -1843,7 +1866,19 @@ fn apply_liquid(d: &Design, target: &mut Creature, liquid: Liquid, from: Source,
             add(StatusKind::Corroding { corrosion }, s.corroding);
         }
         Liquid::Lava => add(StatusKind::Burning, s.burning),
-        Liquid::Blood | Liquid::Mercury | Liquid::Pus => {}
+        Liquid::Blood
+        | Liquid::Mercury
+        | Liquid::Pus
+        | Liquid::Phosphorus
+        | Liquid::Aquavita
+        | Liquid::Vitriol
+        | Liquid::Alkali
+        | Liquid::Ambrosia
+        | Liquid::Fat
+        | Liquid::Resin
+        | Liquid::Sulfur
+        | Liquid::Tar
+        | Liquid::Aphrodisiac => {}
     }
     if liquid == Liquid::Blood && target.vampirism {
         heal(target, s.vampirism_heal);
@@ -1892,7 +1927,14 @@ fn refresh_dominance(d: &Design, c: &mut Creature, ids: &mut u32) {
         }
     }
     let next = best
-        .filter(|&(_, n)| n * 100 >= c.volume.len() * d.rules.dominance_percent)
+        .filter(|&(_, n)| {
+            let basis = if d.rules.dominance_basis == "capacity" {
+                d.slime.capacity
+            } else {
+                c.volume.len()
+            };
+            n * 100 >= basis * d.rules.dominance_percent
+        })
         .map(|(l, _)| l);
     if next == c.dominant {
         return;
