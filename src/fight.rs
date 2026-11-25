@@ -788,18 +788,35 @@ impl<'a> Fight<'a> {
         };
         if let Some(route) = self.route_to(goal) {
             let (from, to) = (self.slime.cell, route[0]);
-            self.slime.cell = to;
-            let m = self.map.as_mut().expect("checked");
-            if let Some(k) = m.rooms.iter().position(|&r| in_rect(r, to)) {
-                m.rooms_entered = m.rooms_entered.max(k + 1);
-                m.waited = 0;
-            }
+            self.move_slime(to);
             self.note(|_| format!("Slime steps {from:?}->{to:?}"));
         } else if let Some(i) = adjacent(self, false) {
             self.strike_or_wait(i);
         } else {
             self.note(|_| "Slime waits: no path to the exit".into());
         }
+    }
+
+    /// Moves the slime one cell; on a map, entering a room counts it and resets lure's wait.
+    fn move_slime(&mut self, to: Cell) {
+        self.slime.cell = to;
+        if let Some(m) = self.map.as_mut()
+            && let Some(k) = m.rooms.iter().position(|&r| in_rect(r, to))
+        {
+            m.rooms_entered = m.rooms_entered.max(k + 1);
+            m.waited = 0;
+        }
+    }
+
+    /// How far `c` is from the nearest room's centre (Chebyshev); 0 without rooms.
+    fn interior_distance(&self, c: Cell) -> i32 {
+        self.map.as_ref().map_or(0, |m| {
+            m.rooms
+                .iter()
+                .map(|&((x0, y0), (x1, y1))| chebyshev(c, ((x0 + x1) / 2, (y0 + y1) / 2)))
+                .min()
+                .unwrap_or(0)
+        })
     }
 
     fn in_room(&self, c: Cell) -> bool {
@@ -885,7 +902,7 @@ impl<'a> Fight<'a> {
             && let Some(to) = self.kite_step()
         {
             let from = self.slime.cell;
-            self.slime.cell = to;
+            self.move_slime(to);
             self.note(|_| format!("Slime steps back {from:?}->{to:?}"));
             return true;
         }
@@ -894,8 +911,8 @@ impl<'a> Fight<'a> {
     }
 
     /// Where `kite` steps back: a free neighbour no living enemy is adjacent to. The largest
-    /// smallest distance to the enemies wins, then a cell outside the rooms, then the lowest
-    /// (x, y).
+    /// smallest distance to the enemies wins, then the cell farther from the nearest room's
+    /// centre, then the lowest (x, y).
     fn kite_step(&self) -> Option<Cell> {
         let occupied = self.occupied();
         let living: Vec<Cell> = self
@@ -917,7 +934,7 @@ impl<'a> Fight<'a> {
                 )
             })
             .filter(|&(near, _)| near >= 2)
-            .min_by_key(|&(near, c)| (-near, self.in_room(c), c.0, c.1))
+            .min_by_key(|&(near, c)| (-near, -self.interior_distance(c), c.0, c.1))
             .map(|(_, c)| c)
     }
 
@@ -982,7 +999,10 @@ impl<'a> Fight<'a> {
         let Some(at) = self.slime.volume.iter().rposition(|&l| l == liquid) else {
             return;
         };
-        // The last drop (`rules.last_drop_strike`) strikes without being spent.
+        // The last drop strikes without being spent, and only under `rules.last_drop_strike`.
+        if self.slime.volume.len() == 1 && !d.rules.last_drop_strike {
+            return;
+        }
         if self.slime.volume.len() > 1 {
             self.slime.volume.remove(at);
             self.units_spent += 1;

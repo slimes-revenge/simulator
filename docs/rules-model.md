@@ -125,8 +125,8 @@ For slow enemies (speed 1: a step or a bite per turn). Per slime action:
    it holds `lure`'s fighting spot.
 3. Enemies adjacent:
    - **On the round's last action:** step to a free neighbour that no living enemy touches. The
-     cell with the largest smallest distance to the enemies wins, then a cell outside the
-     rooms, then the lowest (x, y). With no such cell, it strikes instead.
+     cell with the largest smallest distance to the enemies wins, then the one farther from
+     the nearest room's centre (map levels), then the lowest (x, y). With no such cell, it strikes instead.
    - **Otherwise:** strike the adjacent enemy with the lowest HP (ties: placement order) with
      the edge unit. When the last unit cannot be spent, it steps away as above.
 
@@ -137,7 +137,8 @@ nobody hits never aggroes, so against bats the kite waits until the round limit 
 
 Balance proposal П15. With the flag on, the slime may strike with its last unit: the strike hits
 as usual and the unit is not spent. It applies to every policy. `false` is the game today:
-the last unit cannot be spent (`Volume.CanSpend`).
+the last unit cannot be spent (`Volume.CanSpend`). Damage from free last-drop strikes counts in
+`[damage]`, so `per_unit` (damage per unit spent) reads higher with the flag on.
 
 ## Where the docs and the code disagree
 

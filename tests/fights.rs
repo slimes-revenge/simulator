@@ -928,3 +928,30 @@ fn the_last_drop_strikes_without_being_spent_when_the_rule_is_on() {
     f.slime_strike(0, Liquid::Water);
     assert_eq!((f.enemies[0].hit_points, f.slime.volume.len()), (4, 1));
 }
+
+#[test]
+fn kite_strikes_the_weakest_when_it_cannot_step_away() {
+    // The slime in the corner (0, 0), Mushrooms on all three neighbours: no free cell to step
+    // to, so even on its only action it strikes — the weakest one (Mushroom#2, 2 HP).
+    let d = design();
+    let mut f = Fight::new(
+        &d,
+        0,
+        1,
+        vec![Liquid::Water; 10],
+        (0, 0),
+        &[
+            ("Mushroom", (1, 0)),
+            ("Mushroom", (0, 1)),
+            ("Mushroom", (1, 1)),
+        ],
+    );
+    f.policy = Policy::Kite;
+    f.enemies[1].hit_points = 2;
+    for e in &mut f.enemies {
+        e.aggroed = true;
+    }
+    let (_, log) = f.run_traced();
+    let first = log.iter().find(|l| l.starts_with("Slime ")).unwrap();
+    assert!(first.starts_with("Slime strikes Mushroom#2"), "{first}");
+}
