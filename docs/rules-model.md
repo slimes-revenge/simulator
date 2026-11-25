@@ -154,6 +154,34 @@ every policy. The game does not implement it yet: there the last unit cannot be 
 - **No bite** (`melee_power = 0`): its Attack does nothing and does not count as an attack (no
   aggro from it, no Retaliation). `kite` does not step away from such a neighbour; it hits it.
 
+## The 20-level graph: enemy traits, Pus, regeneration in a fight
+
+Agreed design rules for the balance graph (balance `sim-graph20-spec.md`, `squad.md`). None of
+them is in the game yet; only `Vampirism` among the traits is.
+
+- **`Dash`** (G1, `chase`): an enemy with speed ≥ 2 whose chase move ends next to the slime
+  bites in the same turn.
+- **`SmellsBlood`** (G2, `can_see`): it sees 2 cells farther while the slime's edge unit is
+  Blood.
+- **`Alarm { radius }`** (G4, `alarm`): after its own turn, the first time it is aggroed and
+  sees the slime (also when the slime struck it first), every living calm enemy within
+  `radius` of it (Chebyshev, through walls) gets aggroed and chases the slime's cell. Once per
+  enemy; a woken enemy with an alarm raises its own when it sees the slime. The hunter is
+  never woken.
+- **`Infects`** (G5, `enemy_melee`): after its bite, the slime's edge-most Blood becomes Pus.
+- **Pus** (`fester`): a liquid with power 0 and no effect. After the slime's actions each round
+  in which an enemy is engaged (like G3: no clock outside a fight), every Pus unit turns its Blood neighbours in body order into Pus (from the units as they were
+  before the spread); any other unit between them stops it. Every policy spits a Pus edge
+  off (1 action, a hit with power 0) instead of striking. `arranger` does not swap the kept
+  liquid down onto Pus or next to it. No build is made of Pus. A body of one Pus unit under
+  `last_drop_strike` spits it every action without spending it: the slime can no longer hurt
+  anyone, and the fight ends in a timeout or its death.
+- **`Nets`** (`enemy_melee`, `move_slime`): its bite also nets the slime for its next turn: no
+  step (a step wastes the action), strikes allowed. `kite` strikes instead of stepping back.
+- **Own vision** (`[[enemies]] vision`): the enemy's sight range; otherwise the level's.
+- **G3 `rules.regeneration_in_fight_only`**: the slime's Regeneration grows Blood only while an
+  enemy is engaged with it (aggroed and able to come, or adjacent). `false` models the game.
+
 ## Where the docs and the code disagree
 
 Found while building the model (game `dev` at 44018ffe, 2026-11-25). The simulator follows the code.

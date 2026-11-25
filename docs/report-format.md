@@ -156,9 +156,9 @@ These appear only when the design file has map levels. The rules are in [map-lev
 
 ```
 [map-levels]
-level          policy     end rooms  rounds fights engaged0 engaged1 engaged2 engaged3+ net_per_fight
-map-vision3    strafe       0  1.74   10.02   1.70     0.00    78.82    21.18      0.00         -5.88
-map-lure3      lure         0  1.54   11.10   1.80     0.00    86.67    13.33      0.00         -5.56
+level          policy     end rooms  rounds fights engaged0 engaged1 engaged2 engaged3+ net_per_fight      hunter hunter_net
+map-vision3    strafe       0  1.74   10.02   1.70     0.00    78.82    21.18      0.00         -5.88           -          -
+map-lure3      lure         0  1.54   11.10   1.80     0.00    86.67    13.33      0.00         -5.56    40/55/5      +0.50
 
 [map-level-ends]
 level          end    min worst  stops
@@ -172,6 +172,8 @@ map-vision3      0   0.00     0  room1:melee:Mushroom=8 room1:melee:Mandragora=7
 | `rounds`, `fights` | Average rounds and episodes per run |
 | `engaged0` … `engaged3+` | Percent of all episodes whose most aggroed enemies adjacent at once was 0, 1, 2, 3 or more |
 | `net_per_fight` | Episode `net` summed over all runs / episodes, signed; `-` without episodes |
+| `hunter` | With a hunter: `killed/alive/killed_slime`, percent of the seeds played; `-` without one |
+| `hunter_net` | Net summed over the episodes the hunter took part in / those episodes, signed; `-` without any |
 | `min`, `worst` | Average and worst smallest body (start and after each episode) |
 | `stops` | Where runs ended without the exit: `room<k>:<cause>=seeds`, by count descending |
 
@@ -182,9 +184,9 @@ are in [ladder.md](ladder.md). Ladder rows are not repeated in `[map-levels]`.
 
 ```
 [ladder]
-mode  difficulty policy   branch                   level end fights net_per_fight engaged2+ min_body body_out  stops
-level E          strafe   -                            1   8   1.74         -5.14      9.20     0.24    10.00  room3:sun=11 ...
-run   E          strafe   Lava                         2   0   2.00         -5.50      0.00     0.00        -  room2:melee:Cactus=1
+mode  difficulty policy   branch                   level end fights net_per_fight engaged2+ min_body body_out      hunter hunter_net  stops
+level E          strafe   -                            1   8   1.74         -5.14      9.20     0.24     7.75           -          -  room3:sun=11 ...
+run   E          strafe   Lava                         2   0   2.25         -4.67      0.00     0.00        -           -          -  room3:melee:Eye=2 ...
 
 [ladder-summary]
 mode  difficulty policy   branch                   rule   furthest_level first_fail_level  cause
@@ -200,6 +202,7 @@ run   E          strafe   Lava                     min90               -        
 | `end` | Percent of seeds that reached the exit; in `run` mode, of all seeds that started the ladder |
 | `fights`, `net_per_fight`, `min_body` | As in `[map-levels]`, over the seeds that played the level |
 | `engaged2+` | `engaged2` + `engaged3+` of `[map-levels]` |
+| `hunter`, `hunter_net` | As in `[map-levels]` |
 | `body_out` | Average body at the exit, after drinking, over the seeds that reached it (in `run` mode: the next level's entry body); `-` when none did |
 | `stops` | As in `[map-level-ends]` |
 

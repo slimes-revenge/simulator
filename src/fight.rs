@@ -3,7 +3,7 @@
 //! Each function names the C# method it mirrors (slimes-revenge/SlimesRevenge,
 //! `Assets/Scripts/Runtime`). Rules notes: `docs/rules-model.md`.
 
-use crate::data::{Design, Liquid, Personality, Trait};
+use crate::data::{Design, Hunter, Liquid, Personality, Trait};
 use crate::path::{self, Cell, chebyshev};
 use crate::rng::Rng;
 use std::collections::BTreeMap;
@@ -72,6 +72,14 @@ pub struct Creature {
     pub statuses: Vec<Status>,
     pub personality: Personality,
     pub vampirism: bool,
+    pub traits: Vec<Trait>,
+    /// Its own sight range (enemies); the fight's `vision` when `None`.
+    pub vision: Option<i32>,
+    /// G17: the hunter; it engages once it has seen the slime (`met`) or stands next to it.
+    pub hunter: bool,
+    pub met: bool,
+    /// G4: it has raised its alarm (once per enemy).
+    pub alarmed: bool,
     /// Thorns: a melee strike on this creature costs the striker this many edge units.
     pub thorns: usize,
     /// Slime only: the liquid with at least `dominance_percent` of the volume.
@@ -200,6 +208,13 @@ pub struct MapState {
     pub sun_every: u32,
     /// The slime's body when the run ended (carried to the next ladder level).
     pub body: Vec<Liquid>,
+    /// G17: the hunter still to enter, then its index in `enemies` once it has.
+    pub hunter: Option<Hunter>,
+    pub hunter_at: Option<usize>,
+    /// The hunter entered and died (set when the run ends).
+    pub hunter_dead: bool,
+    /// The hunter's bite killed the slime.
+    pub hunter_killed_slime: bool,
 }
 
 /// One fight on a map: from the first enemy aggroed on the slime until none is.
@@ -212,6 +227,8 @@ pub struct Episode {
     pub corpse: usize,
     pub eaten: usize,
     pub wasted: usize,
+    /// The hunter was engaged with the slime during it.
+    pub hunter: bool,
 }
 
 impl MapState {
@@ -239,6 +256,7 @@ struct OpenEpisode {
     /// spent, bitten, status, grown when the episode opened.
     counters: (usize, usize),
     alive_at_open: Vec<bool>,
+    hunter: bool,
 }
 
 /// How the slime chooses its strikes (matrix and stage levels; map levels walk by their own
@@ -334,6 +352,9 @@ pub struct Fight<'a> {
     swapped: bool,
     /// The slime's current action is the round's last one (`kite` steps away on it).
     last_action: bool,
+    /// Slime turns left in a net (`Nets`): no steps, strikes allowed.
+    rooted: u32,
+    round: u32,
     rng: Rng,
     actions_per_round: u32,
     pub slime: Creature,
@@ -374,6 +395,11 @@ impl<'a> Fight<'a> {
             statuses: Vec::new(),
             personality: Personality::Aggressive,
             vampirism: false,
+            traits: Vec::new(),
+            vision: None,
+            hunter: false,
+            met: false,
+            alarmed: false,
             thorns: 0,
             dominant: None,
             aggroed: false,
@@ -383,29 +409,7 @@ impl<'a> Fight<'a> {
         };
         let enemies = enemies
             .iter()
-            .map(|&(kind, cell)| {
-                let e = d.enemy(kind);
-                Creature {
-                    name: e.name.clone(),
-                    is_slime: false,
-                    cell,
-                    hit_points: e.hit_points,
-                    max_hit_points: e.hit_points,
-                    armor: e.armor,
-                    base_speed: e.speed,
-                    melee_power: e.melee_power,
-                    volume: e.volume.clone(),
-                    statuses: Vec::new(),
-                    personality: e.personality,
-                    vampirism: e.traits.contains(&Trait::Vampirism),
-                    thorns: e.thorns,
-                    dominant: None,
-                    aggroed: false,
-                    pursuit: None,
-                    pursuit_left: 0,
-                    flee_cell: None,
-                }
-            })
+            .map(|&(kind, cell)| enemy_creature(d, kind, cell))
             .collect();
         let mut fight = Fight {
             d,
@@ -420,6 +424,8 @@ impl<'a> Fight<'a> {
             policy: Policy::Newcomer,
             swapped: false,
             last_action: false,
+            rooted: 0,
+            round: 0,
             rng: Rng::new(seed),
             actions_per_round,
             slime,
@@ -517,6 +523,7 @@ impl<'a> Fight<'a> {
             return self.result(false, 0);
         }
         for round in 1..=self.max_rounds {
+            self.round = round;
             self.note(|_| format!("round {round}"));
             for k in 0..self.actions_per_round {
                 self.last_action = k + 1 == self.actions_per_round;
@@ -530,10 +537,13 @@ impl<'a> Fight<'a> {
                     return self.result(true, round);
                 }
             }
+            self.rooted = self.rooted.saturating_sub(1);
+            self.fester();
             self.sun(round);
             if !self.slime.alive() {
                 return self.result(false, round);
             }
+            self.enter_hunter(round);
             for i in 0..self.enemies.len() {
                 if !self.enemies[i].alive() {
                     continue;
@@ -634,19 +644,23 @@ impl<'a> Fight<'a> {
             .count();
         let counters = (self.units_lost(), self.units_grown);
         let alive: Vec<bool> = self.enemies.iter().map(|e| e.alive()).collect();
+        let hunter = m.hunter_at.is_some_and(|h| engaged(&self.enemies[h]));
         let open = m.open.is_some();
         let m = self.map.as_mut().expect("checked");
         let now = OpenEpisode {
             max_adjacent: adjacent,
             counters,
             alive_at_open: alive,
+            hunter: false,
         };
         if let Some(o) = m.open.as_mut() {
             o.max_adjacent = o.max_adjacent.max(adjacent);
+            o.hunter |= hunter;
         } else if aggro {
             let calm = m.calm.take().unwrap_or_else(|| now.clone());
             m.open = Some(OpenEpisode {
                 max_adjacent: adjacent,
+                hunter,
                 ..calm
             });
         } else {
@@ -668,10 +682,13 @@ impl<'a> Fight<'a> {
         let (lost, grown) = o.counters;
         let mut ep = Episode {
             max_adjacent: o.max_adjacent,
+            hunter: o.hunter,
             ..Episode::default()
         };
         if self.slime.alive() {
-            for (e, &was_alive) in self.enemies.iter().zip(&o.alive_at_open) {
+            for (i, e) in self.enemies.iter().enumerate() {
+                // An enemy that entered after the snapshot (the hunter) was alive at the open.
+                let was_alive = o.alive_at_open.get(i).copied().unwrap_or(true);
                 if was_alive && !e.alive() {
                     for &unit in &e.volume {
                         ep.corpse += 1;
@@ -701,6 +718,7 @@ impl<'a> Fight<'a> {
         self.close_episode();
         let mut state = self.map.take().unwrap_or_default();
         state.body = self.slime.volume.clone();
+        state.hunter_dead = state.hunter_at.is_some_and(|h| !self.enemies[h].alive());
         if !self.slime.alive() {
             state.min_body = 0;
         }
@@ -725,8 +743,20 @@ impl<'a> Fight<'a> {
 
     /// An enemy in the fight with the slime: aggroed and able to come (speed above 0) or
     /// already next to it. A stationary blocker that saw the slime does not hold it.
+    /// The hunter always knows where the slime is, so it engages only from the first time it
+    /// sees the slime (its sight range, walls block) until it dies, or while next to it.
     fn engaging(&self, e: &Creature) -> bool {
-        e.alive() && e.aggroed && (e.base_speed > 0 || chebyshev(e.cell, self.slime.cell) == 1)
+        let adjacent = chebyshev(e.cell, self.slime.cell) == 1;
+        let comes = if e.hunter { e.met } else { e.base_speed > 0 };
+        e.alive() && e.aggroed && (comes || adjacent)
+    }
+
+    /// An enemy's sight range: its own or the fight's, +2 for `SmellsBlood` while the slime's
+    /// edge unit is Blood (G2).
+    fn sight(&self, e: &Creature) -> i32 {
+        let smells = e.traits.contains(&Trait::SmellsBlood)
+            && self.slime.volume.last() == Some(&Liquid::Blood);
+        e.vision.unwrap_or(self.vision) + if smells { 2 } else { 0 }
     }
 
     /// Every unit the slime has lost so far: spent, bitten, to statuses, to thorns.
@@ -817,6 +847,10 @@ impl<'a> Fight<'a> {
                 self.slime_swap(0);
                 self.swapped = true;
                 self.note(|f| format!("Slime swaps: {:?} to the edge", f.edge()));
+            } else if self.can_strike() && self.edge() == Liquid::Pus {
+                self.swapped = false;
+                self.slime_spit(target);
+                self.note(|_| "Slime spits Pus off its edge".into());
             } else if self.can_strike() {
                 self.swapped = false;
                 let liquid = self.edge();
@@ -844,8 +878,9 @@ impl<'a> Fight<'a> {
         self.swapped = false;
         let from = self.slime.cell;
         if let Some(to) = self.walk_toward(from, self.enemies[target].cell, 1) {
-            self.slime.cell = to;
-            self.note(|_| format!("Slime steps {from:?}->{to:?}"));
+            if self.move_slime(to) {
+                self.note(|_| format!("Slime steps {from:?}->{to:?}"));
+            }
         } else {
             self.note(|_| "Slime waits: no path".into());
         }
@@ -894,8 +929,9 @@ impl<'a> Fight<'a> {
         };
         if let Some(route) = self.route_to(goal) {
             let (from, to) = (self.slime.cell, route[0]);
-            self.move_slime(to);
-            self.note(|_| format!("Slime steps {from:?}->{to:?}"));
+            if self.move_slime(to) {
+                self.note(|_| format!("Slime steps {from:?}->{to:?}"));
+            }
         } else {
             // Blocked: follow the route through creatures; step if the next cell is free,
             // else strike (or spit at) whoever stands in it or next to the slime.
@@ -913,8 +949,9 @@ impl<'a> Fight<'a> {
                 self.strike_or_wait(i);
             } else if let Some(to) = next.filter(|&c| !self.occupied().contains(&c)) {
                 let from = self.slime.cell;
-                self.move_slime(to);
-                self.note(|_| format!("Slime steps {from:?}->{to:?}"));
+                if self.move_slime(to) {
+                    self.note(|_| format!("Slime steps {from:?}->{to:?}"));
+                }
             } else {
                 self.note(|_| "Slime waits: no path to the exit".into());
             }
@@ -922,7 +959,12 @@ impl<'a> Fight<'a> {
     }
 
     /// Moves the slime one cell; on a map, entering a room counts it and resets lure's wait.
-    fn move_slime(&mut self, to: Cell) {
+    /// `false` when the slime is netted and stays.
+    fn move_slime(&mut self, to: Cell) -> bool {
+        if self.rooted > 0 {
+            self.note(|_| "Slime is netted: it cannot step".into());
+            return false;
+        }
         self.slime.cell = to;
         if let Some(m) = self.map.as_mut()
             && let Some(k) = m.rooms.iter().position(|&r| in_rect(r, to))
@@ -930,6 +972,7 @@ impl<'a> Fight<'a> {
             m.rooms_entered = m.rooms_entered.max(k + 1);
             m.waited = 0;
         }
+        true
     }
 
     /// How far `c` is from the nearest room's centre (Chebyshev); 0 without rooms.
@@ -968,7 +1011,7 @@ impl<'a> Fight<'a> {
             .iter()
             .filter(|e| e.alive() && !e.aggroed && e.personality == Personality::Aggressive)
             .filter(|e| e.base_speed > 0)
-            .filter(|e| !hidden && chebyshev(e.cell, cell) <= self.vision)
+            .filter(|e| !hidden && chebyshev(e.cell, cell) <= self.sight(e))
             .filter(|e| self.board.line_of_sight(e.cell, cell))
             .count()
     }
@@ -1025,12 +1068,15 @@ impl<'a> Fight<'a> {
         else {
             return false;
         };
+        // Netted: it cannot step back, so it strikes.
         if (self.last_action || !self.can_strike())
+            && self.rooted == 0
             && let Some(to) = self.kite_step()
         {
             let from = self.slime.cell;
-            self.move_slime(to);
-            self.note(|_| format!("Slime steps back {from:?}->{to:?}"));
+            if self.move_slime(to) {
+                self.note(|_| format!("Slime steps back {from:?}->{to:?}"));
+            }
             return true;
         }
         self.strike_or_wait(target);
@@ -1069,7 +1115,10 @@ impl<'a> Fight<'a> {
     /// (`lure`, `kite`) and the target has them; waits when the last unit cannot be spent.
     fn strike_or_wait(&mut self, target: usize) {
         let spits = self.policy == Policy::Kite || self.map.as_ref().is_some_and(|m| m.lure);
-        if self.can_strike() && spits && self.enemies[target].thorns > 0 {
+        if self.can_strike() && self.edge() == Liquid::Pus {
+            self.slime_spit(target);
+            self.note(|_| "Slime spits Pus off its edge".into());
+        } else if self.can_strike() && spits && self.enemies[target].thorns > 0 {
             let liquid = self.edge();
             self.slime_spit(target);
             self.note(|f| format!("Slime spits at {} with {liquid:?}", f.label(target)));
@@ -1095,9 +1144,11 @@ impl<'a> Fight<'a> {
             return false;
         }
         let (edge, next) = (self.slime.volume[n - 1], self.slime.volume[n - 2]);
+        // A swap would put the edge unit next to Pus (unit 2).
+        let beside_pus = n >= 3 && self.slime.volume[n - 3] == Liquid::Pus;
         let has =
             |k: fn(&StatusKind) -> bool| self.enemies[target].statuses.iter().any(|s| k(&s.kind));
-        (keep == Some(edge) && next != edge)
+        (keep == Some(edge) && next != edge && next != Liquid::Pus && !beside_pus)
             || (edge == Liquid::Water
                 && next != Liquid::Water
                 && has(|k| matches!(k, StatusKind::Burning | StatusKind::Corroding { .. })))
@@ -1197,6 +1248,23 @@ impl<'a> Fight<'a> {
 
     /// `Creature.TakeTurn`: decide by personality, redirect, perform, after-act.
     fn enemy_turn(&mut self, i: usize) {
+        // G17: the hunter knows the slime's cell every `scent_every` rounds.
+        if let Some(m) = &self.map
+            && m.hunter_at == Some(i)
+            && m.hunter
+                .as_ref()
+                .is_some_and(|h| self.round.is_multiple_of(h.scent_every))
+        {
+            let memory = self.d.rules.pursuit_memory_turns;
+            let cell = self.slime.cell;
+            let e = &mut self.enemies[i];
+            e.aggroed = true;
+            e.pursuit = Some(cell);
+            e.pursuit_left = memory.max(e.pursuit_left);
+        }
+        if self.enemies[i].hunter && self.can_see(i) {
+            self.enemies[i].met = true;
+        }
         let mut intent = self.decide(i);
         // `CreatureHunt.Redirect`: no fear/hate traits in the live roster, so only pursuit memory.
         if matches!(intent, Intent::Wander | Intent::Idle) {
@@ -1228,6 +1296,89 @@ impl<'a> Fight<'a> {
             )
         });
         self.after_act(i, intent);
+        if self.enemies[i].hunter && self.can_see(i) {
+            self.enemies[i].met = true;
+        }
+        self.alarm(i);
+    }
+
+    /// G4 `Alarm`: the first time an aggroed enemy sees the slime (after its own turn), it
+    /// aggroes every living enemy within its radius (Chebyshev, through walls), except the
+    /// hunter. Once per enemy; a woken enemy with an alarm raises its own when it sees the slime.
+    fn alarm(&mut self, i: usize) {
+        let radius = self.enemies[i].traits.iter().find_map(|t| match t {
+            Trait::Alarm { radius } => Some(*radius),
+            _ => None,
+        });
+        let Some(radius) = radius else { return };
+        if self.enemies[i].alarmed || !self.enemies[i].aggroed || !self.can_see(i) {
+            return;
+        }
+        self.enemies[i].alarmed = true;
+        let (from, cell) = (self.enemies[i].cell, self.slime.cell);
+        let memory = self.d.rules.pursuit_memory_turns;
+        let hunter = self.map.as_ref().and_then(|m| m.hunter_at);
+        for (j, e) in self.enemies.iter_mut().enumerate() {
+            if j != i
+                && Some(j) != hunter
+                && e.alive()
+                && !e.aggroed
+                && chebyshev(e.cell, from) <= radius
+            {
+                e.aggroed = true;
+                e.pursuit = Some(cell);
+                e.pursuit_left = memory;
+            }
+        }
+        self.note(|f| format!("{} raises the alarm", f.label(i)));
+    }
+
+    /// G17: the hunter enters at the exit (or the nearest free open cell) at round
+    /// `enter_round`, or once the slime has entered the second-to-last room.
+    fn enter_hunter(&mut self, round: u32) {
+        let Some(m) = &self.map else { return };
+        let Some(h) = m.hunter.as_ref().filter(|_| m.hunter_at.is_none()) else {
+            return;
+        };
+        if round < h.enter_round && m.rooms_entered + 1 < m.rooms.len() {
+            return;
+        }
+        let (kind, exit) = (h.kind.clone(), m.exit);
+        let occupied = self.occupied();
+        let mut cells: Vec<Cell> = (0..self.board.height)
+            .flat_map(|y| (0..self.board.width).map(move |x| (x, y)))
+            .filter(|&c| self.board.open(c) && !occupied.contains(&c))
+            .collect();
+        cells.sort_by_key(|&c| (chebyshev(c, exit), c.1, c.0));
+        let Some(&cell) = cells.first() else { return };
+        let mut hunter = enemy_creature(self.d, &kind, cell);
+        hunter.aggroed = true;
+        hunter.hunter = true;
+        self.enemies.push(hunter);
+        let m = self.map.as_mut().expect("checked");
+        m.homes.push(None);
+        m.hunter_at = Some(self.enemies.len() - 1);
+        self.note(|f| format!("{} enters at {cell:?}", f.label(f.enemies.len() - 1)));
+    }
+
+    /// G5: at the end of the slime's actions, while an enemy is engaged, each Pus unit turns
+    /// its Blood neighbours (in body order) into Pus; anything else between them stops it.
+    fn fester(&mut self) {
+        // Like Regeneration (G3), it ticks only in a fight: outside one there is no clock.
+        if !self.enemies.iter().any(|e| self.engaging(e)) {
+            return;
+        }
+        let v = &mut self.slime.volume;
+        let pus: Vec<usize> = (0..v.len()).filter(|&k| v[k] == Liquid::Pus).collect();
+        for k in pus {
+            for n in [k.wrapping_sub(1), k + 1] {
+                if v.get(n) == Some(&Liquid::Blood) {
+                    v[n] = Liquid::Pus;
+                }
+            }
+        }
+        let d = self.d;
+        refresh_dominance(d, &mut self.slime, &mut self.next_status_id);
     }
 
     /// `IsDetectedBy`: an aggroed observer always detects; Mercury dominance hides the slime.
@@ -1237,7 +1388,7 @@ impl<'a> Fight<'a> {
     }
 
     fn can_see(&self, i: usize) -> bool {
-        chebyshev(self.enemies[i].cell, self.slime.cell) <= self.vision
+        chebyshev(self.enemies[i].cell, self.slime.cell) <= self.sight(&self.enemies[i])
             && self.detected(i)
             && self
                 .board
@@ -1306,6 +1457,23 @@ impl<'a> Fight<'a> {
         if tip.is_some() {
             self.last_harm = Some(format!("melee:{}", self.enemies[i].name));
         }
+        if !self.slime.alive()
+            && let Some(m) = self.map.as_mut()
+            && m.hunter_at == Some(i)
+        {
+            m.hunter_killed_slime = true;
+        }
+        let traits = &self.enemies[i].traits;
+        if self.slime.alive()
+            && traits.contains(&Trait::Infects)
+            && let Some(k) = self.slime.volume.iter().rposition(|&l| l == Liquid::Blood)
+        {
+            self.slime.volume[k] = Liquid::Pus;
+            refresh_dominance(d, &mut self.slime, &mut self.next_status_id);
+        }
+        if self.slime.alive() && traits.contains(&Trait::Nets) {
+            self.rooted = 1;
+        }
         let enemy = &mut self.enemies[i];
         if self.slime.alive() {
             if let Some(liquid) = retort {
@@ -1338,8 +1506,16 @@ impl<'a> Fight<'a> {
             self.enemies[i].pursuit.unwrap_or(self.slime.cell)
         };
         let e = &self.enemies[i];
-        if let Some(to) = self.walk_toward(e.cell, target, e.speed(self.d)) {
+        let speed = e.speed(self.d);
+        if let Some(to) = self.walk_toward(e.cell, target, speed) {
             self.enemies[i].cell = to;
+            // G1 dash: a fast walker that arrives next to the slime bites at once.
+            if speed >= 2
+                && self.enemies[i].traits.contains(&Trait::Dash)
+                && self.adjacent_and_detected(i)
+            {
+                self.enemy_melee(i);
+            }
         }
     }
 
@@ -1466,6 +1642,8 @@ impl<'a> Fight<'a> {
     /// start of its owner's turn; stops when the owner dies.
     fn pulse(&mut self, enemy: Option<usize>) {
         let d = self.d;
+        let regenerates =
+            !d.rules.regeneration_in_fight_only || self.enemies.iter().any(|e| self.engaging(e));
         let who = enemy.map_or("Slime".to_string(), |i| self.label(i));
         let mut log: Option<Vec<String>> = self.trace.as_ref().map(|_| Vec::new());
         let ids = &mut self.next_status_id;
@@ -1500,6 +1678,7 @@ impl<'a> Fight<'a> {
                         damage(d, owner, harm, false, ids);
                     }
                 }
+                StatusKind::Regeneration if !regenerates => {}
                 StatusKind::Regeneration => {
                     for _ in 0..d.statuses.regeneration_growth {
                         if owner.volume.len() < d.slime.capacity {
@@ -1664,7 +1843,7 @@ fn apply_liquid(d: &Design, target: &mut Creature, liquid: Liquid, from: Source,
             add(StatusKind::Corroding { corrosion }, s.corroding);
         }
         Liquid::Lava => add(StatusKind::Burning, s.burning),
-        Liquid::Blood | Liquid::Mercury => {}
+        Liquid::Blood | Liquid::Mercury | Liquid::Pus => {}
     }
     if liquid == Liquid::Blood && target.vampirism {
         heal(target, s.vampirism_heal);
@@ -1735,5 +1914,35 @@ fn refresh_dominance(d: &Design, c: &mut Creature, ids: &mut u32) {
         }
         Some(Liquid::Water) => c.statuses.retain(|s| s.kind != StatusKind::Burning),
         _ => {}
+    }
+}
+
+/// An enemy of `kind` standing at `cell`, from its `[[enemies]]` row.
+fn enemy_creature(d: &Design, kind: &str, cell: Cell) -> Creature {
+    let e = d.enemy(kind);
+    Creature {
+        name: e.name.clone(),
+        is_slime: false,
+        cell,
+        hit_points: e.hit_points,
+        max_hit_points: e.hit_points,
+        armor: e.armor,
+        base_speed: e.speed,
+        melee_power: e.melee_power,
+        volume: e.volume.clone(),
+        statuses: Vec::new(),
+        personality: e.personality,
+        vampirism: e.traits.contains(&Trait::Vampirism),
+        traits: e.traits.clone(),
+        vision: e.vision,
+        hunter: false,
+        met: false,
+        alarmed: false,
+        thorns: e.thorns,
+        dominant: None,
+        aggroed: false,
+        pursuit: None,
+        pursuit_left: 0,
+        flee_cell: None,
     }
 }

@@ -9,6 +9,7 @@ rules.pursuit_memory_turns = 3
 rules.max_rounds = 200
 rules.last_drop_strike = true
 rules.spit_range = 1
+rules.regeneration_in_fight_only = true
 slime.capacity = 10
 slime.speed = 1
 slime.start = Water Water Oil Poison Acid Lava
@@ -39,6 +40,8 @@ liquids.Lava.power = 1
 liquids.Lava.corrosion = 0
 liquids.Mercury.power = 1
 liquids.Mercury.corrosion = 0
+liquids.Pus.power = 0
+liquids.Pus.corrosion = 0
 enemies.Bat.hit_points = 3
 enemies.Bat.armor = 0
 enemies.Bat.speed = 1
@@ -2866,14 +2869,14 @@ sample-ap1       0   2.00     2   0.00  stage2:melee:Bat=50
 sample-ap2       0   2.00     2   0.00  stage5:melee:Eye=50
 
 [map-levels]
-level          policy     end rooms  rounds fights engaged0 engaged1 engaged2 engaged3+ net_per_fight
-map-vision2    strafe       6  2.18   12.18   1.82     0.00    91.21     8.79      0.00         -5.36
-map-vision3    strafe       0  1.74   10.12   1.72     0.00    80.23    19.77      0.00         -5.81
-map-vision4    strafe       0  1.82   10.20   1.60     0.00    72.50    27.50      0.00         -6.25
-map-lure2      lure         6  2.16   12.26   1.84     0.00    93.48     6.52      0.00         -5.30
-map-lure3      lure         0  1.54   11.20   1.82     0.00    87.91    12.09      0.00         -5.49
-map-lure4      lure         0  1.48   12.48   1.68     0.00    84.52    15.48      0.00         -5.95
-map-kite3      kite        52  3.66   60.94   3.76     0.00    91.49     8.51      0.00         -2.38
+level          policy     end rooms  rounds fights engaged0 engaged1 engaged2 engaged3+ net_per_fight      hunter hunter_net
+map-vision2    strafe       6  2.18   12.18   1.82     0.00    91.21     8.79      0.00         -5.36           -          -
+map-vision3    strafe       0  1.74   10.12   1.72     0.00    80.23    19.77      0.00         -5.81           -          -
+map-vision4    strafe       0  1.82   10.20   1.60     0.00    72.50    27.50      0.00         -6.25           -          -
+map-lure2      lure         6  2.16   12.26   1.84     0.00    93.48     6.52      0.00         -5.30           -          -
+map-lure3      lure         0  1.54   11.20   1.82     0.00    87.91    12.09      0.00         -5.49           -          -
+map-lure4      lure         0  1.48   12.48   1.68     0.00    84.52    15.48      0.00         -5.95           -          -
+map-kite3      kite        52  3.66   60.94   3.76     0.00    91.49     8.51      0.00         -2.38           -          -
 
 [map-level-ends]
 level          end    min worst  stops
@@ -2886,13 +2889,13 @@ map-lure4        0   0.00     0  room1:melee:Mushroom=9 room1:melee:Eye=8 room1:
 map-kite3       52   1.04     0  room1:melee:Mandragora=3 room1:melee:Mushroom=3 room1:melee:Cactus=2 room2:melee:Cactus=2 room2:melee:Mandragora=2 room3:melee:Mandragora=2 room5:melee:Mushroom=2 room1:melee:Eye=1 room1:melee:Undine=1 room2:melee:Bat=1 room2:melee:Eye=1 room3:melee:Mushroom=1 room3:melee:Undine=1 room4:melee:Cactus=1 room5:melee:Eye=1
 
 [ladder]
-mode  difficulty policy   branch                   level end fights net_per_fight engaged2+ min_body body_out  stops
-level E          strafe   -                            1   8   1.74         -5.14      9.20     0.24     7.75  room3:sun=11 room2:melee:Mushroom=7 room2:melee:Undine=7 room1:melee:Undine=6 room1:melee:Mushroom=5 room3:melee:Undine=3 room4:melee:Mushroom=3 room3:melee:Mushroom=2 room5:melee:Mushroom=2
-level E          strafe   Acid                         2   0   1.80         -5.56     15.56     0.00        -  room2:melee:Cactus=9 room1:melee:Mandragora=8 room1:melee:Cactus=7 room1:melee:Eye=6 room2:melee:Eye=6 room2:melee:Mandragora=4 room3:melee:Mandragora=3 room3:melee:Eye=2 room4:melee:Mandragora=2 room3:melee:Cactus=1 room4:melee:Cactus=1 room4:melee:Eye=1
-level E          strafe   Lava                         2   2   1.88         -6.00     14.89     0.04     2.00  room1:melee:Cactus=7 room1:melee:Mandragora=7 room2:melee:Eye=7 room1:melee:Eye=6 room2:melee:Cactus=6 room2:melee:Mandragora=5 room3:melee:Eye=4 room3:melee:Mandragora=2 room4:melee:Eye=2 room3:melee:Cactus=1 room4:melee:Cactus=1 room4:melee:Mandragora=1
-run   E          strafe   -                            1   8   1.74         -5.14      9.20     0.24     7.75  room3:sun=11 room2:melee:Mushroom=7 room2:melee:Undine=7 room1:melee:Undine=6 room1:melee:Mushroom=5 room3:melee:Undine=3 room4:melee:Mushroom=3 room3:melee:Mushroom=2 room5:melee:Mushroom=2
-run   E          strafe   Acid                         2   0   2.00         -3.88      0.00     0.00        -  room2:melee:Cactus=2 room3:melee:Eye=1 room4:melee:Cactus=1
-run   E          strafe   Lava                         2   0   2.25         -4.67      0.00     0.00        -  room3:melee:Eye=2 room2:melee:Cactus=1 room4:melee:Cactus=1
+mode  difficulty policy   branch                   level end fights net_per_fight engaged2+ min_body body_out      hunter hunter_net  stops
+level E          strafe   -                            1   8   1.74         -5.14      9.20     0.24     7.75           -          -  room3:sun=11 room2:melee:Mushroom=7 room2:melee:Undine=7 room1:melee:Undine=6 room1:melee:Mushroom=5 room3:melee:Undine=3 room4:melee:Mushroom=3 room3:melee:Mushroom=2 room5:melee:Mushroom=2
+level E          strafe   Acid                         2   0   1.80         -5.56     15.56     0.00        -           -          -  room2:melee:Cactus=9 room1:melee:Mandragora=8 room1:melee:Cactus=7 room1:melee:Eye=6 room2:melee:Eye=6 room2:melee:Mandragora=4 room3:melee:Mandragora=3 room3:melee:Eye=2 room4:melee:Mandragora=2 room3:melee:Cactus=1 room4:melee:Cactus=1 room4:melee:Eye=1
+level E          strafe   Lava                         2   2   1.88         -6.00     14.89     0.04     2.00           -          -  room1:melee:Cactus=7 room1:melee:Mandragora=7 room2:melee:Eye=7 room1:melee:Eye=6 room2:melee:Cactus=6 room2:melee:Mandragora=5 room3:melee:Eye=4 room3:melee:Mandragora=2 room4:melee:Eye=2 room3:melee:Cactus=1 room4:melee:Cactus=1 room4:melee:Mandragora=1
+run   E          strafe   -                            1   8   1.74         -5.14      9.20     0.24     7.75           -          -  room3:sun=11 room2:melee:Mushroom=7 room2:melee:Undine=7 room1:melee:Undine=6 room1:melee:Mushroom=5 room3:melee:Undine=3 room4:melee:Mushroom=3 room3:melee:Mushroom=2 room5:melee:Mushroom=2
+run   E          strafe   Acid                         2   0   2.00         -3.88      0.00     0.00        -           -          -  room2:melee:Cactus=2 room3:melee:Eye=1 room4:melee:Cactus=1
+run   E          strafe   Lava                         2   0   2.25         -4.67      0.00     0.00        -           -          -  room3:melee:Eye=2 room2:melee:Cactus=1 room4:melee:Cactus=1
 
 [ladder-summary]
 mode  difficulty policy   branch                   rule   furthest_level first_fail_level  cause

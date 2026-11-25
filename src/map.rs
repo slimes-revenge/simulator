@@ -105,6 +105,22 @@ pub fn generate(m: &MapSpec, seed: u64) -> Map {
         let kind = m.blockers[rng.pick(m.blockers.len())].clone();
         enemies.push((kind, cell, None));
     }
+    // The squad camps in the second-to-last room, on the way to the exit.
+    if !m.camp.is_empty() {
+        let k = rooms.len() - 2;
+        let ((x0, y0), (x1, y1)) = rooms[k];
+        for kind in &m.camp {
+            let free: Vec<Cell> = (y0..=y1)
+                .flat_map(|y| (x0..=x1).map(move |x| (x, y)))
+                .filter(|&c| chebyshev(c, start) > m.vision && c != exit)
+                .filter(|&c| enemies.iter().all(|e| e.1 != c))
+                .collect();
+            if free.is_empty() {
+                break;
+            }
+            enemies.push((kind.clone(), free[rng.pick(free.len())], Some(k)));
+        }
+    }
     let mut drips = Vec::new();
     for _ in 0..m.drips.map_or(0, |d| d.cells) {
         if passages.is_empty() {
@@ -148,6 +164,11 @@ pub struct MapLevelResult {
     /// Average body at the exit (after drinking) over the seeds that reached it; `None` when
     /// none did.
     pub body_out: Option<f64>,
+    /// With a hunter: percent of the played seeds where it was killed, still alive at the
+    /// end, or killed the slime (it never entering counts as alive).
+    pub hunter: Option<[f64; 3]>,
+    /// Net summed over the episodes the hunter took part in / those episodes.
+    pub hunter_net: Option<f64>,
     /// Where runs ended without the exit: `room<k>:<cause>` → seeds.
     pub stops: BTreeMap<String, u64>,
 }
@@ -187,7 +208,23 @@ pub fn summarize(level: &Level, runs: &[(FightResult, MapState)], of: u64) -> Ma
     let (mut episodes, mut net_sum) = (0u64, 0i64);
     let mut stops = BTreeMap::new();
     let mut out_sum = 0;
+    let mut hunter = [0u64; 3];
+    let (mut hunter_eps, mut hunter_sum) = (0u64, 0i64);
     for (result, state) in runs {
+        if state.hunter.is_some() {
+            let k = if state.hunter_killed_slime {
+                2
+            } else if state.hunter_dead {
+                0
+            } else {
+                1
+            };
+            hunter[k] += 1;
+        }
+        for e in state.episodes.iter().filter(|e| e.hunter) {
+            hunter_eps += 1;
+            hunter_sum += e.net;
+        }
         ends += u64::from(result.won);
         if result.won {
             out_sum += state.body.len();
@@ -227,6 +264,12 @@ pub fn summarize(level: &Level, runs: &[(FightResult, MapState)], of: u64) -> Ma
         min_body: round2(min_sum as f64 / n),
         worst_body: if runs.is_empty() { 0 } else { worst },
         body_out: (ends > 0).then(|| round2(out_sum as f64 / ends as f64)),
+        hunter: level
+            .map
+            .as_ref()
+            .and_then(|m| m.hunter.as_ref())
+            .map(|_| hunter.map(|h| pct(h, runs.len() as u64))),
+        hunter_net: (hunter_eps > 0).then(|| round2(hunter_sum as f64 / hunter_eps as f64)),
         stops,
     }
 }
@@ -280,6 +323,7 @@ pub fn fight<'a>(
         .collect();
     state.surface = surface;
     state.sun_every = spec.sun_every;
+    state.hunter = spec.hunter.clone();
     // `kite` walks and holds corridors like `lure`; next to enemies it kites (src/fight.rs).
     state.lure = level.policy == "lure" || level.policy == "kite";
     f.policy = crate::fight::Policy::from_name(&level.policy, d);
