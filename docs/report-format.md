@@ -67,6 +67,45 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 All averages are over every seed and printed with exactly 2 decimals. Body ledger: `spent + bitten
 + status + left` = the build's units, plus whatever Blood Regeneration grew.
 
+### `[economy]` and `[damage]`
+
+Balance slices, agreed with the balance session. One line per cell, with the same key columns
+and order as `[cells]`: `ap policy build encounter`. All values are averages over all seeds,
+with 2 decimals. A breakdown is written `Name:2.00,Name:1.00`, or `-` when empty. Liquids
+follow their fixed order (Water, Oil, Poison, Acid, Blood, Lava, Mercury); statuses are
+alphabetical. A column appears only once its mechanic exists in the model, so no column is a placeholder for a mechanic that is not built yet. Some columns can still be zero everywhere in today's data, for example `status` while no enemy applies statuses to the slime.
+
+```
+[economy]
+ap policy     build      encounter         spent bitten status  grown     net  by
+1  face-tank  start      bat-3              2.92   2.20   0.00   0.00   -5.12  spent=Water:2.00,Oil:0.92 bitten=Oil:0.08,Poison:0.12,Acid:1.00,Lava:1.00 status=-
+
+[damage]
+ap policy     build      encounter        strike status  retal overkill doomed per_unit  status_by
+2  face-tank  lava       eye-3              4.00   3.00   6.00     0.00   3.00     3.25  Burning:9.00
+```
+
+`[economy]`, the body ledger of one fight:
+
+| Column | Meaning |
+| --- | --- |
+| `spent`, `bitten`, `status` | Units spent on strikes, popped by bites, lost to the slime's own status pulses (the same numbers as `[cells]`) |
+| `grown` | Blood grown by Regeneration |
+| `net` | `grown − spent − bitten − status` (eating and fountains are in `[levels]`) |
+| `by` | `spent=` by liquid, `bitten=` by liquid popped, `status=` by status |
+
+`[damage]`, the HP the slime took off enemies, by source:
+
+| Column | Meaning |
+| --- | --- |
+| `strike` | HP removed by strikes |
+| `status` | HP removed by pulses of statuses the slime's strikes applied |
+| `retal` | HP removed by pulses of statuses Retaliation applied |
+| `overkill` | Damage meant beyond the HP the target had at that moment, any source |
+| `doomed` | Strikes on an enemy whose queued status pulses alone (HP and statuses at strike time, Flammable as it stands, Corroding stripping armor first, no heals) would already kill it |
+| `per_unit` | `(strike + status + retal) / spent` over all seeds; `-` when nothing was spent |
+| `status_by` | Status pulse damage (both sources) by status |
+
 ### `[levels]` and `[level-ends]`
 
 These appear only when the design file has `[[levels]]`. The rules are in [level-economy.md](level-economy.md).
@@ -198,6 +237,8 @@ Cell fields:
 | `avgUnitsBitten` | number | Units lost to enemy bites, over all fights |
 | `avgUnitsStatus` | number | Units lost to the slime's own status pulses, over all fights |
 | `avgEnemiesKilled` | number | Enemies killed, over all fights |
+| `avgUnitsGrown`, `avgNet`, `spentBy`, `bittenBy`, `statusLostBy` | numbers, objects | The `[economy]` slice (objects: name → average) |
+| `avgStrikeDmg`, `avgStatusDmg`, `avgRetaliationDmg`, `statusDmgBy`, `avgOverkill`, `avgDoomedStrikes`, `dmgPerUnit` | numbers, object, number or null | The `[damage]` slice |
 | `cause` | string or null | The most common cause of a loss; `null` when every fight was won |
 | `causes` | object | Every loss cause → number of fights it ended (`{}` when all were won) |
 

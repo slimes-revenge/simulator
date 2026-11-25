@@ -78,6 +78,12 @@ truth for how the game behaves today; the simulator mirrors it by hand. Numbers 
   `rules.pursuit_memory_turns` turns). Wander steps to a random free neighbour.
 - Mob ↔ mob fear and hate (`Fears*`, `Hates*`) are not modelled: only retired animals have them.
 
+## Status sources
+
+Every status remembers where it came from: a slime strike, Retaliation, or the slime's own body
+(Regeneration). Rules ignore the source; the `[damage]` slice uses it to split status damage
+into `status` and `retal`.
+
 ## Face-tank policy (`src/fight.rs`, `slime_act`)
 
 Target the nearest living enemy (Chebyshev, ties to the earlier one). Adjacent: strike with the

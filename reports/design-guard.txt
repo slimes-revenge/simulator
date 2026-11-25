@@ -414,6 +414,588 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 2  face-tank  mercury    eye-2              0    6.34   0.90   0.00   6.30   3.70   0.00  melee:Eye=50
 2  face-tank  mercury    eye-3              0    5.84   0.88   0.00   6.30   3.70   0.00  melee:Eye=50
 
+[economy]
+ap policy     build      encounter         spent bitten status  grown     net  by
+1  face-tank  start      bat-1              3.00   2.00   0.00   0.00   -5.00  spent=Water:2.00,Oil:1.00 bitten=Acid:1.00,Lava:1.00 status=-
+1  face-tank  start      bat-2              3.00   2.00   0.00   0.00   -5.00  spent=Water:2.00,Oil:1.00 bitten=Acid:1.00,Lava:1.00 status=-
+1  face-tank  start      bat-3              2.92   2.20   0.00   0.00   -5.12  spent=Water:2.00,Oil:0.92 bitten=Oil:0.08,Poison:0.12,Acid:1.00,Lava:1.00 status=-
+1  face-tank  start      mushroom-1         3.00   3.00   0.00   0.00   -6.00  spent=Water:2.00,Oil:1.00 bitten=Poison:1.00,Acid:1.00,Lava:1.00 status=-
+1  face-tank  start      mushroom-2         2.00   4.00   0.00   0.00   -6.00  spent=Water:2.00 bitten=Oil:1.00,Poison:1.00,Acid:1.00,Lava:1.00 status=-
+1  face-tank  start      mushroom-3         2.00   4.00   0.00   0.00   -6.00  spent=Water:2.00 bitten=Oil:1.00,Poison:1.00,Acid:1.00,Lava:1.00 status=-
+1  face-tank  start      undine-1           3.00   3.00   0.00   0.00   -6.00  spent=Water:2.00,Oil:1.00 bitten=Poison:1.00,Acid:1.00,Lava:1.00 status=-
+1  face-tank  start      undine-2           2.00   4.00   0.00   0.00   -6.00  spent=Water:2.00 bitten=Oil:1.00,Poison:1.00,Acid:1.00,Lava:1.00 status=-
+1  face-tank  start      undine-3           2.00   4.00   0.00   0.00   -6.00  spent=Water:2.00 bitten=Oil:1.00,Poison:1.00,Acid:1.00,Lava:1.00 status=-
+1  face-tank  start      cactus-1           3.00   3.00   0.00   0.00   -6.00  spent=Water:2.00,Oil:1.00 bitten=Poison:1.00,Acid:1.00,Lava:1.00 status=-
+1  face-tank  start      cactus-2           2.00   4.00   0.00   0.00   -6.00  spent=Water:2.00 bitten=Oil:1.00,Poison:1.00,Acid:1.00,Lava:1.00 status=-
+1  face-tank  start      cactus-3           2.00   4.00   0.00   0.00   -6.00  spent=Water:2.00 bitten=Oil:1.00,Poison:1.00,Acid:1.00,Lava:1.00 status=-
+1  face-tank  start      mandragora-1       3.00   3.00   0.00   0.00   -6.00  spent=Water:2.00,Oil:1.00 bitten=Poison:1.00,Acid:1.00,Lava:1.00 status=-
+1  face-tank  start      mandragora-2       2.00   4.00   0.00   0.00   -6.00  spent=Water:2.00 bitten=Oil:1.00,Poison:1.00,Acid:1.00,Lava:1.00 status=-
+1  face-tank  start      mandragora-3       2.00   4.00   0.00   0.00   -6.00  spent=Water:2.00 bitten=Oil:1.00,Poison:1.00,Acid:1.00,Lava:1.00 status=-
+1  face-tank  start      eye-1              3.00   3.00   0.00   0.00   -6.00  spent=Water:2.00,Oil:1.00 bitten=Poison:1.00,Acid:1.00,Lava:1.00 status=-
+1  face-tank  start      eye-2              2.00   4.00   0.00   0.00   -6.00  spent=Water:2.00 bitten=Oil:1.00,Poison:1.00,Acid:1.00,Lava:1.00 status=-
+1  face-tank  start      eye-3              2.00   4.00   0.00   0.00   -6.00  spent=Water:2.00 bitten=Oil:1.00,Poison:1.00,Acid:1.00,Lava:1.00 status=-
+1  face-tank  water      bat-1              3.00   2.00   0.00   0.00   -5.00  spent=Water:3.00 bitten=Water:2.00 status=-
+1  face-tank  water      bat-2              5.00   5.00   0.00   0.00  -10.00  spent=Water:5.00 bitten=Water:5.00 status=-
+1  face-tank  water      bat-3              4.88   5.12   0.00   0.00  -10.00  spent=Water:4.88 bitten=Water:5.12 status=-
+1  face-tank  water      mushroom-1         5.00   4.00   0.00   0.00   -9.00  spent=Water:5.00 bitten=Water:4.00 status=-
+1  face-tank  water      mushroom-2         3.00   7.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
+1  face-tank  water      mushroom-3         3.00   7.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
+1  face-tank  water      undine-1           5.00   4.00   0.00   0.00   -9.00  spent=Water:5.00 bitten=Water:4.00 status=-
+1  face-tank  water      undine-2           3.00   7.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
+1  face-tank  water      undine-3           3.00   7.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
+1  face-tank  water      cactus-1           5.00   4.00   0.00   0.00   -9.00  spent=Water:5.00 bitten=Water:4.00 status=-
+1  face-tank  water      cactus-2           3.00   7.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
+1  face-tank  water      cactus-3           3.00   7.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
+1  face-tank  water      mandragora-1       5.00   4.00   0.00   0.00   -9.00  spent=Water:5.00 bitten=Water:4.00 status=-
+1  face-tank  water      mandragora-2       3.00   7.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
+1  face-tank  water      mandragora-3       3.00   7.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
+1  face-tank  water      eye-1              5.00   4.00   0.00   0.00   -9.00  spent=Water:5.00 bitten=Water:4.00 status=-
+1  face-tank  water      eye-2              3.00   7.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
+1  face-tank  water      eye-3              3.00   7.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
+1  face-tank  oil        bat-1              3.00   2.00   0.00   0.00   -5.00  spent=Oil:3.00 bitten=Oil:2.00 status=-
+1  face-tank  oil        bat-2              5.00   5.00   0.00   0.00  -10.00  spent=Oil:5.00 bitten=Oil:5.00 status=-
+1  face-tank  oil        bat-3              4.88   5.12   0.00   0.00  -10.00  spent=Oil:4.88 bitten=Oil:5.12 status=-
+1  face-tank  oil        mushroom-1         5.00   4.00   0.00   0.00   -9.00  spent=Oil:5.00 bitten=Oil:4.00 status=-
+1  face-tank  oil        mushroom-2         3.00   7.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
+1  face-tank  oil        mushroom-3         3.00   7.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
+1  face-tank  oil        undine-1           5.00   4.00   0.00   0.00   -9.00  spent=Oil:5.00 bitten=Oil:4.00 status=-
+1  face-tank  oil        undine-2           3.00   7.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
+1  face-tank  oil        undine-3           3.00   7.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
+1  face-tank  oil        cactus-1           5.00   4.00   0.00   0.00   -9.00  spent=Oil:5.00 bitten=Oil:4.00 status=-
+1  face-tank  oil        cactus-2           3.00   7.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
+1  face-tank  oil        cactus-3           3.00   7.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
+1  face-tank  oil        mandragora-1       5.00   4.00   0.00   0.00   -9.00  spent=Oil:5.00 bitten=Oil:4.00 status=-
+1  face-tank  oil        mandragora-2       3.00   7.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
+1  face-tank  oil        mandragora-3       3.00   7.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
+1  face-tank  oil        eye-1              5.00   4.00   0.00   0.00   -9.00  spent=Oil:5.00 bitten=Oil:4.00 status=-
+1  face-tank  oil        eye-2              3.00   7.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
+1  face-tank  oil        eye-3              3.00   7.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
+1  face-tank  poison     bat-1              2.00   1.00   0.00   0.00   -3.00  spent=Poison:2.00 bitten=Poison:1.00 status=-
+1  face-tank  poison     bat-2              4.00   2.00   0.00   0.00   -6.00  spent=Poison:4.00 bitten=Poison:2.00 status=-
+1  face-tank  poison     bat-3              5.90   3.00   0.00   0.00   -8.90  spent=Poison:5.90 bitten=Poison:3.00 status=-
+1  face-tank  poison     mushroom-1         2.00   1.00   0.00   0.00   -3.00  spent=Poison:2.00 bitten=Poison:1.00 status=-
+1  face-tank  poison     mushroom-2         3.00   3.00   0.00   0.00   -6.00  spent=Poison:3.00 bitten=Poison:3.00 status=-
+1  face-tank  poison     mushroom-3         3.00   6.00   0.00   0.00   -9.00  spent=Poison:3.00 bitten=Poison:6.00 status=-
+1  face-tank  poison     undine-1           2.00   1.00   0.00   0.00   -3.00  spent=Poison:2.00 bitten=Poison:1.00 status=-
+1  face-tank  poison     undine-2           3.00   3.00   0.00   0.00   -6.00  spent=Poison:3.00 bitten=Poison:3.00 status=-
+1  face-tank  poison     undine-3           3.00   6.00   0.00   0.00   -9.00  spent=Poison:3.00 bitten=Poison:6.00 status=-
+1  face-tank  poison     cactus-1           2.00   1.00   0.00   0.00   -3.00  spent=Poison:2.00 bitten=Poison:1.00 status=-
+1  face-tank  poison     cactus-2           3.00   3.00   0.00   0.00   -6.00  spent=Poison:3.00 bitten=Poison:3.00 status=-
+1  face-tank  poison     cactus-3           3.00   6.00   0.00   0.00   -9.00  spent=Poison:3.00 bitten=Poison:6.00 status=-
+1  face-tank  poison     mandragora-1       2.00   1.00   0.00   0.00   -3.00  spent=Poison:2.00 bitten=Poison:1.00 status=-
+1  face-tank  poison     mandragora-2       3.00   3.00   0.00   0.00   -6.00  spent=Poison:3.00 bitten=Poison:3.00 status=-
+1  face-tank  poison     mandragora-3       3.00   6.00   0.00   0.00   -9.00  spent=Poison:3.00 bitten=Poison:6.00 status=-
+1  face-tank  poison     eye-1              2.00   1.00   0.00   0.00   -3.00  spent=Poison:2.00 bitten=Poison:1.00 status=-
+1  face-tank  poison     eye-2              3.00   3.00   0.00   0.00   -6.00  spent=Poison:3.00 bitten=Poison:3.00 status=-
+1  face-tank  poison     eye-3              3.00   6.00   0.00   0.00   -9.00  spent=Poison:3.00 bitten=Poison:6.00 status=-
+1  face-tank  acid       bat-1              2.00   1.00   0.00   0.00   -3.00  spent=Acid:2.00 bitten=Acid:1.00 status=-
+1  face-tank  acid       bat-2              4.00   2.00   0.00   0.00   -6.00  spent=Acid:4.00 bitten=Acid:2.00 status=-
+1  face-tank  acid       bat-3              5.90   3.00   0.00   0.00   -8.90  spent=Acid:5.90 bitten=Acid:3.00 status=-
+1  face-tank  acid       mushroom-1         2.00   1.00   0.00   0.00   -3.00  spent=Acid:2.00 bitten=Acid:1.00 status=-
+1  face-tank  acid       mushroom-2         3.00   3.00   0.00   0.00   -6.00  spent=Acid:3.00 bitten=Acid:3.00 status=-
+1  face-tank  acid       mushroom-3         3.00   6.00   0.00   0.00   -9.00  spent=Acid:3.00 bitten=Acid:6.00 status=-
+1  face-tank  acid       undine-1           2.00   1.00   0.00   0.00   -3.00  spent=Acid:2.00 bitten=Acid:1.00 status=-
+1  face-tank  acid       undine-2           3.00   3.00   0.00   0.00   -6.00  spent=Acid:3.00 bitten=Acid:3.00 status=-
+1  face-tank  acid       undine-3           3.00   6.00   0.00   0.00   -9.00  spent=Acid:3.00 bitten=Acid:6.00 status=-
+1  face-tank  acid       cactus-1           2.00   1.00   0.00   0.00   -3.00  spent=Acid:2.00 bitten=Acid:1.00 status=-
+1  face-tank  acid       cactus-2           3.00   3.00   0.00   0.00   -6.00  spent=Acid:3.00 bitten=Acid:3.00 status=-
+1  face-tank  acid       cactus-3           3.00   6.00   0.00   0.00   -9.00  spent=Acid:3.00 bitten=Acid:6.00 status=-
+1  face-tank  acid       mandragora-1       2.00   1.00   0.00   0.00   -3.00  spent=Acid:2.00 bitten=Acid:1.00 status=-
+1  face-tank  acid       mandragora-2       3.00   3.00   0.00   0.00   -6.00  spent=Acid:3.00 bitten=Acid:3.00 status=-
+1  face-tank  acid       mandragora-3       3.00   6.00   0.00   0.00   -9.00  spent=Acid:3.00 bitten=Acid:6.00 status=-
+1  face-tank  acid       eye-1              2.00   1.00   0.00   0.00   -3.00  spent=Acid:2.00 bitten=Acid:1.00 status=-
+1  face-tank  acid       eye-2              3.00   3.00   0.00   0.00   -6.00  spent=Acid:3.00 bitten=Acid:3.00 status=-
+1  face-tank  acid       eye-3              3.00   6.00   0.00   0.00   -9.00  spent=Acid:3.00 bitten=Acid:6.00 status=-
+1  face-tank  blood      bat-1              9.00   9.00   0.00   8.00  -10.00  spent=Blood:9.00 bitten=Blood:9.00 status=-
+1  face-tank  blood      bat-2              9.00   9.00   0.00   8.00  -10.00  spent=Blood:9.00 bitten=Blood:9.00 status=-
+1  face-tank  blood      bat-3              8.48   9.00   0.00   7.48  -10.00  spent=Blood:8.48 bitten=Blood:9.00 status=-
+1  face-tank  blood      mushroom-1         5.00   4.00   0.00   4.00   -5.00  spent=Blood:5.00 bitten=Blood:4.00 status=-
+1  face-tank  blood      mushroom-2         5.00   9.00   0.00   4.00  -10.00  spent=Blood:5.00 bitten=Blood:9.00 status=-
+1  face-tank  blood      mushroom-3         3.00   9.00   0.00   2.00  -10.00  spent=Blood:3.00 bitten=Blood:9.00 status=-
+1  face-tank  blood      undine-1           5.00   4.00   0.00   4.00   -5.00  spent=Blood:5.00 bitten=Blood:4.00 status=-
+1  face-tank  blood      undine-2           5.00   9.00   0.00   4.00  -10.00  spent=Blood:5.00 bitten=Blood:9.00 status=-
+1  face-tank  blood      undine-3           3.00   9.00   0.00   2.00  -10.00  spent=Blood:3.00 bitten=Blood:9.00 status=-
+1  face-tank  blood      cactus-1           5.00   4.00   0.00   4.00   -5.00  spent=Blood:5.00 bitten=Blood:4.00 status=-
+1  face-tank  blood      cactus-2           5.00   9.00   0.00   4.00  -10.00  spent=Blood:5.00 bitten=Blood:9.00 status=-
+1  face-tank  blood      cactus-3           3.00   9.00   0.00   2.00  -10.00  spent=Blood:3.00 bitten=Blood:9.00 status=-
+1  face-tank  blood      mandragora-1       5.00   4.00   0.00   4.00   -5.00  spent=Blood:5.00 bitten=Blood:4.00 status=-
+1  face-tank  blood      mandragora-2       5.00   9.00   0.00   4.00  -10.00  spent=Blood:5.00 bitten=Blood:9.00 status=-
+1  face-tank  blood      mandragora-3       3.00   9.00   0.00   2.00  -10.00  spent=Blood:3.00 bitten=Blood:9.00 status=-
+1  face-tank  blood      eye-1              5.00   4.00   0.00   4.00   -5.00  spent=Blood:5.00 bitten=Blood:4.00 status=-
+1  face-tank  blood      eye-2              5.00   9.00   0.00   4.00  -10.00  spent=Blood:5.00 bitten=Blood:9.00 status=-
+1  face-tank  blood      eye-3              3.00   9.00   0.00   2.00  -10.00  spent=Blood:3.00 bitten=Blood:9.00 status=-
+1  face-tank  lava       bat-1              2.00   1.00   0.00   0.00   -3.00  spent=Lava:2.00 bitten=Lava:1.00 status=-
+1  face-tank  lava       bat-2              4.00   2.00   0.00   0.00   -6.00  spent=Lava:4.00 bitten=Lava:2.00 status=-
+1  face-tank  lava       bat-3              5.90   3.00   0.00   0.00   -8.90  spent=Lava:5.90 bitten=Lava:3.00 status=-
+1  face-tank  lava       mushroom-1         2.00   1.00   0.00   0.00   -3.00  spent=Lava:2.00 bitten=Lava:1.00 status=-
+1  face-tank  lava       mushroom-2         3.00   3.00   0.00   0.00   -6.00  spent=Lava:3.00 bitten=Lava:3.00 status=-
+1  face-tank  lava       mushroom-3         3.00   6.00   0.00   0.00   -9.00  spent=Lava:3.00 bitten=Lava:6.00 status=-
+1  face-tank  lava       undine-1           2.00   1.00   0.00   0.00   -3.00  spent=Lava:2.00 bitten=Lava:1.00 status=-
+1  face-tank  lava       undine-2           3.00   3.00   0.00   0.00   -6.00  spent=Lava:3.00 bitten=Lava:3.00 status=-
+1  face-tank  lava       undine-3           3.00   6.00   0.00   0.00   -9.00  spent=Lava:3.00 bitten=Lava:6.00 status=-
+1  face-tank  lava       cactus-1           2.00   1.00   0.00   0.00   -3.00  spent=Lava:2.00 bitten=Lava:1.00 status=-
+1  face-tank  lava       cactus-2           3.00   3.00   0.00   0.00   -6.00  spent=Lava:3.00 bitten=Lava:3.00 status=-
+1  face-tank  lava       cactus-3           3.00   6.00   0.00   0.00   -9.00  spent=Lava:3.00 bitten=Lava:6.00 status=-
+1  face-tank  lava       mandragora-1       2.00   1.00   0.00   0.00   -3.00  spent=Lava:2.00 bitten=Lava:1.00 status=-
+1  face-tank  lava       mandragora-2       3.00   3.00   0.00   0.00   -6.00  spent=Lava:3.00 bitten=Lava:3.00 status=-
+1  face-tank  lava       mandragora-3       3.00   6.00   0.00   0.00   -9.00  spent=Lava:3.00 bitten=Lava:6.00 status=-
+1  face-tank  lava       eye-1              2.00   1.00   0.00   0.00   -3.00  spent=Lava:2.00 bitten=Lava:1.00 status=-
+1  face-tank  lava       eye-2              3.00   3.00   0.00   0.00   -6.00  spent=Lava:3.00 bitten=Lava:3.00 status=-
+1  face-tank  lava       eye-3              3.00   6.00   0.00   0.00   -9.00  spent=Lava:3.00 bitten=Lava:6.00 status=-
+1  face-tank  mercury    bat-1              3.00   2.00   0.00   0.00   -5.00  spent=Mercury:3.00 bitten=Mercury:2.00 status=-
+1  face-tank  mercury    bat-2              5.00   5.00   0.00   0.00  -10.00  spent=Mercury:5.00 bitten=Mercury:5.00 status=-
+1  face-tank  mercury    bat-3              4.88   5.12   0.00   0.00  -10.00  spent=Mercury:4.88 bitten=Mercury:5.12 status=-
+1  face-tank  mercury    mushroom-1         5.00   4.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
+1  face-tank  mercury    mushroom-2         5.00   4.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
+1  face-tank  mercury    mushroom-3         4.88   4.26   0.00   0.00   -9.14  spent=Mercury:4.88 bitten=Mercury:4.26 status=-
+1  face-tank  mercury    undine-1           5.00   4.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
+1  face-tank  mercury    undine-2           5.00   4.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
+1  face-tank  mercury    undine-3           4.88   4.26   0.00   0.00   -9.14  spent=Mercury:4.88 bitten=Mercury:4.26 status=-
+1  face-tank  mercury    cactus-1           5.00   4.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
+1  face-tank  mercury    cactus-2           5.00   4.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
+1  face-tank  mercury    cactus-3           4.88   4.26   0.00   0.00   -9.14  spent=Mercury:4.88 bitten=Mercury:4.26 status=-
+1  face-tank  mercury    mandragora-1       5.00   4.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
+1  face-tank  mercury    mandragora-2       5.00   4.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
+1  face-tank  mercury    mandragora-3       4.88   4.26   0.00   0.00   -9.14  spent=Mercury:4.88 bitten=Mercury:4.26 status=-
+1  face-tank  mercury    eye-1              5.00   4.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
+1  face-tank  mercury    eye-2              5.00   4.00   0.00   0.00   -9.00  spent=Mercury:5.00 bitten=Mercury:4.00 status=-
+1  face-tank  mercury    eye-3              4.88   4.26   0.00   0.00   -9.14  spent=Mercury:4.88 bitten=Mercury:4.26 status=-
+2  face-tank  start      bat-1              3.00   1.00   0.00   0.00   -4.00  spent=Water:2.00,Oil:1.00 bitten=Lava:1.00 status=-
+2  face-tank  start      bat-2              4.00   2.00   0.00   0.00   -6.00  spent=Water:2.00,Oil:1.00,Poison:1.00 bitten=Acid:1.00,Lava:1.00 status=-
+2  face-tank  start      bat-3              3.96   2.04   0.00   0.00   -6.00  spent=Water:2.00,Oil:1.00,Poison:0.96 bitten=Poison:0.04,Acid:1.00,Lava:1.00 status=-
+2  face-tank  start      mushroom-1         3.00   3.00   0.00   0.00   -6.00  spent=Water:2.00,Oil:1.00 bitten=Poison:1.00,Acid:1.00,Lava:1.00 status=-
+2  face-tank  start      mushroom-2         3.00   3.00   0.00   0.00   -6.00  spent=Water:2.00,Oil:1.00 bitten=Poison:1.00,Acid:1.00,Lava:1.00 status=-
+2  face-tank  start      mushroom-3         2.00   4.00   0.00   0.00   -6.00  spent=Water:2.00 bitten=Oil:1.00,Poison:1.00,Acid:1.00,Lava:1.00 status=-
+2  face-tank  start      undine-1           3.00   3.00   0.00   0.00   -6.00  spent=Water:2.00,Oil:1.00 bitten=Poison:1.00,Acid:1.00,Lava:1.00 status=-
+2  face-tank  start      undine-2           3.00   3.00   0.00   0.00   -6.00  spent=Water:2.00,Oil:1.00 bitten=Poison:1.00,Acid:1.00,Lava:1.00 status=-
+2  face-tank  start      undine-3           2.00   4.00   0.00   0.00   -6.00  spent=Water:2.00 bitten=Oil:1.00,Poison:1.00,Acid:1.00,Lava:1.00 status=-
+2  face-tank  start      cactus-1           3.00   3.00   0.00   0.00   -6.00  spent=Water:2.00,Oil:1.00 bitten=Poison:1.00,Acid:1.00,Lava:1.00 status=-
+2  face-tank  start      cactus-2           3.00   3.00   0.00   0.00   -6.00  spent=Water:2.00,Oil:1.00 bitten=Poison:1.00,Acid:1.00,Lava:1.00 status=-
+2  face-tank  start      cactus-3           2.00   4.00   0.00   0.00   -6.00  spent=Water:2.00 bitten=Oil:1.00,Poison:1.00,Acid:1.00,Lava:1.00 status=-
+2  face-tank  start      mandragora-1       3.00   3.00   0.00   0.00   -6.00  spent=Water:2.00,Oil:1.00 bitten=Poison:1.00,Acid:1.00,Lava:1.00 status=-
+2  face-tank  start      mandragora-2       3.00   3.00   0.00   0.00   -6.00  spent=Water:2.00,Oil:1.00 bitten=Poison:1.00,Acid:1.00,Lava:1.00 status=-
+2  face-tank  start      mandragora-3       2.00   4.00   0.00   0.00   -6.00  spent=Water:2.00 bitten=Oil:1.00,Poison:1.00,Acid:1.00,Lava:1.00 status=-
+2  face-tank  start      eye-1              3.00   3.00   0.00   0.00   -6.00  spent=Water:2.00,Oil:1.00 bitten=Poison:1.00,Acid:1.00,Lava:1.00 status=-
+2  face-tank  start      eye-2              3.00   3.00   0.00   0.00   -6.00  spent=Water:2.00,Oil:1.00 bitten=Poison:1.00,Acid:1.00,Lava:1.00 status=-
+2  face-tank  start      eye-3              2.00   4.00   0.00   0.00   -6.00  spent=Water:2.00 bitten=Oil:1.00,Poison:1.00,Acid:1.00,Lava:1.00 status=-
+2  face-tank  water      bat-1              3.00   1.00   0.00   0.00   -4.00  spent=Water:3.00 bitten=Water:1.00 status=-
+2  face-tank  water      bat-2              6.00   2.04   0.00   0.00   -8.04  spent=Water:6.00 bitten=Water:2.04 status=-
+2  face-tank  water      bat-3              6.88   3.08   0.00   0.00   -9.96  spent=Water:6.88 bitten=Water:3.08 status=-
+2  face-tank  water      mushroom-1         5.00   2.00   0.00   0.00   -7.00  spent=Water:5.00 bitten=Water:2.00 status=-
+2  face-tank  water      mushroom-2         5.00   5.00   0.00   0.00  -10.00  spent=Water:5.00 bitten=Water:5.00 status=-
+2  face-tank  water      mushroom-3         3.00   7.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
+2  face-tank  water      undine-1           5.00   2.00   0.00   0.00   -7.00  spent=Water:5.00 bitten=Water:2.00 status=-
+2  face-tank  water      undine-2           5.00   5.00   0.00   0.00  -10.00  spent=Water:5.00 bitten=Water:5.00 status=-
+2  face-tank  water      undine-3           3.00   7.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
+2  face-tank  water      cactus-1           5.00   2.00   0.00   0.00   -7.00  spent=Water:5.00 bitten=Water:2.00 status=-
+2  face-tank  water      cactus-2           5.00   5.00   0.00   0.00  -10.00  spent=Water:5.00 bitten=Water:5.00 status=-
+2  face-tank  water      cactus-3           3.00   7.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
+2  face-tank  water      mandragora-1       5.00   2.00   0.00   0.00   -7.00  spent=Water:5.00 bitten=Water:2.00 status=-
+2  face-tank  water      mandragora-2       5.00   5.00   0.00   0.00  -10.00  spent=Water:5.00 bitten=Water:5.00 status=-
+2  face-tank  water      mandragora-3       3.00   7.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
+2  face-tank  water      eye-1              5.00   2.00   0.00   0.00   -7.00  spent=Water:5.00 bitten=Water:2.00 status=-
+2  face-tank  water      eye-2              5.00   5.00   0.00   0.00  -10.00  spent=Water:5.00 bitten=Water:5.00 status=-
+2  face-tank  water      eye-3              3.00   7.00   0.00   0.00  -10.00  spent=Water:3.00 bitten=Water:7.00 status=-
+2  face-tank  oil        bat-1              3.00   1.00   0.00   0.00   -4.00  spent=Oil:3.00 bitten=Oil:1.00 status=-
+2  face-tank  oil        bat-2              6.00   2.04   0.00   0.00   -8.04  spent=Oil:6.00 bitten=Oil:2.04 status=-
+2  face-tank  oil        bat-3              6.88   3.08   0.00   0.00   -9.96  spent=Oil:6.88 bitten=Oil:3.08 status=-
+2  face-tank  oil        mushroom-1         5.00   2.00   0.00   0.00   -7.00  spent=Oil:5.00 bitten=Oil:2.00 status=-
+2  face-tank  oil        mushroom-2         5.00   5.00   0.00   0.00  -10.00  spent=Oil:5.00 bitten=Oil:5.00 status=-
+2  face-tank  oil        mushroom-3         3.00   7.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
+2  face-tank  oil        undine-1           5.00   2.00   0.00   0.00   -7.00  spent=Oil:5.00 bitten=Oil:2.00 status=-
+2  face-tank  oil        undine-2           5.00   5.00   0.00   0.00  -10.00  spent=Oil:5.00 bitten=Oil:5.00 status=-
+2  face-tank  oil        undine-3           3.00   7.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
+2  face-tank  oil        cactus-1           5.00   2.00   0.00   0.00   -7.00  spent=Oil:5.00 bitten=Oil:2.00 status=-
+2  face-tank  oil        cactus-2           5.00   5.00   0.00   0.00  -10.00  spent=Oil:5.00 bitten=Oil:5.00 status=-
+2  face-tank  oil        cactus-3           3.00   7.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
+2  face-tank  oil        mandragora-1       5.00   2.00   0.00   0.00   -7.00  spent=Oil:5.00 bitten=Oil:2.00 status=-
+2  face-tank  oil        mandragora-2       5.00   5.00   0.00   0.00  -10.00  spent=Oil:5.00 bitten=Oil:5.00 status=-
+2  face-tank  oil        mandragora-3       3.00   7.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
+2  face-tank  oil        eye-1              5.00   2.00   0.00   0.00   -7.00  spent=Oil:5.00 bitten=Oil:2.00 status=-
+2  face-tank  oil        eye-2              5.00   5.00   0.00   0.00  -10.00  spent=Oil:5.00 bitten=Oil:5.00 status=-
+2  face-tank  oil        eye-3              3.00   7.00   0.00   0.00  -10.00  spent=Oil:3.00 bitten=Oil:7.00 status=-
+2  face-tank  poison     bat-1              2.00   0.54   0.00   0.00   -2.54  spent=Poison:2.00 bitten=Poison:0.54 status=-
+2  face-tank  poison     bat-2              4.00   0.96   0.00   0.00   -4.96  spent=Poison:4.00 bitten=Poison:0.96 status=-
+2  face-tank  poison     bat-3              5.92   1.64   0.00   0.00   -7.56  spent=Poison:5.92 bitten=Poison:1.64 status=-
+2  face-tank  poison     mushroom-1         3.00   1.00   0.00   0.00   -4.00  spent=Poison:3.00 bitten=Poison:1.00 status=-
+2  face-tank  poison     mushroom-2         5.00   3.00   0.00   0.00   -8.00  spent=Poison:5.00 bitten=Poison:3.00 status=-
+2  face-tank  poison     mushroom-3         4.00   6.00   0.00   0.00  -10.00  spent=Poison:4.00 bitten=Poison:6.00 status=-
+2  face-tank  poison     undine-1           3.00   1.00   0.00   0.00   -4.00  spent=Poison:3.00 bitten=Poison:1.00 status=-
+2  face-tank  poison     undine-2           5.00   3.00   0.00   0.00   -8.00  spent=Poison:5.00 bitten=Poison:3.00 status=-
+2  face-tank  poison     undine-3           4.00   6.00   0.00   0.00  -10.00  spent=Poison:4.00 bitten=Poison:6.00 status=-
+2  face-tank  poison     cactus-1           3.00   1.00   0.00   0.00   -4.00  spent=Poison:3.00 bitten=Poison:1.00 status=-
+2  face-tank  poison     cactus-2           5.00   3.00   0.00   0.00   -8.00  spent=Poison:5.00 bitten=Poison:3.00 status=-
+2  face-tank  poison     cactus-3           4.00   6.00   0.00   0.00  -10.00  spent=Poison:4.00 bitten=Poison:6.00 status=-
+2  face-tank  poison     mandragora-1       3.00   1.00   0.00   0.00   -4.00  spent=Poison:3.00 bitten=Poison:1.00 status=-
+2  face-tank  poison     mandragora-2       5.00   3.00   0.00   0.00   -8.00  spent=Poison:5.00 bitten=Poison:3.00 status=-
+2  face-tank  poison     mandragora-3       4.00   6.00   0.00   0.00  -10.00  spent=Poison:4.00 bitten=Poison:6.00 status=-
+2  face-tank  poison     eye-1              3.00   1.00   0.00   0.00   -4.00  spent=Poison:3.00 bitten=Poison:1.00 status=-
+2  face-tank  poison     eye-2              5.00   3.00   0.00   0.00   -8.00  spent=Poison:5.00 bitten=Poison:3.00 status=-
+2  face-tank  poison     eye-3              4.00   6.00   0.00   0.00  -10.00  spent=Poison:4.00 bitten=Poison:6.00 status=-
+2  face-tank  acid       bat-1              2.00   0.54   0.00   0.00   -2.54  spent=Acid:2.00 bitten=Acid:0.54 status=-
+2  face-tank  acid       bat-2              4.00   0.96   0.00   0.00   -4.96  spent=Acid:4.00 bitten=Acid:0.96 status=-
+2  face-tank  acid       bat-3              5.92   1.64   0.00   0.00   -7.56  spent=Acid:5.92 bitten=Acid:1.64 status=-
+2  face-tank  acid       mushroom-1         3.00   1.00   0.00   0.00   -4.00  spent=Acid:3.00 bitten=Acid:1.00 status=-
+2  face-tank  acid       mushroom-2         5.00   3.00   0.00   0.00   -8.00  spent=Acid:5.00 bitten=Acid:3.00 status=-
+2  face-tank  acid       mushroom-3         4.00   6.00   0.00   0.00  -10.00  spent=Acid:4.00 bitten=Acid:6.00 status=-
+2  face-tank  acid       undine-1           3.00   1.00   0.00   0.00   -4.00  spent=Acid:3.00 bitten=Acid:1.00 status=-
+2  face-tank  acid       undine-2           5.00   3.00   0.00   0.00   -8.00  spent=Acid:5.00 bitten=Acid:3.00 status=-
+2  face-tank  acid       undine-3           4.00   6.00   0.00   0.00  -10.00  spent=Acid:4.00 bitten=Acid:6.00 status=-
+2  face-tank  acid       cactus-1           3.00   1.00   0.00   0.00   -4.00  spent=Acid:3.00 bitten=Acid:1.00 status=-
+2  face-tank  acid       cactus-2           5.00   3.00   0.00   0.00   -8.00  spent=Acid:5.00 bitten=Acid:3.00 status=-
+2  face-tank  acid       cactus-3           4.00   6.00   0.00   0.00  -10.00  spent=Acid:4.00 bitten=Acid:6.00 status=-
+2  face-tank  acid       mandragora-1       3.00   1.00   0.00   0.00   -4.00  spent=Acid:3.00 bitten=Acid:1.00 status=-
+2  face-tank  acid       mandragora-2       5.00   3.00   0.00   0.00   -8.00  spent=Acid:5.00 bitten=Acid:3.00 status=-
+2  face-tank  acid       mandragora-3       4.00   6.00   0.00   0.00  -10.00  spent=Acid:4.00 bitten=Acid:6.00 status=-
+2  face-tank  acid       eye-1              3.00   1.00   0.00   0.00   -4.00  spent=Acid:3.00 bitten=Acid:1.00 status=-
+2  face-tank  acid       eye-2              5.00   3.00   0.00   0.00   -8.00  spent=Acid:5.00 bitten=Acid:3.00 status=-
+2  face-tank  acid       eye-3              4.00   6.00   0.00   0.00  -10.00  spent=Acid:4.00 bitten=Acid:6.00 status=-
+2  face-tank  blood      bat-1              9.00   5.00   0.00   4.00  -10.00  spent=Blood:9.00 bitten=Blood:5.00 status=-
+2  face-tank  blood      bat-2              8.82   5.08   0.00   3.90  -10.00  spent=Blood:8.82 bitten=Blood:5.08 status=-
+2  face-tank  blood      bat-3              8.76   5.10   0.00   3.86  -10.00  spent=Blood:8.76 bitten=Blood:5.10 status=-
+2  face-tank  blood      mushroom-1         5.00   2.00   0.00   2.00   -5.00  spent=Blood:5.00 bitten=Blood:2.00 status=-
+2  face-tank  blood      mushroom-2         7.00   6.00   0.00   3.00  -10.00  spent=Blood:7.00 bitten=Blood:6.00 status=-
+2  face-tank  blood      mushroom-3         5.00   7.00   0.00   2.00  -10.00  spent=Blood:5.00 bitten=Blood:7.00 status=-
+2  face-tank  blood      undine-1           5.00   2.00   0.00   2.00   -5.00  spent=Blood:5.00 bitten=Blood:2.00 status=-
+2  face-tank  blood      undine-2           7.00   6.00   0.00   3.00  -10.00  spent=Blood:7.00 bitten=Blood:6.00 status=-
+2  face-tank  blood      undine-3           5.00   7.00   0.00   2.00  -10.00  spent=Blood:5.00 bitten=Blood:7.00 status=-
+2  face-tank  blood      cactus-1           5.00   2.00   0.00   2.00   -5.00  spent=Blood:5.00 bitten=Blood:2.00 status=-
+2  face-tank  blood      cactus-2           7.00   6.00   0.00   3.00  -10.00  spent=Blood:7.00 bitten=Blood:6.00 status=-
+2  face-tank  blood      cactus-3           5.00   7.00   0.00   2.00  -10.00  spent=Blood:5.00 bitten=Blood:7.00 status=-
+2  face-tank  blood      mandragora-1       5.00   2.00   0.00   2.00   -5.00  spent=Blood:5.00 bitten=Blood:2.00 status=-
+2  face-tank  blood      mandragora-2       7.00   6.00   0.00   3.00  -10.00  spent=Blood:7.00 bitten=Blood:6.00 status=-
+2  face-tank  blood      mandragora-3       5.00   7.00   0.00   2.00  -10.00  spent=Blood:5.00 bitten=Blood:7.00 status=-
+2  face-tank  blood      eye-1              5.00   2.00   0.00   2.00   -5.00  spent=Blood:5.00 bitten=Blood:2.00 status=-
+2  face-tank  blood      eye-2              7.00   6.00   0.00   3.00  -10.00  spent=Blood:7.00 bitten=Blood:6.00 status=-
+2  face-tank  blood      eye-3              5.00   7.00   0.00   2.00  -10.00  spent=Blood:5.00 bitten=Blood:7.00 status=-
+2  face-tank  lava       bat-1              2.00   0.54   0.00   0.00   -2.54  spent=Lava:2.00 bitten=Lava:0.54 status=-
+2  face-tank  lava       bat-2              4.00   0.96   0.00   0.00   -4.96  spent=Lava:4.00 bitten=Lava:0.96 status=-
+2  face-tank  lava       bat-3              5.92   1.64   0.00   0.00   -7.56  spent=Lava:5.92 bitten=Lava:1.64 status=-
+2  face-tank  lava       mushroom-1         3.00   1.00   0.00   0.00   -4.00  spent=Lava:3.00 bitten=Lava:1.00 status=-
+2  face-tank  lava       mushroom-2         5.00   3.00   0.00   0.00   -8.00  spent=Lava:5.00 bitten=Lava:3.00 status=-
+2  face-tank  lava       mushroom-3         4.00   6.00   0.00   0.00  -10.00  spent=Lava:4.00 bitten=Lava:6.00 status=-
+2  face-tank  lava       undine-1           3.00   1.00   0.00   0.00   -4.00  spent=Lava:3.00 bitten=Lava:1.00 status=-
+2  face-tank  lava       undine-2           5.00   3.00   0.00   0.00   -8.00  spent=Lava:5.00 bitten=Lava:3.00 status=-
+2  face-tank  lava       undine-3           4.00   6.00   0.00   0.00  -10.00  spent=Lava:4.00 bitten=Lava:6.00 status=-
+2  face-tank  lava       cactus-1           3.00   1.00   0.00   0.00   -4.00  spent=Lava:3.00 bitten=Lava:1.00 status=-
+2  face-tank  lava       cactus-2           5.00   3.00   0.00   0.00   -8.00  spent=Lava:5.00 bitten=Lava:3.00 status=-
+2  face-tank  lava       cactus-3           4.00   6.00   0.00   0.00  -10.00  spent=Lava:4.00 bitten=Lava:6.00 status=-
+2  face-tank  lava       mandragora-1       3.00   1.00   0.00   0.00   -4.00  spent=Lava:3.00 bitten=Lava:1.00 status=-
+2  face-tank  lava       mandragora-2       5.00   3.00   0.00   0.00   -8.00  spent=Lava:5.00 bitten=Lava:3.00 status=-
+2  face-tank  lava       mandragora-3       4.00   6.00   0.00   0.00  -10.00  spent=Lava:4.00 bitten=Lava:6.00 status=-
+2  face-tank  lava       eye-1              3.00   1.00   0.00   0.00   -4.00  spent=Lava:3.00 bitten=Lava:1.00 status=-
+2  face-tank  lava       eye-2              5.00   3.00   0.00   0.00   -8.00  spent=Lava:5.00 bitten=Lava:3.00 status=-
+2  face-tank  lava       eye-3              4.00   6.00   0.00   0.00  -10.00  spent=Lava:4.00 bitten=Lava:6.00 status=-
+2  face-tank  mercury    bat-1              3.00   1.00   0.00   0.00   -4.00  spent=Mercury:3.00 bitten=Mercury:1.00 status=-
+2  face-tank  mercury    bat-2              6.00   2.04   0.00   0.00   -8.04  spent=Mercury:6.00 bitten=Mercury:2.04 status=-
+2  face-tank  mercury    bat-3              6.88   3.08   0.00   0.00   -9.96  spent=Mercury:6.88 bitten=Mercury:3.08 status=-
+2  face-tank  mercury    mushroom-1         5.00   2.00   0.00   0.00   -7.00  spent=Mercury:5.00 bitten=Mercury:2.00 status=-
+2  face-tank  mercury    mushroom-2         6.30   3.70   0.00   0.00  -10.00  spent=Mercury:6.30 bitten=Mercury:3.70 status=-
+2  face-tank  mercury    mushroom-3         6.30   3.70   0.00   0.00  -10.00  spent=Mercury:6.30 bitten=Mercury:3.70 status=-
+2  face-tank  mercury    undine-1           5.00   2.00   0.00   0.00   -7.00  spent=Mercury:5.00 bitten=Mercury:2.00 status=-
+2  face-tank  mercury    undine-2           6.30   3.70   0.00   0.00  -10.00  spent=Mercury:6.30 bitten=Mercury:3.70 status=-
+2  face-tank  mercury    undine-3           6.30   3.70   0.00   0.00  -10.00  spent=Mercury:6.30 bitten=Mercury:3.70 status=-
+2  face-tank  mercury    cactus-1           5.00   2.00   0.00   0.00   -7.00  spent=Mercury:5.00 bitten=Mercury:2.00 status=-
+2  face-tank  mercury    cactus-2           6.30   3.70   0.00   0.00  -10.00  spent=Mercury:6.30 bitten=Mercury:3.70 status=-
+2  face-tank  mercury    cactus-3           6.30   3.70   0.00   0.00  -10.00  spent=Mercury:6.30 bitten=Mercury:3.70 status=-
+2  face-tank  mercury    mandragora-1       5.00   2.00   0.00   0.00   -7.00  spent=Mercury:5.00 bitten=Mercury:2.00 status=-
+2  face-tank  mercury    mandragora-2       6.30   3.70   0.00   0.00  -10.00  spent=Mercury:6.30 bitten=Mercury:3.70 status=-
+2  face-tank  mercury    mandragora-3       6.30   3.70   0.00   0.00  -10.00  spent=Mercury:6.30 bitten=Mercury:3.70 status=-
+2  face-tank  mercury    eye-1              5.00   2.00   0.00   0.00   -7.00  spent=Mercury:5.00 bitten=Mercury:2.00 status=-
+2  face-tank  mercury    eye-2              6.30   3.70   0.00   0.00  -10.00  spent=Mercury:6.30 bitten=Mercury:3.70 status=-
+2  face-tank  mercury    eye-3              6.30   3.70   0.00   0.00  -10.00  spent=Mercury:6.30 bitten=Mercury:3.70 status=-
+
+[damage]
+ap policy     build      encounter        strike status  retal overkill doomed per_unit  status_by
+1  face-tank  start      bat-1              3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  start      bat-2              3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  start      bat-3              2.92   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  start      mushroom-1         3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  start      mushroom-2         2.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  start      mushroom-3         2.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  start      undine-1           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  start      undine-2           2.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  start      undine-3           2.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  start      cactus-1           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  start      cactus-2           2.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  start      cactus-3           2.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  start      mandragora-1       3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  start      mandragora-2       2.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  start      mandragora-3       2.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  start      eye-1              3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  start      eye-2              2.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  start      eye-3              2.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  water      bat-1              3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  water      bat-2              5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  water      bat-3              4.88   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  water      mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  water      mushroom-2         3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  water      mushroom-3         3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  water      undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  water      undine-2           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  water      undine-3           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  water      cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  water      cactus-2           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  water      cactus-3           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  water      mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  water      mandragora-2       3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  water      mandragora-3       3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  water      eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  water      eye-2              3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  water      eye-3              3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  oil        bat-1              3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  oil        bat-2              5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  oil        bat-3              4.88   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  oil        mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  oil        mushroom-2         3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  oil        mushroom-3         3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  oil        undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  oil        undine-2           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  oil        undine-3           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  oil        cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  oil        cactus-2           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  oil        cactus-3           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  oil        mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  oil        mandragora-2       3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  oil        mandragora-3       3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  oil        eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  oil        eye-2              3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  oil        eye-3              3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  poison     bat-1              2.00   1.00   0.00     0.00   1.00     1.50  Poisoned:1.00
+1  face-tank  poison     bat-2              4.00   2.00   0.00     0.00   2.00     1.50  Poisoned:2.00
+1  face-tank  poison     bat-3              5.90   3.10   0.00     0.00   2.90     1.53  Poisoned:3.10
+1  face-tank  poison     mushroom-1         2.00   2.00   1.00     0.00   1.00     2.50  Poisoned:3.00
+1  face-tank  poison     mushroom-2         3.00   3.00   4.00     0.00   2.00     3.33  Poisoned:7.00
+1  face-tank  poison     mushroom-3         3.00   3.00   9.00     0.00   2.00     5.00  Poisoned:12.00
+1  face-tank  poison     undine-1           2.00   2.00   1.00     0.00   1.00     2.50  Poisoned:3.00
+1  face-tank  poison     undine-2           3.00   3.00   4.00     0.00   2.00     3.33  Poisoned:7.00
+1  face-tank  poison     undine-3           3.00   3.00   9.00     0.00   2.00     5.00  Poisoned:12.00
+1  face-tank  poison     cactus-1           2.00   2.00   1.00     0.00   1.00     2.50  Poisoned:3.00
+1  face-tank  poison     cactus-2           3.00   3.00   4.00     0.00   2.00     3.33  Poisoned:7.00
+1  face-tank  poison     cactus-3           3.00   3.00   9.00     0.00   2.00     5.00  Poisoned:12.00
+1  face-tank  poison     mandragora-1       2.00   2.00   1.00     0.00   1.00     2.50  Poisoned:3.00
+1  face-tank  poison     mandragora-2       3.00   3.00   4.00     0.00   2.00     3.33  Poisoned:7.00
+1  face-tank  poison     mandragora-3       3.00   3.00   9.00     0.00   2.00     5.00  Poisoned:12.00
+1  face-tank  poison     eye-1              2.00   2.00   1.00     0.00   1.00     2.50  Poisoned:3.00
+1  face-tank  poison     eye-2              3.00   3.00   4.00     0.00   2.00     3.33  Poisoned:7.00
+1  face-tank  poison     eye-3              3.00   3.00   9.00     0.00   2.00     5.00  Poisoned:12.00
+1  face-tank  acid       bat-1              2.00   1.00   0.00     0.00   1.00     1.50  Corroding:1.00
+1  face-tank  acid       bat-2              4.00   2.00   0.00     0.00   2.00     1.50  Corroding:2.00
+1  face-tank  acid       bat-3              5.90   3.10   0.00     0.00   2.90     1.53  Corroding:3.10
+1  face-tank  acid       mushroom-1         2.00   2.00   1.00     0.00   1.00     2.50  Corroding:3.00
+1  face-tank  acid       mushroom-2         3.00   3.00   4.00     0.00   2.00     3.33  Corroding:7.00
+1  face-tank  acid       mushroom-3         3.00   3.00   9.00     0.00   2.00     5.00  Corroding:12.00
+1  face-tank  acid       undine-1           2.00   2.00   1.00     0.00   1.00     2.50  Corroding:3.00
+1  face-tank  acid       undine-2           3.00   3.00   4.00     0.00   2.00     3.33  Corroding:7.00
+1  face-tank  acid       undine-3           3.00   3.00   9.00     0.00   2.00     5.00  Corroding:12.00
+1  face-tank  acid       cactus-1           2.00   2.00   1.00     0.00   1.00     2.50  Corroding:3.00
+1  face-tank  acid       cactus-2           3.00   3.00   4.00     0.00   2.00     3.33  Corroding:7.00
+1  face-tank  acid       cactus-3           3.00   3.00   9.00     0.00   2.00     5.00  Corroding:12.00
+1  face-tank  acid       mandragora-1       2.00   2.00   1.00     0.00   1.00     2.50  Corroding:3.00
+1  face-tank  acid       mandragora-2       3.00   3.00   4.00     0.00   2.00     3.33  Corroding:7.00
+1  face-tank  acid       mandragora-3       3.00   3.00   9.00     0.00   2.00     5.00  Corroding:12.00
+1  face-tank  acid       eye-1              2.00   2.00   1.00     0.00   1.00     2.50  Corroding:3.00
+1  face-tank  acid       eye-2              3.00   3.00   4.00     0.00   2.00     3.33  Corroding:7.00
+1  face-tank  acid       eye-3              3.00   3.00   9.00     0.00   2.00     5.00  Corroding:12.00
+1  face-tank  blood      bat-1              9.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  blood      bat-2              9.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  blood      bat-3              8.48   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  blood      mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  blood      mushroom-2         5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  blood      mushroom-3         3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  blood      undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  blood      undine-2           5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  blood      undine-3           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  blood      cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  blood      cactus-2           5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  blood      cactus-3           3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  blood      mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  blood      mandragora-2       5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  blood      mandragora-3       3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  blood      eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  blood      eye-2              5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  blood      eye-3              3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  lava       bat-1              2.00   1.00   0.00     0.00   1.00     1.50  Burning:1.00
+1  face-tank  lava       bat-2              4.00   2.00   0.00     0.00   2.00     1.50  Burning:2.00
+1  face-tank  lava       bat-3              5.90   3.10   0.00     0.00   2.90     1.53  Burning:3.10
+1  face-tank  lava       mushroom-1         2.00   2.00   1.00     0.00   1.00     2.50  Burning:3.00
+1  face-tank  lava       mushroom-2         3.00   3.00   4.00     0.00   2.00     3.33  Burning:7.00
+1  face-tank  lava       mushroom-3         3.00   3.00   9.00     0.00   2.00     5.00  Burning:12.00
+1  face-tank  lava       undine-1           2.00   2.00   1.00     0.00   1.00     2.50  Burning:3.00
+1  face-tank  lava       undine-2           3.00   3.00   4.00     0.00   2.00     3.33  Burning:7.00
+1  face-tank  lava       undine-3           3.00   3.00   9.00     0.00   2.00     5.00  Burning:12.00
+1  face-tank  lava       cactus-1           2.00   2.00   1.00     0.00   1.00     2.50  Burning:3.00
+1  face-tank  lava       cactus-2           3.00   3.00   4.00     0.00   2.00     3.33  Burning:7.00
+1  face-tank  lava       cactus-3           3.00   3.00   9.00     0.00   2.00     5.00  Burning:12.00
+1  face-tank  lava       mandragora-1       2.00   2.00   1.00     0.00   1.00     2.50  Burning:3.00
+1  face-tank  lava       mandragora-2       3.00   3.00   4.00     0.00   2.00     3.33  Burning:7.00
+1  face-tank  lava       mandragora-3       3.00   3.00   9.00     0.00   2.00     5.00  Burning:12.00
+1  face-tank  lava       eye-1              2.00   2.00   1.00     0.00   1.00     2.50  Burning:3.00
+1  face-tank  lava       eye-2              3.00   3.00   4.00     0.00   2.00     3.33  Burning:7.00
+1  face-tank  lava       eye-3              3.00   3.00   9.00     0.00   2.00     5.00  Burning:12.00
+1  face-tank  mercury    bat-1              3.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  mercury    bat-2              5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  mercury    bat-3              4.88   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  mercury    mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  mercury    mushroom-2         5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  mercury    mushroom-3         4.88   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  mercury    undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  mercury    undine-2           5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  mercury    undine-3           4.88   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  mercury    cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  mercury    cactus-2           5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  mercury    cactus-3           4.88   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  mercury    mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  mercury    mandragora-2       5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  mercury    mandragora-3       4.88   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  mercury    eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  mercury    eye-2              5.00   0.00   0.00     0.00   0.00     1.00  -
+1  face-tank  mercury    eye-3              4.88   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  start      bat-1              3.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  start      bat-2              4.00   1.00   0.00     0.00   0.00     1.25  Poisoned:1.00
+2  face-tank  start      bat-3              3.96   0.96   0.00     0.00   0.00     1.24  Poisoned:0.96
+2  face-tank  start      mushroom-1         3.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  start      mushroom-2         3.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  start      mushroom-3         2.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  start      undine-1           3.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  start      undine-2           3.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  start      undine-3           2.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  start      cactus-1           3.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  start      cactus-2           3.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  start      cactus-3           2.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  start      mandragora-1       3.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  start      mandragora-2       3.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  start      mandragora-3       2.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  start      eye-1              3.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  start      eye-2              3.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  start      eye-3              2.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  water      bat-1              3.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  water      bat-2              6.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  water      bat-3              6.88   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  water      mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  water      mushroom-2         5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  water      mushroom-3         3.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  water      undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  water      undine-2           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  water      undine-3           3.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  water      cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  water      cactus-2           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  water      cactus-3           3.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  water      mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  water      mandragora-2       5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  water      mandragora-3       3.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  water      eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  water      eye-2              5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  water      eye-3              3.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  oil        bat-1              3.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  oil        bat-2              6.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  oil        bat-3              6.88   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  oil        mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  oil        mushroom-2         5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  oil        mushroom-3         3.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  oil        undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  oil        undine-2           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  oil        undine-3           3.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  oil        cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  oil        cactus-2           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  oil        cactus-3           3.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  oil        mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  oil        mandragora-2       5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  oil        mandragora-3       3.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  oil        eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  oil        eye-2              5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  oil        eye-3              3.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  poison     bat-1              2.00   1.00   0.00     0.00   1.00     1.50  Poisoned:1.00
+2  face-tank  poison     bat-2              4.00   2.00   0.00     0.00   2.00     1.50  Poisoned:2.00
+2  face-tank  poison     bat-3              5.92   3.08   0.00     0.00   2.92     1.52  Poisoned:3.08
+2  face-tank  poison     mushroom-1         3.00   2.00   0.00     0.00   2.00     1.67  Poisoned:2.00
+2  face-tank  poison     mushroom-2         5.00   2.00   3.00     0.00   4.00     2.00  Poisoned:5.00
+2  face-tank  poison     mushroom-3         4.00   3.00   6.00     0.00   3.00     3.25  Poisoned:9.00
+2  face-tank  poison     undine-1           3.00   2.00   0.00     0.00   2.00     1.67  Poisoned:2.00
+2  face-tank  poison     undine-2           5.00   2.00   3.00     0.00   4.00     2.00  Poisoned:5.00
+2  face-tank  poison     undine-3           4.00   3.00   6.00     0.00   3.00     3.25  Poisoned:9.00
+2  face-tank  poison     cactus-1           3.00   2.00   0.00     0.00   2.00     1.67  Poisoned:2.00
+2  face-tank  poison     cactus-2           5.00   2.00   3.00     0.00   4.00     2.00  Poisoned:5.00
+2  face-tank  poison     cactus-3           4.00   3.00   6.00     0.00   3.00     3.25  Poisoned:9.00
+2  face-tank  poison     mandragora-1       3.00   2.00   0.00     0.00   2.00     1.67  Poisoned:2.00
+2  face-tank  poison     mandragora-2       5.00   2.00   3.00     0.00   4.00     2.00  Poisoned:5.00
+2  face-tank  poison     mandragora-3       4.00   3.00   6.00     0.00   3.00     3.25  Poisoned:9.00
+2  face-tank  poison     eye-1              3.00   2.00   0.00     0.00   2.00     1.67  Poisoned:2.00
+2  face-tank  poison     eye-2              5.00   2.00   3.00     0.00   4.00     2.00  Poisoned:5.00
+2  face-tank  poison     eye-3              4.00   3.00   6.00     0.00   3.00     3.25  Poisoned:9.00
+2  face-tank  acid       bat-1              2.00   1.00   0.00     0.00   1.00     1.50  Corroding:1.00
+2  face-tank  acid       bat-2              4.00   2.00   0.00     0.00   2.00     1.50  Corroding:2.00
+2  face-tank  acid       bat-3              5.92   3.08   0.00     0.00   2.92     1.52  Corroding:3.08
+2  face-tank  acid       mushroom-1         3.00   2.00   0.00     0.00   2.00     1.67  Corroding:2.00
+2  face-tank  acid       mushroom-2         5.00   2.00   3.00     0.00   4.00     2.00  Corroding:5.00
+2  face-tank  acid       mushroom-3         4.00   3.00   6.00     0.00   3.00     3.25  Corroding:9.00
+2  face-tank  acid       undine-1           3.00   2.00   0.00     0.00   2.00     1.67  Corroding:2.00
+2  face-tank  acid       undine-2           5.00   2.00   3.00     0.00   4.00     2.00  Corroding:5.00
+2  face-tank  acid       undine-3           4.00   3.00   6.00     0.00   3.00     3.25  Corroding:9.00
+2  face-tank  acid       cactus-1           3.00   2.00   0.00     0.00   2.00     1.67  Corroding:2.00
+2  face-tank  acid       cactus-2           5.00   2.00   3.00     0.00   4.00     2.00  Corroding:5.00
+2  face-tank  acid       cactus-3           4.00   3.00   6.00     0.00   3.00     3.25  Corroding:9.00
+2  face-tank  acid       mandragora-1       3.00   2.00   0.00     0.00   2.00     1.67  Corroding:2.00
+2  face-tank  acid       mandragora-2       5.00   2.00   3.00     0.00   4.00     2.00  Corroding:5.00
+2  face-tank  acid       mandragora-3       4.00   3.00   6.00     0.00   3.00     3.25  Corroding:9.00
+2  face-tank  acid       eye-1              3.00   2.00   0.00     0.00   2.00     1.67  Corroding:2.00
+2  face-tank  acid       eye-2              5.00   2.00   3.00     0.00   4.00     2.00  Corroding:5.00
+2  face-tank  acid       eye-3              4.00   3.00   6.00     0.00   3.00     3.25  Corroding:9.00
+2  face-tank  blood      bat-1              9.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  blood      bat-2              8.82   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  blood      bat-3              8.76   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  blood      mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  blood      mushroom-2         7.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  blood      mushroom-3         5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  blood      undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  blood      undine-2           7.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  blood      undine-3           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  blood      cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  blood      cactus-2           7.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  blood      cactus-3           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  blood      mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  blood      mandragora-2       7.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  blood      mandragora-3       5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  blood      eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  blood      eye-2              7.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  blood      eye-3              5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  lava       bat-1              2.00   1.00   0.00     0.00   1.00     1.50  Burning:1.00
+2  face-tank  lava       bat-2              4.00   2.00   0.00     0.00   2.00     1.50  Burning:2.00
+2  face-tank  lava       bat-3              5.92   3.08   0.00     0.00   2.92     1.52  Burning:3.08
+2  face-tank  lava       mushroom-1         3.00   2.00   0.00     0.00   2.00     1.67  Burning:2.00
+2  face-tank  lava       mushroom-2         5.00   2.00   3.00     0.00   4.00     2.00  Burning:5.00
+2  face-tank  lava       mushroom-3         4.00   3.00   6.00     0.00   3.00     3.25  Burning:9.00
+2  face-tank  lava       undine-1           3.00   2.00   0.00     0.00   2.00     1.67  Burning:2.00
+2  face-tank  lava       undine-2           5.00   2.00   3.00     0.00   4.00     2.00  Burning:5.00
+2  face-tank  lava       undine-3           4.00   3.00   6.00     0.00   3.00     3.25  Burning:9.00
+2  face-tank  lava       cactus-1           3.00   2.00   0.00     0.00   2.00     1.67  Burning:2.00
+2  face-tank  lava       cactus-2           5.00   2.00   3.00     0.00   4.00     2.00  Burning:5.00
+2  face-tank  lava       cactus-3           4.00   3.00   6.00     0.00   3.00     3.25  Burning:9.00
+2  face-tank  lava       mandragora-1       3.00   2.00   0.00     0.00   2.00     1.67  Burning:2.00
+2  face-tank  lava       mandragora-2       5.00   2.00   3.00     0.00   4.00     2.00  Burning:5.00
+2  face-tank  lava       mandragora-3       4.00   3.00   6.00     0.00   3.00     3.25  Burning:9.00
+2  face-tank  lava       eye-1              3.00   2.00   0.00     0.00   2.00     1.67  Burning:2.00
+2  face-tank  lava       eye-2              5.00   2.00   3.00     0.00   4.00     2.00  Burning:5.00
+2  face-tank  lava       eye-3              4.00   3.00   6.00     0.00   3.00     3.25  Burning:9.00
+2  face-tank  mercury    bat-1              3.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  mercury    bat-2              6.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  mercury    bat-3              6.88   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  mercury    mushroom-1         5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  mercury    mushroom-2         6.30   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  mercury    mushroom-3         6.30   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  mercury    undine-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  mercury    undine-2           6.30   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  mercury    undine-3           6.30   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  mercury    cactus-1           5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  mercury    cactus-2           6.30   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  mercury    cactus-3           6.30   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  mercury    mandragora-1       5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  mercury    mandragora-2       6.30   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  mercury    mandragora-3       6.30   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  mercury    eye-1              5.00   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  mercury    eye-2              6.30   0.00   0.00     0.00   0.00     1.00  -
+2  face-tank  mercury    eye-3              6.30   0.00   0.00     0.00   0.00     1.00  -
+
 [levels]
 level          stage kind     detail         reached win before  spent bitten status  grown  eaten  drunk wasted  after     net
 sample-ap1         1 fight    mushroom-1         100 100  10.00   5.00   4.00   0.00   0.00   1.00   0.00   0.00   2.00   -8.00

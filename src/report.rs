@@ -46,6 +46,22 @@ pub struct CellResult {
     pub cause: Option<String>,
     /// Every cause of a loss with the number of fights it ended.
     pub causes: BTreeMap<String, u64>,
+    // The [economy] and [damage] slices: averages over all seeds.
+    pub avg_units_grown: f64,
+    /// grown − spent − bitten − status, from integer sums (not from the rounded averages).
+    pub avg_net: f64,
+    pub spent_by: BTreeMap<Liquid, f64>,
+    pub bitten_by: BTreeMap<Liquid, f64>,
+    pub status_lost_by: BTreeMap<String, f64>,
+    pub avg_strike_dmg: f64,
+    pub avg_status_dmg: f64,
+    pub avg_retaliation_dmg: f64,
+    pub status_dmg_by: BTreeMap<String, f64>,
+    pub avg_overkill: f64,
+    pub avg_doomed_strikes: f64,
+    /// (strike + status + retaliation damage) / units spent, over all seeds; `None` when
+    /// nothing was spent.
+    pub dmg_per_unit: Option<f64>,
 }
 
 #[derive(Serialize, Clone, Debug, PartialEq)]
@@ -199,7 +215,48 @@ fn summarize(b: &Build, e: &Encounter, results: &[FightResult]) -> CellResult {
         avg_enemies_killed: avg(|r| r.enemies_killed as f64),
         cause,
         causes,
+        avg_units_grown: avg(|r| r.units_grown as f64),
+        avg_net: avg(|r| {
+            r.units_grown as f64 - (r.units_spent + r.units_bitten + r.units_status) as f64
+        }) + 0.0,
+        spent_by: avg_map(results, |r| &r.tally.spent_by),
+        bitten_by: avg_map(results, |r| &r.tally.bitten_by),
+        status_lost_by: named(avg_map(results, |r| &r.tally.status_lost_by)),
+        avg_strike_dmg: avg(|r| r.tally.strike_dmg as f64),
+        avg_status_dmg: avg(|r| r.tally.status_dmg as f64),
+        avg_retaliation_dmg: avg(|r| r.tally.retaliation_dmg as f64),
+        status_dmg_by: named(avg_map(results, |r| &r.tally.status_dmg_by)),
+        avg_overkill: avg(|r| r.tally.overkill as f64),
+        avg_doomed_strikes: avg(|r| r.tally.doomed_strikes as f64),
+        dmg_per_unit: {
+            let t =
+                |r: &FightResult| r.tally.strike_dmg + r.tally.status_dmg + r.tally.retaliation_dmg;
+            let dmg: usize = results.iter().map(t).sum();
+            let spent: usize = results.iter().map(|r| r.units_spent).sum();
+            (spent > 0).then(|| round2(dmg as f64 / spent as f64))
+        },
     }
+}
+
+/// Per-key average over all fights (a fight without the key counts as 0).
+fn avg_map<K: Ord + Copy>(
+    results: &[FightResult],
+    map: impl Fn(&FightResult) -> &BTreeMap<K, usize>,
+) -> BTreeMap<K, f64> {
+    let mut sum: BTreeMap<K, usize> = BTreeMap::new();
+    for r in results {
+        for (&k, &v) in map(r) {
+            *sum.entry(k).or_insert(0) += v;
+        }
+    }
+    let n = results.len() as f64;
+    sum.into_iter()
+        .map(|(k, v)| (k, round2(v as f64 / n)))
+        .collect()
+}
+
+fn named(map: BTreeMap<&'static str, f64>) -> BTreeMap<String, f64> {
+    map.into_iter().map(|(k, v)| (k.to_string(), v)).collect()
 }
 
 fn round2(x: f64) -> f64 {
