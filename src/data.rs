@@ -135,7 +135,7 @@ pub struct Level {
     /// The body at the level start; full Water by default.
     pub start: Option<Vec<Liquid>>,
     pub action_points: u32,
-    /// `face-tank` for a stage level, `strafe` for a map level.
+    /// `newcomer` for a stage level, `strafe` or `lure` for a map level.
     pub policy: String,
     /// A stage level: fights and fountains in order (`src/level.rs`).
     #[serde(default)]
@@ -225,7 +225,7 @@ impl Design {
             let allowed: &[&str] = if level.map.is_some() {
                 &["strafe", "lure"]
             } else {
-                &["face-tank"]
+                &["newcomer"]
             };
             if !allowed.contains(&level.policy.as_str()) {
                 return Err(format!(

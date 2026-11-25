@@ -32,12 +32,16 @@ truth for how the game behaves today; the simulator mirrors it by hand. Numbers 
 
 - The slime's volume is its life (`Volume.Capacity` = `slime.capacity`); it is alive while it
   has a unit. It cannot spend its last unit (`Volume.CanSpend`).
-- A strike (`Combat.Attack`) removes the first unit of the chosen liquid, strips `corrosion`
+- **The body is ordered from the edge to the centre** (design rule S13; the `Vec`'s end is
+  the edge). A strike spends the edge unit. Bites and status losses also take from the edge.
+  New units (eaten, drunk, Regeneration's Blood) land on the edge. `swap` exchanges two
+  neighbouring units (positions counted from the edge) for one action.
+- A strike (`Combat.Attack`) removes the edge unit, strips `corrosion`
   armor, deals `power` (Lava: multiplied by the target's Flammable, below) through the
   remaining armor as flat reduction, then — if the target lives — applies the liquid's effect
   and the target becomes aggroed.
-- Enemy melee is a bare hit of `melee_power`. It pops units from the **end** of the slime's
-  volume (the "tip"): the starting mix loses Lava, then Acid, Poison, Oil, Water.
+- Enemy melee is a bare hit of `melee_power`. It pops the edge unit (the "tip"): the starting
+  mix (Water, Water, Oil, Poison, Acid, Lava from the centre out) has Lava on the edge.
 - Retaliation: when the slime has a dominant liquid before the hit and survives it, the
   attacker receives that liquid's effect.
 - Dominance: one liquid with at least `rules.dominance_percent` of the volume.
@@ -85,11 +89,11 @@ Every status remembers where it came from: a slime strike, Retaliation, or the s
 (Regeneration). Rules ignore the source; the `[damage]` slice uses it to split status damage
 into `status` and `retal`.
 
-## Face-tank policy (`src/fight.rs`, `slime_act`)
+## Newcomer policy (`src/fight.rs`, `slime_act`)
 
 Target the nearest living enemy (Chebyshev, ties to the earlier one). Adjacent: strike with the
-liquid it holds most of (ties go to the earlier liquid in `[[liquids]]`), or wait when only one
-unit is left. Otherwise step one cell along the path toward it. With 2 actions the policy strikes
+edge unit, or wait when only one unit is left. Otherwise step one cell along the path toward
+it. It never swaps. With 2 actions the policy strikes
 twice even when the enemy is already doomed by damage over time: it spends body it did not
 need to.
 

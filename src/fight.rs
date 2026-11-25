@@ -252,6 +252,8 @@ pub struct Tally {
     pub overkill: usize,
     /// Strikes on an enemy its queued status pulses alone would already kill.
     pub doomed_strikes: usize,
+    /// Actions spent swapping two units of the body.
+    pub swaps: usize,
 }
 
 #[derive(Clone, Debug, PartialEq, Default)]
@@ -278,7 +280,7 @@ pub struct Fight<'a> {
     /// Enemy sight range (Chebyshev); `rules.vision_range` unless a map level sets it.
     pub vision: i32,
     pub max_rounds: u32,
-    /// Set for map levels: the slime walks to the exit (`strafe`) instead of face-tanking.
+    /// Set for map levels: the slime walks to the exit (`strafe`, `lure`) instead of hunting.
     pub map: Option<MapState>,
     rng: Rng,
     actions_per_round: u32,
@@ -648,10 +650,10 @@ impl<'a> Fight<'a> {
         Some(route[(speed as usize).min(route.len()) - 1])
     }
 
-    // ---- the slime: face-tank policy -------------------------------------------------------
+    // ---- the slime: newcomer policy --------------------------------------------------------
 
-    /// Face-tank: walk to the nearest enemy, strike it with the liquid the slime has most of,
-    /// wait when the last unit cannot be spent. Uses only player actions (step, attack, wait).
+    /// Newcomer: walk to the nearest enemy, strike it with the edge unit, wait when the last
+    /// unit cannot be spent. Never swaps. Uses only player actions (step, attack, wait).
     fn slime_act(&mut self) {
         if self.map.is_some() {
             return self.map_act();
@@ -669,7 +671,7 @@ impl<'a> Fight<'a> {
         if chebyshev(self.slime.cell, self.enemies[target].cell) == 1 {
             // `Volume.CanSpend`: the last unit is the slime's life.
             if self.slime.volume.len() > 1 {
-                let liquid = self.most_held_liquid();
+                let liquid = self.edge();
                 let hp = self.enemies[target].hit_points;
                 self.slime_strike(target, liquid);
                 self.note(|f| {
@@ -808,7 +810,7 @@ impl<'a> Fight<'a> {
 
     fn strike_or_wait(&mut self, target: usize) {
         if self.slime.volume.len() > 1 {
-            let liquid = self.most_held_liquid();
+            let liquid = self.edge();
             self.slime_strike(target, liquid);
             self.note(|f| format!("Slime strikes {} with {liquid:?}", f.label(target)));
         } else {
@@ -816,24 +818,30 @@ impl<'a> Fight<'a> {
         }
     }
 
-    /// The liquid with the most units; ties go to the earlier one in `[[liquids]]`.
-    fn most_held_liquid(&self) -> Liquid {
-        let order = self.d.liquids.iter().map(|l| l.name);
-        let most = order
-            .clone()
-            .map(|l| self.slime.count(l))
-            .max()
-            .unwrap_or(0);
-        order
-            .into_iter()
-            .find(|&l| self.slime.count(l) == most)
+    /// The unit a strike spends: the edge of the body (the end bites pop too).
+    fn edge(&self) -> Liquid {
+        *self
+            .slime
+            .volume
+            .last()
             .expect("the slime holds at least one unit")
+    }
+
+    /// `swap`: exchanges the units at positions `i` and `i + 1`, counted from the edge
+    /// (0 = the edge unit). Costs one action. No policy uses it yet.
+    pub fn slime_swap(&mut self, i: usize) {
+        let n = self.slime.volume.len();
+        if i + 1 < n {
+            self.slime.volume.swap(n - 1 - i, n - 2 - i);
+            self.tally.swaps += 1;
+        }
     }
 
     /// `TurnManager.TryAttack` → `Combat.Attack(attacker, target, substance)`.
     pub fn slime_strike(&mut self, target: usize, liquid: Liquid) {
         let d = self.d;
-        let Some(at) = self.slime.volume.iter().position(|&l| l == liquid) else {
+        // The unit of that kind nearest the edge: the edge unit itself in every policy.
+        let Some(at) = self.slime.volume.iter().rposition(|&l| l == liquid) else {
             return;
         };
         self.slime.volume.remove(at);

@@ -340,7 +340,7 @@ fn text_report_is_stable_and_has_no_run_details() {
     }
     assert_eq!(
         cells[0].split_whitespace().take(4).collect::<Vec<_>>(),
-        ["1", "face-tank", "start", "bat-1"]
+        ["1", "newcomer", "start", "bat-1"]
     );
     assert_eq!(
         cells
@@ -349,7 +349,7 @@ fn text_report_is_stable_and_has_no_run_details() {
             .split_whitespace()
             .take(4)
             .collect::<Vec<_>>(),
-        ["2", "face-tank", "mercury", "eye-3"]
+        ["2", "newcomer", "mercury", "eye-3"]
     );
     // Fixed columns: the cause starts under the header's "cause" in every line.
     let cause_at = header.find("cause").unwrap();
@@ -362,7 +362,7 @@ fn text_report_is_stable_and_has_no_run_details() {
         .find(|l| {
             l.split_whitespace()
                 .take(4)
-                .eq(["1", "face-tank", "lava", "mushroom-1"])
+                .eq(["1", "newcomer", "lava", "mushroom-1"])
         })
         .unwrap();
     assert_eq!(
@@ -393,7 +393,7 @@ fn level_design(stages: &str) -> Design {
         std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/data/design.toml")).unwrap();
     text = text[..text.find("[[levels]]").unwrap()].to_string();
     text += &format!(
-        "[[levels]]\nid = \"t\"\ncapacity = 10\nstart = [{}]\naction_points = 1\npolicy = \"face-tank\"\nstages = [{stages}]\n",
+        "[[levels]]\nid = \"t\"\ncapacity = 10\nstart = [{}]\naction_points = 1\npolicy = \"newcomer\"\nstages = [{stages}]\n",
         ["\"Lava\""; 10].join(", ")
     );
     Design::parse(&text).unwrap()
@@ -488,7 +488,7 @@ fn level_design_errors_are_explicit() {
     let base =
         std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/data/design.toml")).unwrap();
     let kite = base.replacen(
-        "policy = \"face-tank\"\nstages",
+        "policy = \"newcomer\"\nstages",
         "policy = \"kite\"\nstages",
         1,
     );
@@ -565,7 +565,7 @@ fn slices_split_the_reference_fight_by_source() {
     };
     assert_eq!(
         line("economy"),
-        "2.00 1.00 0.00 0.00 -3.00 spent=Lava:2.00 bitten=Lava:1.00 status=-"
+        "2.00 1.00 0.00 0.00 0.00 -3.00 spent=Lava:2.00 bitten=Lava:1.00 status=-"
     );
     assert_eq!(line("damage"), "2.00 2.00 1.00 0.00 1.00 2.50 Burning:3.00");
 }
@@ -626,4 +626,45 @@ fn level_net_counts_the_whole_corpse() {
         (r.corpse, r.eaten, r.wasted, r.after, r.net),
         (4.0, 3.0, 1.0, 10.0, 1.0)
     );
+}
+
+// S13: the body is ordered edge → centre; strikes, bites and status losses take the edge unit,
+// new units land on the edge. The starting mix (Water, Water, Oil, Poison, Acid, Lava) has Lava
+// on the edge: the newcomer strikes Lava first, the bite then pops Acid, the next strike is
+// Poison.
+#[test]
+fn strikes_spend_the_edge_unit() {
+    let d = design();
+    let start = report::builds(&d)
+        .into_iter()
+        .find(|b| b.id == "start")
+        .unwrap();
+    let (_, log) = report::fight(&d, &start, &one("Mushroom"), 1, 0).run_traced();
+    let strikes: Vec<&str> = log
+        .iter()
+        .filter_map(|l| l.strip_prefix("Slime strikes Mushroom#1 with "))
+        .map(|l| l.split(':').next().unwrap())
+        .collect();
+    assert_eq!(strikes[..2], ["Lava", "Poison"], "{log:#?}");
+}
+
+#[test]
+fn swap_exchanges_neighbours_counted_from_the_edge() {
+    let d = design();
+    let mut f = Fight::new(
+        &d,
+        0,
+        1,
+        vec![Liquid::Water, Liquid::Oil, Liquid::Lava],
+        (1, 5),
+        &[("Mushroom", (2, 5))],
+    );
+    f.slime_swap(0); // edge Lava <-> Oil
+    assert_eq!(f.slime.volume, [Liquid::Water, Liquid::Lava, Liquid::Oil]);
+    f.slime_swap(1); // Lava <-> Water
+    assert_eq!(f.slime.volume, [Liquid::Lava, Liquid::Water, Liquid::Oil]);
+    f.slime_swap(2); // no unit at position 3: nothing happens
+    assert_eq!(f.slime.volume, [Liquid::Lava, Liquid::Water, Liquid::Oil]);
+    let r = f.run();
+    assert_eq!(r.tally.swaps, 2);
 }

@@ -16,7 +16,7 @@ pub fn render(
     maps: &[MapLevelResult],
 ) -> Result<String, String> {
     let design: toml::Table = toml::from_str(design_toml).map_err(|e| e.to_string())?;
-    let mut out = String::from("# Slime's Revenge design guard — plain-text report, format 2\n");
+    let mut out = String::from("# Slime's Revenge design guard — plain-text report, format 3\n");
     out += "\n[design]\n";
     if let Some(file) = design_file {
         let _ = writeln!(out, "design.file = {file}");
@@ -208,19 +208,20 @@ fn render_economy(reports: &[Report], out: &mut String) {
     *out += "\n[economy]\n";
     let _ = writeln!(
         out,
-        "{:<2} {:<10} {:<10} {:<16} {:>6} {:>6} {:>6} {:>6} {:>7}  by",
-        "ap", "policy", "build", "encounter", "spent", "bitten", "status", "grown", "net"
+        "{:<2} {:<10} {:<10} {:<16} {:>6} {:>6} {:>6} {:>6} {:>6} {:>7}  by",
+        "ap", "policy", "build", "encounter", "spent", "bitten", "status", "grown", "swaps", "net"
     );
     for r in reports {
         for c in &r.cells {
             let _ = writeln!(
                 out,
-                "{} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>+7.2}  spent={} bitten={} status={}",
+                "{} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>6.2} {:>+7.2}  spent={} bitten={} status={}",
                 key(r, c),
                 c.avg_units_spent,
                 c.avg_units_bitten,
                 c.avg_units_status,
                 c.avg_units_grown,
+                c.avg_swaps,
                 c.avg_net,
                 by(&c.spent_by),
                 by(&c.bitten_by),

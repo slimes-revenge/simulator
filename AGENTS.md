@@ -16,7 +16,7 @@ source of truth for how the game behaves today. Never edit the game repository f
 ```
 data/design.toml     # every tunable number (liquids, statuses, enemies, slime, matrix)
 src/data.rs          # loads and checks design.toml
-src/fight.rs         # one fight: creatures, statuses, strikes, enemy AI, turn order, face-tank policy
+src/fight.rs         # one fight: creatures, statuses, strikes, enemy AI, turn order, slime policies
 src/path.rs          # 8-direction pathing (stands in for the game's A* GridPath)
 src/rng.rs           # seeded SplitMix64
 src/report.rs        # builds, encounters, the matrix, JSON report

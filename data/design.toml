@@ -33,7 +33,7 @@ instability_speed = -1     # Instability.SpeedModifier
 vampirism_heal = 2         # Vampirism.HealAmount
 regeneration_growth = 1    # Regeneration: +1 Blood per pulse
 
-# Liquids in this order also break ties when the face-tank slime picks the liquid it has most of.
+# Liquids in this order are the fixed order of breakdowns in the report.
 # power = Substance.Power, corrosion = Substance.Corrosion. What each liquid applies is a rule
 # (src/model.rs), not a number.
 [[liquids]]
@@ -155,7 +155,7 @@ lure_patience = 10            # actions `lure` waits per room approach while 2+ 
 id = "sample-ap1"
 capacity = 10
 action_points = 1
-policy = "face-tank"
+policy = "newcomer"
 stages = [
   { kind = "fight", enemy = "Mushroom", enemies = 1 },
   { kind = "fight", enemy = "Bat", enemies = 1 },
@@ -168,7 +168,7 @@ stages = [
 id = "sample-ap2"
 capacity = 10
 action_points = 2
-policy = "face-tank"
+policy = "newcomer"
 stages = [
   { kind = "fight", enemy = "Mushroom", enemies = 1 },
   { kind = "fight", enemy = "Bat", enemies = 1 },

@@ -6,7 +6,7 @@ use serde::Serialize;
 use std::collections::BTreeMap;
 
 pub const SCHEMA_VERSION: u32 = 1;
-pub const POLICY: &str = "face-tank";
+pub const POLICY: &str = "newcomer";
 
 #[derive(Serialize, Clone, Debug, PartialEq)]
 pub struct Build {
@@ -59,6 +59,8 @@ pub struct CellResult {
     pub status_dmg_by: BTreeMap<String, f64>,
     pub avg_overkill: f64,
     pub avg_doomed_strikes: f64,
+    /// Actions spent swapping units of the body.
+    pub avg_swaps: f64,
     /// (strike + status + retaliation damage) / units spent, over all seeds; `None` when
     /// nothing was spent.
     pub dmg_per_unit: Option<f64>,
@@ -228,6 +230,7 @@ fn summarize(b: &Build, e: &Encounter, results: &[FightResult]) -> CellResult {
         status_dmg_by: named(avg_map(results, |r| &r.tally.status_dmg_by)),
         avg_overkill: avg(|r| r.tally.overkill as f64),
         avg_doomed_strikes: avg(|r| r.tally.doomed_strikes as f64),
+        avg_swaps: avg(|r| r.tally.swaps as f64),
         dmg_per_unit: {
             let t =
                 |r: &FightResult| r.tally.strike_dmg + r.tally.status_dmg + r.tally.retaliation_dmg;
