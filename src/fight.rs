@@ -287,6 +287,10 @@ pub enum Policy {
     Reader,
     /// D5: `kite` until Pus is a bad affinity; then it farms its burps (`pus_act`).
     Pus,
+    /// D7: `kite` until Mercury is its affinity; then it goes for the enemies it sees and
+    /// strikes with Mercury while spending it keeps the affinity (`mercury_pick`). It keeps
+    /// the body within Mercury / `dominance_percent` (`mercury_full`).
+    Mercury,
 }
 
 impl Policy {
@@ -298,6 +302,7 @@ impl Policy {
             "kite" => Policy::Kite,
             "reader" => Policy::Reader,
             "pus" => Policy::Pus,
+            "mercury" => Policy::Mercury,
             _ => Policy::Newcomer,
         }
     }
@@ -711,6 +716,14 @@ impl<'a> Fight<'a> {
             }
             return false;
         }
+        // D7: `mercury` drinks no non-Mercury unit past Mercury / `dominance_percent`.
+        if self.mercury_full() && self.next_drink().is_some_and(|l| l != Liquid::Mercury) {
+            if let Some(m) = self.map.as_mut().filter(|m| m.exit == cell) {
+                m.river = 0;
+                self.note(|_| "Slime leaves the river: its Mercury would thin".into());
+            }
+            return false;
+        }
         let Some(m) = self.map.as_mut().filter(|_| !full) else {
             return false;
         };
@@ -803,19 +816,26 @@ impl<'a> Fight<'a> {
             ..Episode::default()
         };
         if self.slime.alive() {
+            let mut corpses = Vec::new();
             for (i, e) in self.enemies.iter().enumerate() {
                 // An enemy that entered after the snapshot (the hunter) was alive at the open.
                 let was_alive = o.alive_at_open.get(i).copied().unwrap_or(true);
                 if was_alive && !e.alive() {
-                    for &unit in &e.volume {
-                        ep.corpse += 1;
-                        if self.slime.volume.len() < self.d.slime.capacity {
-                            self.slime.volume.push(unit);
-                            ep.eaten += 1;
-                        } else {
-                            ep.wasted += 1;
-                        }
-                    }
+                    corpses.extend(e.volume.iter().copied());
+                }
+            }
+            // D7: `mercury` eats the Mercury first and leaves what would thin it.
+            if self.policy == Policy::Mercury {
+                corpses.sort_by_key(|&u| u != Liquid::Mercury);
+            }
+            for unit in corpses {
+                ep.corpse += 1;
+                let thins = unit != Liquid::Mercury && self.mercury_full();
+                if self.slime.volume.len() < self.d.slime.capacity && !thins {
+                    self.slime.volume.push(unit);
+                    ep.eaten += 1;
+                } else {
+                    ep.wasted += 1;
                 }
             }
             let d = self.d;
@@ -960,6 +980,12 @@ impl<'a> Fight<'a> {
             self.stalemate = true;
             return self.note(|_| "Slime cannot hurt anyone left: a stalemate".into());
         }
+        if self.hunts() {
+            if !self.mercury_hunt() {
+                self.note(|_| "Slime waits: no enemy in reach".into());
+            }
+            return;
+        }
         if self.kites() {
             if !self.enemies.iter().any(|e| self.engaging(e)) {
                 return self.note(|_| "Slime waits for the enemy".into());
@@ -1090,6 +1116,9 @@ impl<'a> Fight<'a> {
         if self.drink(!(careful && reacts)) {
             return;
         }
+        if self.hunts() && self.mercury_hunt() {
+            return;
+        }
         let m = self.map.as_ref().expect("map runs");
         let (lure, exit, waited) = (m.lure, m.exit, m.waited);
         let goal = if lure && aggro {
@@ -1213,7 +1242,7 @@ impl<'a> Fight<'a> {
 
     /// Calm Aggressive enemies that would see the slime standing on `cell` (and so engage it).
     fn calm_watchers(&self, cell: Cell) -> usize {
-        let hidden = self.slime.dominant == Some(Liquid::Mercury);
+        let hidden = self.invisible();
         self.enemies
             .iter()
             .filter(|e| e.alive() && !e.aggroed && e.personality == Personality::Aggressive)
@@ -1335,6 +1364,16 @@ impl<'a> Fight<'a> {
             && self.can_strike()
             && !self.swapped
             && let Some(k) = self.reader_pick(target)
+        {
+            let unit = self.slime.volume.remove(k);
+            self.slime.volume.push(unit);
+            self.tally.swaps += 1;
+            self.swapped = true;
+            return self.note(|_| format!("Slime brings {unit:?} to the edge"));
+        }
+        if self.can_strike()
+            && !self.swapped
+            && let Some(k) = self.mercury_pick(target)
         {
             let unit = self.slime.volume.remove(k);
             self.slime.volume.push(unit);
@@ -1474,9 +1513,100 @@ impl<'a> Fight<'a> {
         true
     }
 
-    /// `kite` or `reader`.
+    /// `kite`, `reader`, `pus`, and `mercury` without its affinity.
     fn kites(&self) -> bool {
         matches!(self.policy, Policy::Kite | Policy::Reader | Policy::Pus)
+            || (self.policy == Policy::Mercury && !self.hunts())
+    }
+
+    /// D7: `mercury` holding its affinity goes for the enemies instead of kiting.
+    fn hunts(&self) -> bool {
+        self.policy == Policy::Mercury && self.slime.dominant == Some(Liquid::Mercury)
+    }
+
+    /// D7: the Mercury affinity hides the slime (`rules.mercury_affinity = "invisible"`, the
+    /// game) instead of defending it.
+    fn invisible(&self) -> bool {
+        self.slime.dominant == Some(Liquid::Mercury) && self.d.rules.mercury_affinity == "invisible"
+    }
+
+    /// D7: `mercury` holds Mercury as its affinity and one more non-Mercury unit would take
+    /// the body past Mercury / `dominance_percent`.
+    fn mercury_full(&self) -> bool {
+        let m = self.slime.count(Liquid::Mercury);
+        self.hunts() && (self.slime.volume.len() + 1) * self.d.rules.dominance_percent > m * 100
+    }
+
+    /// D7 `mercury` with its affinity: the index (1 or 2 under the edge) of the unit to bring up
+    /// before a strike on `target`. Mercury while spending one keeps the affinity and the target
+    /// is not of Mercury's element; else a non-Mercury unit. `None` when the edge already is
+    /// one, or no such unit is near, or the move makes reacting neighbours.
+    fn mercury_pick(&self, target: usize) -> Option<usize> {
+        if !self.hunts() {
+            return None;
+        }
+        let v = &self.slime.volume;
+        let n = v.len();
+        if n < 2 {
+            return None;
+        }
+        let m = self.slime.count(Liquid::Mercury);
+        let basis = if self.d.rules.dominance_basis == "capacity" {
+            self.d.slime.capacity
+        } else {
+            n - 1
+        };
+        let mercury = !self.useless_against(Liquid::Mercury, target)
+            && (m - 1) * 100 >= basis * self.d.rules.dominance_percent;
+        let wanted = |l: Liquid| (l == Liquid::Mercury) == mercury;
+        if wanted(v[n - 1]) {
+            return None;
+        }
+        (n.saturating_sub(3)..n - 1).rev().find(|&k| {
+            let mut after = v.clone();
+            let unit = after.remove(k);
+            after.push(unit);
+            wanted(unit) && self.reacting_pairs(&after) <= self.reacting_pairs(v)
+        })
+    }
+
+    /// D7 `mercury` hunting: the nearest living enemy it sees (sight range, walls block) and
+    /// can reach and hurt.
+    fn mercury_target(&self) -> Option<usize> {
+        (0..self.enemies.len())
+            .filter(|&i| {
+                let e = &self.enemies[i];
+                e.alive()
+                    && chebyshev(e.cell, self.slime.cell) <= self.vision
+                    && self.board.line_of_sight(e.cell, self.slime.cell)
+                    && !self.gives_up(i)
+                    && self.can_reach(i)
+            })
+            .min_by_key(|&i| (chebyshev(self.enemies[i].cell, self.slime.cell), i))
+    }
+
+    /// D7 `mercury` hunting: strike the target next to it, else step toward it. `false` when
+    /// it has no target.
+    fn mercury_hunt(&mut self) -> bool {
+        let Some(i) = self.mercury_target() else {
+            return false;
+        };
+        if chebyshev(self.enemies[i].cell, self.slime.cell) == 1 {
+            self.strike_or_wait(i);
+            return true;
+        }
+        // A pending bring-up belongs to the strike next to it: walking off drops it.
+        self.swapped = false;
+        let from = self.slime.cell;
+        match self.walk_toward(from, self.enemies[i].cell, 1) {
+            Some(to) => {
+                if self.move_slime(to) {
+                    self.note(|f| format!("Slime goes for {}: {from:?}->{to:?}", f.label(i)));
+                }
+                true
+            }
+            None => false,
+        }
     }
 
     /// `reader`: the index (1 or 2 under the edge) of a unit whose element dominates the
@@ -2032,8 +2162,7 @@ impl<'a> Fight<'a> {
 
     /// `IsDetectedBy`: an aggroed observer always detects; Mercury dominance hides the slime.
     fn detected(&self, i: usize) -> bool {
-        self.slime.alive()
-            && (self.enemies[i].aggroed || self.slime.dominant != Some(Liquid::Mercury))
+        self.slime.alive() && (self.enemies[i].aggroed || !self.invisible())
     }
 
     fn can_see(&self, i: usize) -> bool {
@@ -2135,10 +2264,36 @@ impl<'a> Fight<'a> {
         // Retaliation is captured before the hit: the hit may end dominance.
         let retort = self.slime.dominant;
         let before = self.slime.volume.clone();
-        let tip = damage(d, &mut self.slime, power, true, &mut self.next_status_id);
+        let tip = if retort == Some(Liquid::Mercury) && d.rules.mercury_affinity == "defence" {
+            // D7: half the bite (rounded up), the edge-most non-Mercury units first.
+            let v = &mut self.slime.volume;
+            let mut tip = None;
+            for _ in 0..(power + 1) / 2 {
+                let Some(k) = v
+                    .iter()
+                    .rposition(|&l| l != Liquid::Mercury)
+                    .or(v.len().checked_sub(1))
+                else {
+                    break;
+                };
+                tip.get_or_insert(v.remove(k));
+            }
+            if self.slime.alive() {
+                refresh_dominance(d, &mut self.slime, &mut self.next_status_id);
+            }
+            tip
+        } else {
+            damage(d, &mut self.slime, power, true, &mut self.next_status_id)
+        };
         self.units_bitten += before.len() - self.slime.volume.len();
-        for &unit in &before[self.slime.volume.len()..] {
-            *self.tally.bitten_by.entry(unit).or_insert(0) += 1;
+        let mut left = self.slime.volume.clone();
+        for unit in before {
+            match left.iter().position(|&l| l == unit) {
+                Some(k) => {
+                    left.remove(k);
+                }
+                None => *self.tally.bitten_by.entry(unit).or_insert(0) += 1,
+            }
         }
         if tip.is_some() {
             self.last_harm = Some(format!("melee:{}", self.enemies[i].name));

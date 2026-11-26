@@ -82,11 +82,15 @@ pub fn run(d: &Design) -> (Vec<LadderRow>, Vec<SummaryRow>) {
                 let (level, place) = rows[i];
                 let spec = level.map.as_ref().expect("checked in parse");
                 let ld = map::level_design(d, level);
+                let mercury = (level.policy == "mercury").then_some(d.rules.dominance_percent);
                 let start: Bodies = match parent(&rows, i) {
                     Some(j) => match d.ladder.stops.iter().find(|s| s.after == rows[j].1.level) {
                         Some(stop) => bodies[j]
                             .iter()
-                            .map(|b| b.as_ref().map(|b| at_stop(b, stop, level.capacity)))
+                            .map(|b| {
+                                b.as_ref()
+                                    .map(|b| at_stop(b, stop, level.capacity, mercury))
+                            })
                             .collect(),
                         None => bodies[j].clone(),
                     },
@@ -140,7 +144,14 @@ pub fn run(d: &Design) -> (Vec<LadderRow>, Vec<SummaryRow>) {
 /// D4: a stop between maps. Each reset turns its `from` units into `to` (or drops them),
 /// edge-most first, at most `max_percent` of the body; then the empty cells up to `capacity`
 /// fill with Water. Units are never pushed out, so Pus held as a bad affinity stays.
-pub fn at_stop(body: &[Liquid], stop: &Stop, capacity: usize) -> Vec<Liquid> {
+/// `mercury_percent` (D7, the `mercury` policy): a body whose affinity is Mercury (that share of
+/// it) refills only up to Mercury × 100 / that percent.
+pub fn at_stop(
+    body: &[Liquid],
+    stop: &Stop,
+    capacity: usize,
+    mercury_percent: Option<usize>,
+) -> Vec<Liquid> {
     let mut b = body.to_vec();
     for r in &stop.resets {
         let limit = r.max_percent.map_or(usize::MAX, |p| b.len() * p / 100);
@@ -157,7 +168,12 @@ pub fn at_stop(body: &[Liquid], stop: &Stop, capacity: usize) -> Vec<Liquid> {
             }
         }
     }
-    while b.len() < capacity {
+    let m = b.iter().filter(|&&l| l == Liquid::Mercury).count();
+    let cap = match mercury_percent {
+        Some(p) if m > 0 && m * 100 >= b.len() * p => capacity.min(m * 100 / p),
+        _ => capacity,
+    };
+    while b.len() < cap {
         b.insert(0, Liquid::Water);
     }
     b

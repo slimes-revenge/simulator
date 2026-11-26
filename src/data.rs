@@ -323,6 +323,10 @@ pub struct Rules {
     /// G3, an agreed design rule: Regeneration grows Blood only while an enemy is engaged with
     /// the slime. Not in the game yet.
     pub regeneration_in_fight_only: bool,
+    /// D7, design: what a Mercury affinity does. `defence`: a bite deals half (rounded up) and
+    /// takes the edge-most non-Mercury unit while one is left. `invisible` (the game, fallback):
+    /// an enemy that is not aggroed cannot see, chase or bite the slime.
+    pub mercury_affinity: String,
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -542,6 +546,12 @@ impl Design {
                 design.matrix.enemy_rows.len()
             ));
         }
+        if !(1..=100).contains(&design.rules.dominance_percent) {
+            return Err("rules.dominance_percent must be 1..=100".into());
+        }
+        if !["defence", "invisible"].contains(&design.rules.mercury_affinity.as_str()) {
+            return Err("rules.mercury_affinity must be \"defence\" or \"invisible\"".into());
+        }
         if !["capacity", "current"].contains(&design.rules.dominance_basis.as_str()) {
             return Err("rules.dominance_basis must be \"current\" or \"capacity\"".into());
         }
@@ -625,10 +635,9 @@ impl Design {
             ));
         }
         let policies = &design.matrix.policies;
-        if let Some(p) = policies
-            .iter()
-            .find(|p| !["newcomer", "arranger", "kite", "reader", "pus"].contains(&p.as_str()))
-        {
+        if let Some(p) = policies.iter().find(|p| {
+            !["newcomer", "arranger", "kite", "reader", "pus", "mercury"].contains(&p.as_str())
+        }) {
             return Err(format!("matrix.policies: unknown policy {p:?}"));
         }
         if (1..policies.len()).any(|i| policies[..i].contains(&policies[i])) {
@@ -676,9 +685,9 @@ impl Design {
                 return Err(format!("level {:?}: {problem}", level.id));
             }
             let allowed: &[&str] = if level.map.is_some() {
-                &["strafe", "lure", "kite", "reader", "pus"]
+                &["strafe", "lure", "kite", "reader", "pus", "mercury"]
             } else {
-                &["newcomer", "arranger", "kite", "reader", "pus"]
+                &["newcomer", "arranger", "kite", "reader", "pus", "mercury"]
             };
             if !allowed.contains(&level.policy.as_str()) {
                 return Err(format!(
@@ -788,7 +797,8 @@ impl Design {
         for t in &design.ladder.thresholds {
             if t.min.is_some() == t.max.is_some()
                 || !["E", "N", "H"].contains(&t.difficulty.as_str())
-                || !["strafe", "lure", "kite", "reader", "pus"].contains(&t.policy.as_str())
+                || !["strafe", "lure", "kite", "reader", "pus", "mercury"]
+                    .contains(&t.policy.as_str())
             {
                 return Err(format!(
                     "ladder.thresholds {} {}: difficulty E, N or H, a map policy, exactly one of min, max",
