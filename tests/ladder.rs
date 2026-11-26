@@ -41,14 +41,14 @@ fn the_slime_drinks_the_river_at_the_exit_in_order_until_full() {
         7,
         "[\"Water\", \"Water\"]",
         "",
-        ", river = 6, river_liquids = [\"Oil\", \"Acid\"]",
+        ", river = 6, river_liquids = [\"Fat\", \"Acid\"]",
     ))
     .unwrap();
     for seed in 0..5 {
         let (won, body, _) = play(&d, seed);
         assert!(won);
         // Edge last: the river's units go onto the edge in its order; 5 fit, 1 stays.
-        assert_eq!(body, vec![Water, Water, Oil, Acid, Oil, Acid, Oil]);
+        assert_eq!(body, vec![Water, Water, Fat, Acid, Fat, Acid, Fat]);
     }
 }
 
@@ -73,9 +73,9 @@ fn drips_on_the_corridors_are_drunk_on_the_way() {
 fn the_sun_dries_the_edge_most_water_and_can_kill() {
     use Liquid::*;
     let sun = ", surface_rooms = 3, sun_every = 1";
-    let d = design(&row("s", 3, "[\"Oil\", \"Water\", \"Water\"]", "", sun)).unwrap();
+    let d = design(&row("s", 3, "[\"Fat\", \"Water\", \"Water\"]", "", sun)).unwrap();
     let (won, body, _) = play(&d, 0);
-    assert!(won && body == vec![Oil], "Oil is not Water: {body:?}");
+    assert!(won && body == vec![Fat], "Fat is not Water: {body:?}");
     let d = design(&row("s", 1, "[\"Water\"]", "", sun)).unwrap();
     let (won, body, cause) = play(&d, 0);
     assert!(!won && body.is_empty());
@@ -88,19 +88,19 @@ fn the_sun_dries_the_edge_most_water_and_can_kill() {
 
 #[test]
 fn a_run_carries_the_body_and_the_summary_finds_the_failing_level() {
-    // Level 1 swaps the Water body for Oil at the exit; level 2's sun kills a Water body only.
-    // Level mode: level 2 starts from Water and dies; run mode: it arrives as Oil and lives.
+    // Level 1 swaps the Water body for Fat at the exit; level 2's sun kills a Water body only.
+    // Level mode: level 2 starts from Water and dies; run mode: it arrives as Fat and lives.
     let rows = row(
         "a",
         2,
         "[\"Water\"]",
         "ladder = { level = 1, difficulty = \"E\" }",
-        ", river = 1, river_liquids = [\"Oil\"]",
+        ", river = 1, river_liquids = [\"Fat\"]",
     ) + &row(
         "b",
         2,
         "[\"Water\"]",
-        "ladder = { level = 2, difficulty = \"E\", branch = \"Oil\" }",
+        "ladder = { level = 2, difficulty = \"E\", branch = \"Fat\" }",
         ", surface_rooms = 3, sun_every = 1",
     );
     let d = design(&rows).unwrap();
@@ -122,17 +122,17 @@ fn a_run_carries_the_body_and_the_summary_finds_the_failing_level() {
             .result
             .body_out
     };
-    assert_eq!(body_out("run", 1), Some(2.0), "Water + the drunk Oil");
+    assert_eq!(body_out("run", 1), Some(2.0), "Water + the drunk Fat");
     assert_eq!(body_out("level", 2), None, "nobody reached the exit");
     assert_eq!(body_out("run", 2), Some(1.0), "the sun took the Water");
     let s: Vec<_> = summary.iter().filter(|s| s.rule == "min90").collect();
-    assert_eq!(s.len(), 2, "one per mode for E strafe, branch Oil");
+    assert_eq!(s.len(), 2, "one per mode for E strafe, branch Fat");
     assert_eq!(s[0].mode, "level");
     assert_eq!((s[0].furthest, s[0].first_fail), (Some(1), Some(2)));
     assert_eq!(s[0].cause.as_deref(), Some("room1:sun"));
     assert_eq!(
         (s[1].furthest, s[1].first_fail, s[1].branch.as_str()),
-        (Some(2), None, "Oil")
+        (Some(2), None, "Fat")
     );
 }
 
@@ -142,7 +142,7 @@ fn ladder_rows_are_checked() {
         "a",
         2,
         "[\"Water\"]",
-        "ladder = { level = 1, difficulty = \"E\", branch = \"Oil\" }",
+        "ladder = { level = 1, difficulty = \"E\", branch = \"Fat\" }",
         "",
     );
     let orphan = row(
@@ -158,7 +158,7 @@ fn ladder_rows_are_checked() {
         "c",
         2,
         "[\"Water\"]",
-        "ladder = { level = 1, difficulty = \"E\", branch = \"Oil\" }",
+        "ladder = { level = 1, difficulty = \"E\", branch = \"Fat\" }",
         "",
     );
     assert!(design(&(l1.clone() + &twin)).unwrap_err().contains("share"));

@@ -74,10 +74,10 @@ fn a_pus_puddle_infects_the_living_who_step_in_and_weakens_their_bite() {
         log.iter().any(|l| l.contains("too sick to bite")),
         "{log:?}"
     );
-    // The Water Undine is not Living: no Infected (an Oil body, so the slime does not stall).
+    // The Water Undine is not Living: no Infected (an Fat body, so the slime does not stall).
     let log = play(
         &d,
-        vec![Liquid::Oil; 10],
+        vec![Liquid::Fat; 10],
         &[("Undine", (3, 5))],
         &[((2, 5), Liquid::Pus)],
         1,

@@ -24,7 +24,7 @@ capacity = 10             # Volume.Capacity
 speed = 1                 # Creature.speed default
 # Slime.FillStarting, from the centre to the edge: the last unit is the edge, which strikes
 # spend and hits pop first (rule S13).
-start = ["Water", "Water", "Oil", "Poison", "Acid", "Lava"]
+start = ["Water", "Water", "Water", "Poison", "Acid", "Lava"]  # the game's Oil is removed (Oleg): Water
 
 [statuses]
 # OverTime.DefaultDuration for every timed status.
@@ -47,11 +47,6 @@ regeneration_growth = 1    # Regeneration: +1 Blood per pulse
 # (src/model.rs), not a number.
 [[liquids]]
 name = "Water"
-power = 1
-corrosion = 0
-
-[[liquids]]
-name = "Oil"
 power = 1
 corrosion = 0
 
@@ -86,7 +81,7 @@ name = "Pus"
 power = 0
 corrosion = 0
 
-# The rest of the 18 liquids (lore forum.md; rows: balance liquids.md "Финальный список").
+# The rest of the 17 liquids (lore forum.md; rows: balance liquids.md "Финальный список").
 # Vitriol: Corroding; Alkali: Instability 2; Sulfur: Flammable; Ambrosia heals Living. The rest
 # strike for `power` with no status until their statuses exist (Cold fire, Greased, Rooted, Charmed).
 [[liquids]]
@@ -127,11 +122,6 @@ corrosion = 0
 
 [[liquids]]
 name = "Sulfur"
-power = 1
-corrosion = 0
-
-[[liquids]]
-name = "Tar"
 power = 1
 corrosion = 0
 
@@ -217,7 +207,7 @@ element = "Alkali"   # lore forum.md §3: Living
 seeds = 50                    # seeds 0..seeds-1 per cell
 action_points = [1, 2]        # 1 = the game today, 2 = the design (turn-structure.md)
 pure_build_units = 10         # one pure build per build liquid
-build_liquids = ["Water", "Oil", "Poison", "Acid", "Blood", "Lava", "Mercury"]
+build_liquids = ["Water", "Poison", "Acid", "Blood", "Lava", "Mercury"]
 enemy_counts = [1, 2, 3]
 slime_cell = [1, 5]
 enemy_column_offset = 5       # enemies stand in the column slime_cell.x + offset
@@ -241,7 +231,7 @@ suppressed_hit_percent = 25   # a suppressed enemy's bite lands this often...
 miss_self_damage = 1          # ...and a miss costs it this many HP
 living = "Alkali"             # Living creatures: Ambrosia heals them 1 instead of hurting
 # An enemy without `element`: its corpse's main liquid (circle liquids are their own element).
-corpse = { Blood = "Alkali", Fat = "Alkali", Pus = "Poison", Oil = "Lava", Sulfur = "Acid", Resin = "Ambrosia", Tar = "Ambrosia" }
+corpse = { Blood = "Alkali", Fat = "Alkali", Pus = "Poison", Sulfur = "Acid", Resin = "Ambrosia" }
 # Statuses that do not take on enemies of these elements (the strike still hurts).
 status_immune = { Poisoned = ["Mercury", "Water", "Phosphorus", "Poison", "Lava"], Burning = ["Lava", "Water", "Mercury"], Corroding = ["Water", "Lava", "Acid", "Vitriol"], Instability = ["Ambrosia"] }
 # Statuses that take twice on enemies of these elements.
@@ -292,7 +282,7 @@ stops = [
   { after = 4, resets = [{ from = "Blood", to = "Pus" }, { from = "Poison", to = "Water" }] },
   { after = 8, resets = [{ from = "Water", to = "Poison", max_percent = 50 }, { from = "Aquavita" }] },
   { after = 12, resets = [{ from = "Phosphorus", to = "Dross" }, { from = "Alkali", to = "Water" }] },
-  { after = 16, resets = [{ from = "Fat", to = "Dross" }, { from = "Oil" }] },
+  { after = 16, resets = [{ from = "Fat", to = "Dross" }, { from = "Sulfur" }] },
 ]
 
 # Level runs. A stage level (`stages`) carries the body through fights and fountains

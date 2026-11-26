@@ -41,7 +41,7 @@ truth for how the game behaves today; the simulator mirrors it by hand. Numbers 
   remaining armor as flat reduction, then — if the target lives — applies the liquid's effect
   and the target becomes aggroed.
 - Enemy melee is a bare hit of `melee_power`. It pops the edge unit (the "tip"): the starting
-  mix (Water, Water, Oil, Poison, Acid, Lava from the centre out) has Lava on the edge.
+  mix (Water, Water, Water, Poison, Acid, Lava from the centre out; the game's third unit is Oil, which Oleg removed) has Lava on the edge.
 - Retaliation: when the slime has a dominant liquid before the hit and survives it, the
   attacker receives that liquid's effect. Under `rules.retaliation_pulses` > 0 its statuses last
   that many pulses (the design: 3, a full status like a strike; the fallback 2 lasts through
@@ -50,7 +50,7 @@ truth for how the game behaves today; the simulator mirrors it by hand. Numbers 
   `rules.dominance_basis = "current"` (the body now: the design's 60 %, the game's 80 %) or
   `"capacity"` (the fallback: a share of the capacity, so a bitten body does not fall into an
   affinity).
-  Water: blocks and removes Burning. Oil: the slime is Flammable. Blood: Regeneration
+  Water: blocks and removes Burning. Blood: Regeneration
   (`statuses.regeneration_growth` Blood per pulse up to capacity, queued first, removed when
   dominance changes). Mercury: Invisible — an enemy that is not aggroed cannot see, chase or
   bite the slime.
@@ -60,13 +60,16 @@ truth for how the game behaves today; the simulator mirrors it by hand. Numbers 
 | Liquid | Effect |
 | --- | --- |
 | Water | Wet (`statuses.wet`) |
-| Oil | Instability (`statuses.instability`) and Flammable (`statuses.flammable`) |
 | Poison | Poisoned: `statuses.poisoned_pulse` HP per pulse |
 | Acid | Corroding: strips `corrosion` armor per pulse, else `statuses.corroding_pulse` HP |
 | Lava | Burning: `statuses.burning_pulse` HP per pulse × Flammable |
 | Blood | Nothing; a Vampirism creature heals `statuses.vampirism_heal` |
 | Mercury | Nothing (power 2 in the design; the game's is 1) |
-| Pus, Phosphorus, Aquavita, Vitriol, Alkali, Ambrosia, Fat, Resin, Sulfur, Tar, Aphrodisiac | Nothing yet: a hit for the liquid's `power`; their rows come from the balance session |
+| Vitriol | Corroding that strips at least 1 armor per pulse |
+| Alkali | Instability for its `pulses` |
+| Sulfur | Flammable (`statuses.flammable`) |
+| Ambrosia | Heals a Living target 1 instead of hurting it (R2) |
+| Pus, Phosphorus, Aquavita, Fat, Resin, Aphrodisiac | Nothing yet: a hit for the liquid's `power`; their rows come from the balance session |
 
 **Heavy liquids** (`rules.heavy`, design): each listed liquid the slime holds at least its count
 of (Lava 3, Mercury 2) takes 1 action point off every round, checked at the round's start. The
@@ -80,7 +83,7 @@ The matrix builds a pure body only of `matrix.build_liquids`.
 - FIFO queue, each status pulses once at the start of its owner's turn, then loses one turn;
   it expires at 0. Damage over time ignores armor.
 - **Statuses stack.** `StatusQueue.Add` does not merge kinds: three Lava strikes are three
-  Burnings, each pulsing. Each Flammable doubles again (two Oil strikes: ×4).
+  Burnings, each pulsing. Each Flammable doubles again (two Sulfur strikes: ×4).
 - Wet cancels Burning and Corroding, Burning cancels Wet: the existing status is removed and the
   incoming one is not added.
 - Vampirism (innate): heals on receiving Blood and when its bite pops a Blood unit off the slime
@@ -225,10 +228,10 @@ Agreed design rules (balance `sim-reactions-spec.md`); not in the game yet.
 
 Agreed design rules (balance `sim-reactions-spec.md`, `bestiary-numbers.md`); not in the game.
 
-- **Elements.** The 10 circle liquids are their own element; the other 8 have none. An enemy's
+- **Elements.** The 10 circle liquids are their own element; the other 6 have none. An enemy's
   element is its `element`, else its corpse's most common liquid (the first on a tie), as its
-  own element or through `elements.corpse` (Blood, Fat → Alkali; Pus → Poison; Oil → Lava;
-  Sulfur → Acid; Resin, Tar → Ambrosia). A ⊣ B (A suppresses B): B is two places after A in a
+  own element or through `elements.corpse` (Blood, Fat → Alkali; Pus → Poison;
+  Sulfur → Acid; Resin → Ambrosia). A ⊣ B (A suppresses B): B is two places after A in a
   circle (Water ⊣ Lava ⊣ Aquavita ⊣ Phosphorus ⊣ Mercury ⊣ Water; Vitriol ⊣ Ambrosia ⊣ Poison ⊣
   Alkali ⊣ Acid ⊣ Vitriol).
 - **The slime's hit** (strike or spit; its element is the edge unit's):
@@ -325,3 +328,6 @@ Found while building the model (game `dev` at 44018ffe, 2026-11-25). The simulat
 6. `status-effects.md` and `strike-vs-puddle.md` have no row for Mercury; `substances.md` does.
 7. `design-guard.md` and `turn-structure.md` describe A* paths; the A* graph has octile costs
    and its own tie-breaking, which the docs do not specify (see Board and movement).
+8. Oil and Tar: Oleg removed them from the design (2026-11-26, 17 liquids); the game still has
+   Oil (the starting mix, Instability + Flammable, the Oil dominance's Forever Flammable). The
+   model follows the design here: no Oil, and the starting mix holds Water in its place.

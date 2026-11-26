@@ -139,17 +139,17 @@ fn blood_cannot_kill_a_vampire_bat() {
 }
 
 #[test]
-fn oil_makes_the_next_lava_strike_double() {
+fn sulfur_makes_the_next_lava_strike_double() {
     let d = design();
     let mut f = Fight::new(
         &d,
         0,
         1,
-        vec![Liquid::Oil, Liquid::Lava, Liquid::Lava],
+        vec![Liquid::Sulfur, Liquid::Lava, Liquid::Lava],
         (1, 5),
         &[("Mushroom", (2, 5))],
     );
-    f.slime_strike(0, Liquid::Oil);
+    f.slime_strike(0, Liquid::Sulfur);
     assert_eq!(f.enemies[0].hit_points, 4);
     f.slime_strike(0, Liquid::Lava);
     assert_eq!(f.enemies[0].hit_points, 2);
@@ -177,7 +177,7 @@ fn report_covers_every_build_and_encounter() {
     let d = design();
     let builds = report::builds(&d);
     let encounters = report::encounters(&d);
-    assert_eq!(builds.len(), 1 + 7);
+    assert_eq!(builds.len(), 1 + 6);
     assert_eq!(encounters.len(), 6 * 3);
     for ap in d.matrix.action_points.clone() {
         let r = report::run(&d, ap, builds.clone(), encounters.clone(), "t", "c");
@@ -323,7 +323,7 @@ fn text_report_is_stable_and_has_no_run_details() {
     assert!(a.contains("\nliquids.Lava.power = 1\n"));
     assert!(a.contains("\nenemies.Mushroom.traits = \n"));
     assert!(a.contains("\nmatrix.enemy_rows = 5 4 6\n"));
-    assert!(a.contains("\nslime.start = Water Water Oil Poison Acid Lava\n"));
+    assert!(a.contains("\nslime.start = Water Water Water Poison Acid Lava\n"));
     let with_file = text::render(&toml, Some("x.toml"), &reports("t", "c"), &[], &[]).unwrap();
     assert!(with_file.contains("\ndesign.file = x.toml\n"));
 
@@ -335,12 +335,12 @@ fn text_report_is_stable_and_has_no_run_details() {
         .take_while(|l| !l.is_empty())
         .collect();
     let (header, cells) = (table[0], &table[1..]);
-    assert_eq!(cells.len(), 2 * 8 * 18);
+    assert_eq!(cells.len(), 2 * 7 * 18);
     for section in ["[economy]", "[damage]"] {
         let rows = a.split(section).nth(1).unwrap().lines().skip(2);
         assert_eq!(
             rows.take_while(|l| !l.is_empty()).count(),
-            2 * 8 * 18,
+            2 * 7 * 18,
             "{section}"
         );
     }
@@ -587,18 +587,18 @@ fn slices_split_the_reference_fight_by_source() {
 
 #[test]
 fn overkill_counts_damage_beyond_the_hp_left() {
-    // Two Oil strikes make the Mushroom doubly Flammable: the next Lava strike means 4 HP.
+    // Two Sulfur strikes make the Mushroom doubly Flammable: the next Lava strike means 4 HP.
     let d = design();
     let mut f = Fight::new(
         &d,
         0,
         1,
-        vec![Liquid::Oil, Liquid::Oil, Liquid::Lava, Liquid::Water],
+        vec![Liquid::Sulfur, Liquid::Sulfur, Liquid::Lava, Liquid::Water],
         (1, 5),
         &[("Mushroom", (2, 5))],
     );
-    f.slime_strike(0, Liquid::Oil);
-    f.slime_strike(0, Liquid::Oil);
+    f.slime_strike(0, Liquid::Sulfur);
+    f.slime_strike(0, Liquid::Sulfur);
     f.slime_strike(0, Liquid::Lava);
     assert_eq!(f.enemies[0].hit_points, 0);
     let r = f.run();
@@ -607,7 +607,7 @@ fn overkill_counts_damage_beyond_the_hp_left() {
 
 #[test]
 fn overkill_counts_a_status_pulse_beyond_the_hp_left() {
-    // Lava then Oil: Burning on a Flammable Mushroom, 3 HP left. At 1 HP its Burning pulse means
+    // Lava then Sulfur: Burning on a Flammable Mushroom, 3 HP left. At 1 HP its Burning pulse means
     // 2 (×2 Flammable) and takes 1: overkill 1. The slime keeps one Water and only waits.
     // The game's rule (no last-drop strike), so the slime only waits on its last unit.
     let mut d = design();
@@ -617,12 +617,12 @@ fn overkill_counts_a_status_pulse_beyond_the_hp_left() {
         &d,
         0,
         1,
-        vec![Liquid::Lava, Liquid::Oil, Liquid::Water],
+        vec![Liquid::Lava, Liquid::Sulfur, Liquid::Water],
         (1, 5),
         &[("Mushroom", (2, 5))],
     );
     f.slime_strike(0, Liquid::Lava);
-    f.slime_strike(0, Liquid::Oil);
+    f.slime_strike(0, Liquid::Sulfur);
     f.enemies[0].hit_points = 1;
     let r = f.run();
     assert!(r.won);
@@ -647,7 +647,7 @@ fn level_net_counts_the_whole_corpse() {
 }
 
 // S13: the body is ordered edge → centre; strikes, bites and status losses take the edge unit,
-// new units land on the edge. The starting mix (Water, Water, Oil, Poison, Acid, Lava) has Lava
+// new units land on the edge. The starting mix (Water, Water, Sulfur, Poison, Acid, Lava) has Lava
 // on the edge: the newcomer strikes Lava first, the bite then pops Acid, the next strike is
 // Poison.
 #[test]
@@ -673,16 +673,16 @@ fn swap_exchanges_neighbours_counted_from_the_edge() {
         &d,
         0,
         1,
-        vec![Liquid::Water, Liquid::Oil, Liquid::Lava],
+        vec![Liquid::Water, Liquid::Fat, Liquid::Lava],
         (1, 5),
         &[("Mushroom", (2, 5))],
     );
-    f.slime_swap(0); // edge Lava <-> Oil
-    assert_eq!(f.slime.volume, [Liquid::Water, Liquid::Lava, Liquid::Oil]);
+    f.slime_swap(0); // edge Lava <-> Fat
+    assert_eq!(f.slime.volume, [Liquid::Water, Liquid::Lava, Liquid::Fat]);
     f.slime_swap(1); // Lava <-> Water
-    assert_eq!(f.slime.volume, [Liquid::Lava, Liquid::Water, Liquid::Oil]);
+    assert_eq!(f.slime.volume, [Liquid::Lava, Liquid::Water, Liquid::Fat]);
     f.slime_swap(2); // no unit at position 3: nothing happens
-    assert_eq!(f.slime.volume, [Liquid::Lava, Liquid::Water, Liquid::Oil]);
+    assert_eq!(f.slime.volume, [Liquid::Lava, Liquid::Water, Liquid::Fat]);
     let r = f.run();
     assert_eq!(r.tally.swaps, 2);
 }
@@ -732,10 +732,10 @@ fn arranger_keeps_the_kept_liquid_deep() {
 
 #[test]
 fn arranger_keeps_water_off_fire() {
-    // Lava sets the Mushroom burning; Water is now on the edge with Oil under it: swap.
+    // Lava sets the Mushroom burning; Water is now on the edge with Sulfur under it: swap.
     assert_eq!(
         first_actions(
-            &[Liquid::Oil, Liquid::Oil, Liquid::Water, Liquid::Lava],
+            &[Liquid::Sulfur, Liquid::Sulfur, Liquid::Water, Liquid::Lava],
             ARRANGER,
             3,
             3
@@ -743,23 +743,23 @@ fn arranger_keeps_water_off_fire() {
         [
             "Slime strikes Mushroom#1 with Lava",
             "Slime swaps",
-            "Slime strikes Mushroom#1 with Oil"
+            "Slime strikes Mushroom#1 with Sulfur"
         ]
     );
 }
 
 #[test]
 fn arranger_brings_lava_to_flammable() {
-    // Oil makes the Mushroom Flammable; Water on the edge, Lava under it: swap, strike Lava.
+    // Sulfur makes the Mushroom Flammable; Water on the edge, Lava under it: swap, strike Lava.
     assert_eq!(
         first_actions(
-            &[Liquid::Water, Liquid::Lava, Liquid::Water, Liquid::Oil],
+            &[Liquid::Water, Liquid::Lava, Liquid::Water, Liquid::Sulfur],
             ARRANGER,
             3,
             3
         ),
         [
-            "Slime strikes Mushroom#1 with Oil",
+            "Slime strikes Mushroom#1 with Sulfur",
             "Slime swaps",
             "Slime strikes Mushroom#1 with Lava"
         ]
@@ -767,13 +767,13 @@ fn arranger_brings_lava_to_flammable() {
     // The newcomer never swaps.
     assert_eq!(
         first_actions(
-            &[Liquid::Water, Liquid::Lava, Liquid::Water, Liquid::Oil],
+            &[Liquid::Water, Liquid::Lava, Liquid::Water, Liquid::Sulfur],
             Policy::Newcomer,
             3,
             2
         ),
         [
-            "Slime strikes Mushroom#1 with Oil",
+            "Slime strikes Mushroom#1 with Sulfur",
             "Slime strikes Mushroom#1 with Water"
         ]
     );
@@ -781,18 +781,18 @@ fn arranger_brings_lava_to_flammable() {
 
 #[test]
 fn a_swap_on_the_last_action_feeds_the_bite() {
-    // At 2 actions: strike Oil, swap Lava to the edge as the round's last action; the Mushroom's
+    // At 2 actions: strike Sulfur, swap Lava to the edge as the round's last action; the Mushroom's
     // bite pops the edge — the Lava — so the next strike is Poison. (Poison, not Water, beside
     // the Lava: Water and Lava would react, R1.)
     assert_eq!(
         first_actions(
-            &[Liquid::Poison, Liquid::Lava, Liquid::Poison, Liquid::Oil],
+            &[Liquid::Poison, Liquid::Lava, Liquid::Poison, Liquid::Sulfur],
             ARRANGER,
             2,
             3
         ),
         [
-            "Slime strikes Mushroom#1 with Oil",
+            "Slime strikes Mushroom#1 with Sulfur",
             "Slime swaps",
             "Slime strikes Mushroom#1 with Poison"
         ]
@@ -801,7 +801,7 @@ fn a_swap_on_the_last_action_feeds_the_bite() {
 
 #[test]
 fn arranger_strikes_after_one_swap_even_when_another_rule_would_swap_back() {
-    // Keep Lava. Oil makes the Mushroom Flammable; Lava is then on the edge over Water, so rule
+    // Keep Lava. Sulfur makes the Mushroom Flammable; Lava is then on the edge over Water, so rule
     // 1 swaps Water up. Rule 3 would swap the Lava back — but one swap per strike: it strikes.
     let keep_lava = Policy::Arranger {
         keep: Some(Liquid::Lava),
@@ -811,12 +811,12 @@ fn arranger_strikes_after_one_swap_even_when_another_rule_would_swap_back() {
         Liquid::Water,
         Liquid::Water,
         Liquid::Lava,
-        Liquid::Oil,
+        Liquid::Sulfur,
     ];
     assert_eq!(
         first_actions(&body, keep_lava, 3, 3),
         [
-            "Slime strikes Mushroom#1 with Oil",
+            "Slime strikes Mushroom#1 with Sulfur",
             "Slime swaps",
             "Slime strikes Mushroom#1 with Water"
         ]
@@ -825,10 +825,10 @@ fn arranger_strikes_after_one_swap_even_when_another_rule_would_swap_back() {
 
 #[test]
 fn arranger_keeps_water_off_corroding_too() {
-    // Acid leaves Corroding; Water on the edge over Oil: swap, then strike with Oil.
+    // Acid leaves Corroding; Water on the edge over Sulfur: swap, then strike with Sulfur.
     assert_eq!(
         first_actions(
-            &[Liquid::Oil, Liquid::Oil, Liquid::Water, Liquid::Acid],
+            &[Liquid::Sulfur, Liquid::Sulfur, Liquid::Water, Liquid::Acid],
             ARRANGER,
             3,
             3
@@ -836,13 +836,13 @@ fn arranger_keeps_water_off_corroding_too() {
         [
             "Slime strikes Mushroom#1 with Acid",
             "Slime swaps",
-            "Slime strikes Mushroom#1 with Oil"
+            "Slime strikes Mushroom#1 with Sulfur"
         ]
     );
     // Water over Water: rule 2 does not swap.
     assert_eq!(
         first_actions(
-            &[Liquid::Oil, Liquid::Water, Liquid::Water, Liquid::Acid],
+            &[Liquid::Sulfur, Liquid::Water, Liquid::Water, Liquid::Acid],
             ARRANGER,
             3,
             2
