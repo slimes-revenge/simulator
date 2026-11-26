@@ -1177,46 +1177,50 @@ impl<'a> Fight<'a> {
             let blocker =
                 next.and_then(|c| self.enemies.iter().position(|e| e.alive() && e.cell == c));
             if let Some(i) = blocker.filter(|&i| self.gives_up(i)) {
-                // An aggroed blocker stays while it fights. When a deeper unit can hurt it, the
-                // slime spits its useless edge away to dig down to it; when none can and the
-                // blocker cannot hurt the slime either, nothing will ever change.
-                if self.engaging(&self.enemies[i]) {
-                    let v = &self.slime.volume;
-                    let deeper = v[..v.len().saturating_sub(3)]
-                        .iter()
-                        .any(|&u| !self.useless_against(u, i));
-                    if deeper && v.len() > 1 {
-                        let unit = self.slime.volume.pop().expect("more than one unit");
-                        self.units_spent += 1;
-                        *self.tally.spent_by.entry(unit).or_insert(0) += 1;
-                        let d = self.d;
-                        refresh_dominance(d, &mut self.slime, &mut self.next_status_id);
-                        return self.note(|f| {
-                            format!("Slime spits {unit:?} away to dig past {}", f.label(i))
-                        });
-                    }
-                    let theirs = self.enemies[i].element;
-                    let edge = self
-                        .slime
-                        .volume
-                        .last()
-                        .and_then(|&l| self.d.elements.of(l));
-                    if !deeper && theirs.is_some() && theirs == edge {
-                        self.stalemate = true;
-                        return self.note(|f| {
-                            format!("{} and the slime cannot hurt each other", f.label(i))
-                        });
-                    }
+                // An aggroed blocker stays while it fights. When a unit under the edge can hurt
+                // it but no bring-up reaches it, the slime spits its useless edge away to dig.
+                let hurts = |f: &Fight, u: Liquid, j: usize| {
+                    f.d.liquid(u).power > 0 && !f.useless_against(u, j)
+                };
+                let v = &self.slime.volume;
+                let under = v[..v.len().saturating_sub(1)]
+                    .iter()
+                    .any(|&u| hurts(self, u, i));
+                if self.engaging(&self.enemies[i]) && under {
+                    let unit = self.slime.volume.pop().expect("a unit under the edge");
+                    self.units_spent += 1;
+                    *self.tally.spent_by.entry(unit).or_insert(0) += 1;
+                    let d = self.d;
+                    refresh_dominance(d, &mut self.slime, &mut self.next_status_id);
+                    return self
+                        .note(|f| format!("Slime spits {unit:?} away to dig past {}", f.label(i)));
                 }
                 // A blocker it cannot hurt: wait for it to move (or die of its statuses). The
                 // run ends only when stationary given-up enemies close every way to the goal.
-                let stuck = |e: &Creature| {
-                    e.alive()
-                        && e.base_speed == 0
-                        && pending_status_damage(self.d, e) < e.hit_points
+                let lives =
+                    |e: &Creature| e.alive() && pending_status_damage(self.d, e) < e.hit_points;
+                // An aggroed neighbour that no unit can hurt and that cannot hurt the slime (its
+                // element is the edge's) never steps off: a wall like a stationary one, unless
+                // another enemy still fights the slime.
+                let edge = self
+                    .slime
+                    .volume
+                    .last()
+                    .and_then(|&l| self.d.elements.of(l));
+                let frozen = |j: usize| {
+                    let e = &self.enemies[j];
+                    let harmless = e.melee_power <= 0 || (e.element.is_some() && e.element == edge);
+                    harmless
+                        && self.engaging(e)
+                        && chebyshev(e.cell, self.slime.cell) == 1
+                        && !self.slime.volume.iter().any(|&u| hurts(self, u, j))
                 };
+                let fighting = (0..self.enemies.len()).any(|j| {
+                    self.engaging(&self.enemies[j]) && !self.gives_up(j) && self.can_reach(j)
+                });
                 let walls: Vec<Cell> = (0..self.enemies.len())
-                    .filter(|&j| stuck(&self.enemies[j]) && self.gives_up(j))
+                    .filter(|&j| lives(&self.enemies[j]) && self.gives_up(j))
+                    .filter(|&j| self.enemies[j].base_speed == 0 || (frozen(j) && !fighting))
                     .map(|j| self.enemies[j].cell)
                     .collect();
                 let way = path::find(

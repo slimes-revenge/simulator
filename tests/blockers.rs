@@ -41,8 +41,24 @@ fn a_blocker_and_a_slime_that_cannot_hurt_each_other_end_in_a_stalemate() {
     );
     assert_eq!(r.cause.as_deref(), Some("stalemate"));
     assert!(r.rounds < 50, "not a timeout: {}", r.rounds);
+    assert!(log.iter().any(|l| l.ends_with("blocks the way for good")));
+}
+
+#[test]
+fn it_digs_when_a_bring_up_would_react_and_never_for_pus() {
+    // Phosphorus under the Water edge can hurt the Undine, but bringing it up would put Water
+    // next to Lava: the slime spits the Water away instead of giving up.
+    let (r, log) = play("[\"Lava\", \"Phosphorus\", \"Water\"]", 9);
+    assert_ne!(r.cause.as_deref(), Some("stalemate"), "{log:?}");
     assert!(
         log.iter()
-            .any(|l| l.ends_with("and the slime cannot hurt each other"))
+            .any(|l| l.starts_with("Slime spits Water away to dig past Undine"))
     );
+    // Pus (power 0) hurts nothing: no digging toward it.
+    let (r, log) = play(
+        "[\"Pus\", \"Water\", \"Water\", \"Water\", \"Water\", \"Water\"]",
+        9,
+    );
+    assert_eq!(r.cause.as_deref(), Some("stalemate"));
+    assert!(!log.iter().any(|l| l.contains("dig past")));
 }
