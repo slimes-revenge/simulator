@@ -83,14 +83,22 @@ pub fn run(d: &Design) -> (Vec<LadderRow>, Vec<SummaryRow>) {
                 let spec = level.map.as_ref().expect("checked in parse");
                 let ld = map::level_design(d, level);
                 let mercury = (level.policy == "mercury").then_some(d.rules.dominance_percent);
-                let spit = level.policy != "pus";
+                // Pus builds keep their Pus: `pus`, `b-pus`, and `b-auto` holding Pus as its
+                // affinity.
+                let pct = d.rules.dominance_percent;
+                let spit = |b: &[Liquid]| {
+                    let pus = b.iter().filter(|&&l| l == Liquid::Pus).count();
+                    let auto_pus =
+                        level.policy == "b-auto" && !b.is_empty() && pus * 100 >= b.len() * pct;
+                    !["pus", "b-pus"].contains(&level.policy.as_str()) && !auto_pus
+                };
                 let start: Bodies = match parent(&rows, i) {
                     Some(j) => match d.ladder.stops.iter().find(|s| s.after == rows[j].1.level) {
                         Some(stop) => bodies[j]
                             .iter()
                             .map(|b| {
                                 b.as_ref()
-                                    .map(|b| at_stop(b, stop, level.capacity, mercury, spit))
+                                    .map(|b| at_stop(b, stop, level.capacity, mercury, spit(b)))
                             })
                             .collect(),
                         None => bodies[j].clone(),
@@ -144,9 +152,9 @@ pub fn run(d: &Design) -> (Vec<LadderRow>, Vec<SummaryRow>) {
 
 /// D4: a stop between maps. Each reset turns its `from` units into `to` (or drops them),
 /// edge-most first, at most `max_percent` of the body; then the empty cells up to `capacity`
-/// fill with Water. Units are never pushed out, so Pus held as a bad affinity stays.
+/// fill with Water. The refill pushes no unit out.
 /// `mercury_percent` (D7, the `mercury` policy): a body whose affinity is Mercury (that share of
-/// it) refills only up to Mercury × 100 / that percent. `spit` (every policy but `pus`): after
+/// it) refills only up to Mercury × 100 / that percent. `spit` (every policy but the Pus builds): after
 /// the resets the slime spits out all its Pus and Dross, at no cost (the smith's house,
 /// balance `resets.md`), so the refill replaces them with Water.
 pub fn at_stop(

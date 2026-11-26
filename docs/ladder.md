@@ -45,10 +45,11 @@ level.
 After a level listed as a stop's `after` (4, 8, 12, 16), the body each seed carries goes
 through the stop before the next level: each reset turns its `from` units into `to` (or drops
 them when `to` is absent), edge-most first, at most `max_percent` of the body's units. Then every
-policy but `pus` spits out all its Pus and Dross, free (the smith's house, balance
+policy but the Pus builds (`pus`, `b-pus`, and `b-auto` holding Pus as its affinity) spits out
+all its Pus and Dross, free (the smith's house, balance
 `resets.md`). Then the empty cells up to the next row's capacity fill with Water at the centre
 (the carried units move toward the edge, the edge unit stays the edge). The refill pushes no
-unit out, so a `pus` row keeps its Pus (balance `sim-3d-spec.md` D4). A `mercury` row whose affinity is
+unit out, so a Pus build keeps its Pus (balance `sim-3d-spec.md` D4). A `mercury` row whose affinity is
 Mercury refills only up to Mercury × 100 / `rules.dominance_percent` (D7).
 
 ## Summary
