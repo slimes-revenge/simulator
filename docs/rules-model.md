@@ -52,7 +52,8 @@ truth for how the game behaves today; the simulator mirrors it by hand. Numbers 
   affinity).
   Water: blocks and removes Burning. Blood: Regeneration
   (`statuses.regeneration_growth` Blood per pulse up to capacity, queued first, removed when
-  dominance changes). Mercury: Invisible — an enemy that is not aggroed cannot see, chase or
+  dominance changes). Mercury: by `rules.mercury_affinity` — `defence` (the design, D7 below)
+  or `invisible` (the game, the fallback): an enemy that is not aggroed cannot see, chase or
   bite the slime.
 
 ## Liquid effects (`Substance.Apply`, on strike and retaliation)
@@ -306,6 +307,29 @@ Agreed design rules; not in the game.
   the whole move); a fast walk infects only on the cell it ends on.
 - **Dross:** dead cargo a stop leaves (no power, no effect, a cell). Bites take it like any
   unit, but it is not life: a body of nothing but Dross is dead.
+
+## D7: the Mercury affinity and the `mercury` policy (balance `sim-3d-spec.md`)
+
+Agreed design rules; not in the game.
+
+- **Defence** (`rules.mercury_affinity = "defence"`): a bite on a slime whose affinity is
+  Mercury deals half its power, rounded up (after the element and Infected changes), and each
+  unit it takes is the edge-most non-Mercury unit while one is left, then the edge. The slime is
+  seen like any other. "The slime cannot be moved" has nothing to act on yet: no ram, current,
+  whirlpool or pull exists in the model.
+- **`mercury` policy** (matrix and maps):
+  1. without the affinity: `kite` (careful drinking on maps);
+  2. with it: it goes for the nearest living enemy it sees (sight range, walls block) that it
+     can reach and hurt, and strikes it when next to it, instead of kiting or waiting;
+  3. before a strike (one action, like `reader`): it brings Mercury from 1 or 2 under the edge
+     up when spending one keeps the affinity and the target is not of Mercury's element, else
+     a non-Mercury unit; the stall rule brings a non-Mercury unit up against Mercury enemies;
+  4. while it holds Mercury it keeps the body within Mercury × 100 / `dominance_percent`: it
+     drinks no non-Mercury unit past that (at the exit it leaves the rest of the river), eats
+     a corpse's Mercury first and leaves what would thin it, and a stop refills it only up to
+     that (`ladder::at_stop`).
+- At 1 action a round the brought-up unit is bitten before it strikes (the defence takes
+  non-Mercury first), so against a Mercury enemy the slime strikes only at 2 actions or more.
 
 ## Where the docs and the code disagree
 
