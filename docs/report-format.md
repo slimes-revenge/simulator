@@ -102,7 +102,7 @@ ap policy     build      encounter        strike status  retal overkill doomed p
 | --- | --- |
 | `strike` | HP removed by strikes |
 | `status` | HP removed by pulses of statuses the slime's strikes applied |
-| `retal` | HP removed by pulses of statuses Retaliation applied |
+| `retal` | HP removed by pulses of statuses Retaliation and the edge retort (4c) applied |
 | `overkill` | Damage meant beyond the HP the target had at that moment, any source |
 | `doomed` | Strikes on an enemy whose queued status pulses alone (HP and statuses at strike time, Flammable as it stands, Corroding stripping armor first, no heals) would already kill it |
 | `per_unit` | `(strike + status + retal) / spent` over all seeds; `-` when nothing was spent |

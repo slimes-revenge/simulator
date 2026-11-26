@@ -2165,7 +2165,11 @@ impl<'a> Fight<'a> {
         if !e.alive() || e.element.is_none() || e.element != d.elements.living {
             return;
         }
-        let pulses = d.pus.infected_pulses;
+        let pulses = if source == Source::Edge {
+            d.rules.edge_retort_pulses
+        } else {
+            d.pus.infected_pulses
+        };
         if let Some(s) = e
             .statuses
             .iter_mut()
@@ -2429,10 +2433,15 @@ impl<'a> Fight<'a> {
         if self.slime.alive() && traits.contains(&Trait::Nets) {
             self.rooted = 1;
         }
+        // 4c: the edge unit the bite took leaves its status on the biter for
+        // `rules.edge_retort_pulses`, unless it is the affinity's liquid (that retaliates in
+        // full below). Pus infects (the Living only).
+        let edge = tip.filter(|&l| d.rules.edge_retort_pulses > 0 && Some(l) != retort);
+        if self.slime.alive() && edge == Some(Liquid::Pus) {
+            self.infect(i, Source::Edge);
+        }
         let enemy = &mut self.enemies[i];
         if self.slime.alive() {
-            // The affinity retaliates in full; without one, the edge unit the bite took leaves
-            // its status on the biter for `rules.edge_retort_pulses` (4c).
             if let Some(liquid) = retort {
                 apply_liquid(
                     d,
@@ -2441,7 +2450,8 @@ impl<'a> Fight<'a> {
                     Source::Retaliation,
                     &mut self.next_status_id,
                 );
-            } else if let Some(liquid) = tip.filter(|_| d.rules.edge_retort_pulses > 0) {
+            }
+            if let Some(liquid) = edge {
                 apply_liquid(d, enemy, liquid, Source::Edge, &mut self.next_status_id);
             }
             enemy.aggroed = true;

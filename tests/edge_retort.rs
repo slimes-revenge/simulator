@@ -37,6 +37,40 @@ fn a_bitten_edge_leaves_its_status_on_the_biter_for_one_turn() {
     assert!(!after_bite(&off, mixed).contains("Poisoned"));
     // An affinity retaliates in full (`retaliation_pulses`, 3).
     assert!(after_bite(&d, vec![Poison; 10]).contains("(Poisoned, 3)"));
+    // Another affinity (Fat, no status) does not swallow the edge retort.
+    let mut fat = vec![Fat; 9];
+    fat.push(Poison);
+    assert!(after_bite(&d, fat).contains("(Poisoned, 2)"));
+    // Under the Mercury defence the bite takes the edge-most non-Mercury unit: its retort.
+    let mut mercury = vec![Mercury; 8];
+    mercury.extend([Poison, Mercury]);
+    assert!(after_bite(&d, mercury).contains("(Poisoned, 2)"));
+}
+
+#[test]
+fn a_pus_edge_infects_a_living_biter_for_one_turn() {
+    let mut d = Design::bundled();
+    d.enemies
+        .iter_mut()
+        .find(|e| e.name == "Mushroom")
+        .unwrap()
+        .element = Some(Alkali);
+    let mut f = Fight::new(
+        &d,
+        0,
+        1,
+        vec![Fat, Water, Fat, Pus],
+        (0, 5),
+        &[("Mushroom", (1, 5))],
+    );
+    f.policy = Policy::Kite;
+    f.max_rounds = 1;
+    let log = f.run_traced().1;
+    let end = log
+        .iter()
+        .find(|l| l.starts_with("end of round 1"))
+        .unwrap();
+    assert!(end.contains("(Infected, 2)"), "{end}");
 }
 
 #[test]
