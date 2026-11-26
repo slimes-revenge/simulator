@@ -121,3 +121,35 @@ fn planner_full_percent_is_validated() {
             .contains("planner_full_percent")
     );
 }
+
+#[test]
+fn planner_prefers_a_dominating_unit_and_never_heals_the_living() {
+    // A Poison target (Poison ⊣ Alkali, Ambrosia ⊣ Poison): of Water and Ambrosia under the
+    // edge, Ambrosia comes up.
+    let mut d = Design::bundled();
+    with_element(&mut d, "Mushroom", Poison);
+    let l = log(
+        &d,
+        vec![Fat, Ambrosia, Water, Alkali],
+        &[("Mushroom", (2, 5))],
+        2,
+    );
+    assert!(
+        l.iter()
+            .any(|x| x == "Slime brings Ambrosia up: the target suppresses its edge"),
+        "{l:?}"
+    );
+    // A Living (Alkali) target suppresses Acid (Alkali ⊣ Acid); Ambrosia would heal it.
+    let d = Design::bundled();
+    let l = log(
+        &d,
+        vec![Water, Water, Ambrosia, Acid],
+        &[("Mushroom", (2, 5))],
+        2,
+    );
+    assert!(
+        !l.iter()
+            .any(|x| x == "Slime brings Ambrosia up: the target suppresses its edge"),
+        "{l:?}"
+    );
+}

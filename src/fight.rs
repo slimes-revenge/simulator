@@ -1669,11 +1669,17 @@ impl<'a> Fight<'a> {
         }
         let el = &self.d.elements;
         let theirs = self.enemies[target].element?;
-        self.bring_up(|u| {
+        // Hurts it (not its element, not Ambrosia on the Living) and it does not suppress it;
+        // a unit that dominates it first, as `reader` would.
+        let ok = |u: Liquid| {
             self.d.liquid(u).power > 0
                 && !self.useless_against(u, target)
+                && !(u == Liquid::Ambrosia && self.living(target))
                 && !el.of(u).is_some_and(|m| el.suppresses(theirs, m))
-        })
+        };
+        let dominates = |u: Liquid| el.of(u).is_some_and(|m| el.suppresses(m, theirs));
+        self.bring_up(|u| ok(u) && dominates(u))
+            .or_else(|| self.bring_up(ok))
     }
 
     /// The liquid in the body whose element suppresses the most living enemies' elements.
@@ -1717,14 +1723,14 @@ impl<'a> Fight<'a> {
     }
 
     /// `planner`: once `policies.planner_full_percent` full, it eats only units whose element
-    /// suppresses some enemy's on the level.
+    /// suppresses some living enemy's on the level.
     fn planner_eats(&self, unit: Liquid) -> bool {
         let full = self.slime.volume.len() * 100
             >= self.d.slime.capacity * self.d.policies.planner_full_percent;
         let el = &self.d.elements;
         self.policy != Policy::Planner
             || !full
-            || self.enemies.iter().any(|e| {
+            || self.enemies.iter().filter(|e| e.alive()).any(|e| {
                 el.of(unit)
                     .zip(e.element)
                     .is_some_and(|(a, b)| el.suppresses(a, b))
