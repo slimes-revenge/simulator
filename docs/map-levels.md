@@ -69,7 +69,8 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
 - **A blocked way (every policy):** when no free path to the goal exists, the slime follows the
   path through creatures. If the next cell holds an enemy, or an aggroed enemy stands next to
   the slime, it hits it. Otherwise it steps on toward the blocker. A blocker it cannot hurt:
-  see the R2 stall rule in [rules-model.md](rules-model.md) (dig past it, or a stalemate).
+  see the R2 stall rule in [rules-model.md](rules-model.md) (dig down to a unit that hurts it,
+  or slip past it when neither side can hurt the other).
 - **Fights only with enemies that can come:** an enemy holds the slime in an episode (and in
   lure's and kite's holding) when it is aggroed and either moves (speed above 0) or stands next
   to the slime. A stationary blocker that merely saw the slime does not.

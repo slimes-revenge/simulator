@@ -271,11 +271,11 @@ Agreed design rules (balance `sim-reactions-spec.md`, `bestiary-numbers.md`); no
   cannot hurt that blocks the way: when it is aggroed (it stays while it fights) and some unit
   under the edge could hurt it (power above 0, not its element) but no bring-up reaches it (too
   deep, or the move would make reacting neighbours), the slime spits its useless edge unit away
-  (one action, a spent unit) and digs down to it. Otherwise it is waited for. An aggroed
-  neighbour that no unit can hurt and that cannot hurt the slime (no bite, or its element is
-  the edge's) never steps off, so it counts as a wall like a stationary given-up enemy, unless
-  another enemy is still fighting the slime. When such walls (given-up enemies not dying
-  of their statuses) close every way to the goal, the run ends as a loss, cause `stalemate`. A matrix fight in which the slime gives up on every living enemy (none dying of
+  (one action, a spent unit) and digs down to it. A blocker that no unit can hurt and that
+  cannot hurt the slime (no bite, or its element is the edge's) is slipped past: same-element
+  creatures do not fight, so the two swap cells (one action; not while netted). Any other
+  blocker is waited for. When stationary given-up enemies (not dying of their statuses) that
+  can hurt the slime close every way to the goal, the run ends as a loss, cause `stalemate`. A matrix fight in which the slime gives up on every living enemy (none dying of
   its statuses) ends at once the same way. `lure` and `kite` hold for an enemy only while it
   has a way to the slime past walls, stones and given-up enemies. `arranger` never swaps the
   target's own element up. A bring-up never raises the number of reacting pairs.

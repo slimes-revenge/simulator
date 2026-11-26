@@ -327,5 +327,5 @@ Loss causes:
 | --- | --- |
 | `melee:<Enemy>` | That enemy's bite took the slime's last unit |
 | `status:<Status>` | A status pulse on the slime took its last unit (not possible in v1: enemies apply no statuses) |
-| `stalemate` | The slime gave up on every living enemy it could not hurt (R2: its own element, nothing within 2 of the edge to bring up), or a stationary enemy it cannot hurt blocks the only way to the exit, or an aggroed neighbour that neither side can hurt closes the only way (while no other enemy fights the slime) |
+| `stalemate` | The slime gave up on every living enemy it could not hurt (R2: its own element, nothing within 2 of the edge to bring up), or a stationary enemy it cannot hurt blocks the only way to the exit, (a blocker neither side can hurt is slipped past instead) |
 | `timeout` | Nobody won within `rules.max_rounds` rounds, for example a Blood slime against a Vampirism bat that heals more than it loses, or a slime down to its last unit next to a Passive enemy that was never hit |

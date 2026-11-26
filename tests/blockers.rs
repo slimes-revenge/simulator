@@ -1,5 +1,5 @@
 //! A mobile blocker the slime cannot hurt (balance's ladder timeouts): the slime digs down to
-//! a unit that can, or the run ends as a stalemate when neither side can hurt the other.
+//! a unit that can, or slips past it when neither side can hurt the other.
 
 use simulator::data::Design;
 use simulator::map;
@@ -34,14 +34,17 @@ fn a_slime_digs_past_a_blocker_its_edge_cannot_hurt() {
 }
 
 #[test]
-fn a_blocker_and_a_slime_that_cannot_hurt_each_other_end_in_a_stalemate() {
+fn a_slime_slips_past_a_blocker_when_neither_can_hurt_the_other() {
+    // Water slime, Water Undine: same-element creatures do not fight; they swap cells.
     let (r, log) = play(
         "[\"Water\", \"Water\", \"Water\", \"Water\", \"Water\", \"Water\"]",
         9,
     );
-    assert_eq!(r.cause.as_deref(), Some("stalemate"));
-    assert!(r.rounds < 50, "not a timeout: {}", r.rounds);
-    assert!(log.iter().any(|l| l.ends_with("blocks the way for good")));
+    assert!(r.won, "{:?}", r.cause);
+    assert!(
+        log.iter().any(|l| l.starts_with("Slime slips past Undine")),
+        "{log:?}"
+    );
 }
 
 #[test]
@@ -54,11 +57,12 @@ fn it_digs_when_a_bring_up_would_react_and_never_for_pus() {
         log.iter()
             .any(|l| l.starts_with("Slime spits Water away to dig past Undine"))
     );
-    // Pus (power 0) hurts nothing: no digging toward it.
+    // Pus (power 0) hurts nothing: no digging toward it; the slime slips past instead.
     let (r, log) = play(
         "[\"Pus\", \"Water\", \"Water\", \"Water\", \"Water\", \"Water\"]",
         9,
     );
-    assert_eq!(r.cause.as_deref(), Some("stalemate"));
+    assert!(r.won, "{:?}", r.cause);
     assert!(!log.iter().any(|l| l.contains("dig past")));
+    assert!(log.iter().any(|l| l.starts_with("Slime slips past Undine")));
 }

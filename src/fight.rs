@@ -1195,32 +1195,34 @@ impl<'a> Fight<'a> {
                     return self
                         .note(|f| format!("Slime spits {unit:?} away to dig past {}", f.label(i)));
                 }
-                // A blocker it cannot hurt: wait for it to move (or die of its statuses). The
-                // run ends only when stationary given-up enemies close every way to the goal.
-                let lives =
-                    |e: &Creature| e.alive() && pending_status_damage(self.d, e) < e.hit_points;
-                // An aggroed neighbour that no unit can hurt and that cannot hurt the slime (its
-                // element is the edge's) never steps off: a wall like a stationary one, unless
-                // another enemy still fights the slime.
+                // Same-element creatures do not fight: a blocker that no unit can hurt and that
+                // cannot hurt the slime (no bite, or its element is the edge's) is slipped past,
+                // the two swapping cells (one action).
                 let edge = self
                     .slime
                     .volume
                     .last()
                     .and_then(|&l| self.d.elements.of(l));
-                let frozen = |j: usize| {
-                    let e = &self.enemies[j];
-                    let harmless = e.melee_power <= 0 || (e.element.is_some() && e.element == edge);
-                    harmless
-                        && self.engaging(e)
-                        && chebyshev(e.cell, self.slime.cell) == 1
-                        && !self.slime.volume.iter().any(|&u| hurts(self, u, j))
+                let e = &self.enemies[i];
+                let harmless = e.melee_power <= 0 || (e.element.is_some() && e.element == edge);
+                if harmless && !self.slime.volume.iter().any(|&u| hurts(self, u, i)) {
+                    let (from, to) = (self.slime.cell, e.cell);
+                    if self.move_slime(to) {
+                        self.enemies[i].cell = from;
+                        self.note(|f| format!("Slime slips past {}: {from:?}->{to:?}", f.label(i)));
+                    }
+                    return;
+                }
+                // A blocker it cannot hurt that can hurt it: wait for it to move (or die of its
+                // statuses). The run ends only when stationary given-up enemies close every way
+                // to the goal.
+                let stuck = |e: &Creature| {
+                    e.alive()
+                        && e.base_speed == 0
+                        && pending_status_damage(self.d, e) < e.hit_points
                 };
-                let fighting = (0..self.enemies.len()).any(|j| {
-                    self.engaging(&self.enemies[j]) && !self.gives_up(j) && self.can_reach(j)
-                });
                 let walls: Vec<Cell> = (0..self.enemies.len())
-                    .filter(|&j| lives(&self.enemies[j]) && self.gives_up(j))
-                    .filter(|&j| self.enemies[j].base_speed == 0 || (frozen(j) && !fighting))
+                    .filter(|&j| stuck(&self.enemies[j]) && self.gives_up(j))
                     .map(|j| self.enemies[j].cell)
                     .collect();
                 let way = path::find(
