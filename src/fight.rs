@@ -22,6 +22,11 @@ pub enum StatusKind {
     Regeneration,
     /// D3 (Living enemies): `pus.infected_damage` HP per pulse, bite −`pus.infected_bite`.
     Infected,
+    /// 4a, Ichor: `statuses.cold_fire_pulse` HP per pulse; not Burning, so fire immunity and
+    /// Flammable do not touch it.
+    ColdFire,
+    /// 4a, Ichor: sight −`statuses.blinded_vision` (at least 1).
+    Blinded,
 }
 
 impl StatusKind {
@@ -35,6 +40,8 @@ impl StatusKind {
             StatusKind::Flammable => "Flammable",
             StatusKind::Regeneration => "Regeneration",
             StatusKind::Infected => "Infected",
+            StatusKind::ColdFire => "ColdFire",
+            StatusKind::Blinded => "Blinded",
         }
     }
 }
@@ -933,7 +940,12 @@ impl<'a> Fight<'a> {
     fn sight(&self, e: &Creature) -> i32 {
         let smells = e.traits.contains(&Trait::SmellsBlood)
             && self.slime.volume.last() == Some(&Liquid::Blood);
-        e.vision.unwrap_or(self.vision) + if smells { 2 } else { 0 }
+        let own = e.vision.unwrap_or(self.vision) + if smells { 2 } else { 0 };
+        if e.statuses.iter().any(|s| s.kind == StatusKind::Blinded) {
+            (own - self.d.statuses.blinded_vision).max(1)
+        } else {
+            own
+        }
     }
 
     /// Every unit the slime has lost so far: spent, bitten, to statuses, to thorns.
@@ -1788,6 +1800,8 @@ impl<'a> Fight<'a> {
     /// `TurnManager.TryAttack` → `Combat.Attack(attacker, target, substance)`.
     fn hit(&mut self, target: usize, liquid: Liquid) {
         let d = self.d;
+        // 4a: a Sulfur affinity (as the strike begins) sets every target struck on fire.
+        let sulfur = self.slime.dominant == Some(Liquid::Sulfur);
         // The unit of that kind nearest the edge: the edge unit itself in every policy.
         let Some(at) = self.slime.volume.iter().rposition(|&l| l == liquid) else {
             return;
@@ -1858,6 +1872,16 @@ impl<'a> Fight<'a> {
         self.tally.overkill += (power - enemy.armor.min(power)) as usize - applied;
         if enemy.alive() {
             apply_liquid(d, enemy, liquid, Source::Strike, &mut self.next_status_id);
+            if sulfur {
+                // Lava's effect: one Burning (`statuses.burning`), immunities apply.
+                apply_liquid(
+                    d,
+                    enemy,
+                    Liquid::Lava,
+                    Source::Strike,
+                    &mut self.next_status_id,
+                );
+            }
         }
         enemy.aggroed = true;
         if liquid == Liquid::Pus && self.pus_infects {
@@ -2659,7 +2683,14 @@ impl<'a> Fight<'a> {
                     harm = d.pus.infected_damage;
                     damage(d, owner, harm, false, ids);
                 }
-                StatusKind::Wet | StatusKind::Instability | StatusKind::Flammable => {}
+                StatusKind::ColdFire => {
+                    harm = d.statuses.cold_fire_pulse;
+                    damage(d, owner, harm, false, ids);
+                }
+                StatusKind::Wet
+                | StatusKind::Instability
+                | StatusKind::Flammable
+                | StatusKind::Blinded => {}
             }
             if owner.is_slime && owner.volume.len() > before {
                 self.units_grown += owner.volume.len() - before;
@@ -2766,6 +2797,7 @@ fn pending_status_damage(d: &Design, c: &Creature) -> i32 {
                 total += pulses * modify_incoming_harm(d, c, d.statuses.burning_pulse);
             }
             StatusKind::Poisoned => total += pulses * d.statuses.poisoned_pulse,
+            StatusKind::ColdFire => total += pulses * d.statuses.cold_fire_pulse,
             StatusKind::Corroding { corrosion } => {
                 for _ in 0..pulses {
                     if armor > 0 {
@@ -2843,11 +2875,14 @@ fn apply_liquid(d: &Design, target: &mut Creature, liquid: Liquid, from: Source,
         }
         Liquid::Alkali => add(StatusKind::Instability, s.instability),
         Liquid::Sulfur => add(StatusKind::Flammable, s.flammable),
+        Liquid::Ichor => {
+            add(StatusKind::ColdFire, s.cold_fire);
+            add(StatusKind::Blinded, s.blinded);
+        }
         // No status in the model yet (Cold fire, Greased, Rooted, Charmed, Infected), or none.
         Liquid::Blood
         | Liquid::Mercury
         | Liquid::Pus
-        | Liquid::Phosphorus
         | Liquid::Aquavita
         | Liquid::Ambrosia
         | Liquid::Fat
@@ -2964,5 +2999,36 @@ fn enemy_creature(d: &Design, kind: &str, cell: Cell) -> Creature {
         pursuit: None,
         pursuit_left: 0,
         flee_cell: None,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn blinded_cuts_sight_by_blinded_vision_but_never_below_1() {
+        let d = Design::bundled();
+        let mut f = Fight::new(
+            &d,
+            0,
+            1,
+            vec![Liquid::Water],
+            (0, 5),
+            &[("Mushroom", (1, 5))],
+        );
+        let base = f.sight(&f.enemies[0]);
+        f.enemies[0].statuses.push(Status {
+            kind: StatusKind::Blinded,
+            source: Source::Strike,
+            remaining: 3,
+            id: 99,
+        });
+        assert_eq!(
+            f.sight(&f.enemies[0]),
+            (base - d.statuses.blinded_vision).max(1)
+        );
+        f.enemies[0].vision = Some(2);
+        assert_eq!(f.sight(&f.enemies[0]), 1);
     }
 }

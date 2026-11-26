@@ -60,10 +60,10 @@ fn a_dominating_edge_hits_one_harder() {
 
 #[test]
 fn a_suppressed_edge_hits_plain_and_loses_encouragement() {
-    // Water ⊣ Lava: a Lava edge against a Water Mushroom, encouraged by Phosphorus, hits 1.
+    // Water ⊣ Lava: a Lava edge against a Water Mushroom, encouraged by Ichor, hits 1.
     let (log, _, _) = round(
         &design(Liquid::Water),
-        with_edge(&[Liquid::Phosphorus, Liquid::Lava]),
+        with_edge(&[Liquid::Ichor, Liquid::Lava]),
         Policy::Newcomer,
         0,
     );
