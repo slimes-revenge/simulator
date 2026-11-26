@@ -322,6 +322,9 @@ pub struct Rules {
     pub dominance_basis: String,
     /// Retaliation statuses last this many pulses (the game: the liquid's usual duration, 0).
     pub retaliation_pulses: i32,
+    /// 4c (design): without an affinity, the edge unit a bite takes leaves its status on the
+    /// biter for this many pulses (2: one of its turns); 0 turns it off (the fallback).
+    pub edge_retort_pulses: i32,
     /// Heavy liquids: holding at least this many units costs 1 action point each (the design).
     pub heavy: BTreeMap<Liquid, usize>,
     /// Heaviness never lowers the action points below this, or below the base when that is lower.
@@ -585,6 +588,9 @@ impl Design {
         }
         if !["capacity", "current"].contains(&design.rules.dominance_basis.as_str()) {
             return Err("rules.dominance_basis must be \"current\" or \"capacity\"".into());
+        }
+        if design.rules.edge_retort_pulses < 0 {
+            return Err("rules.edge_retort_pulses must be >= 0 (0: off)".into());
         }
         if design.rules.retaliation_pulses < 0 {
             return Err(

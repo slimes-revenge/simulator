@@ -46,6 +46,15 @@ truth for how the game behaves today; the simulator mirrors it by hand. Numbers 
   attacker receives that liquid's effect. Under `rules.retaliation_pulses` > 0 its statuses last
   that many pulses (the design: 3, a full status like a strike; the fallback 2 lasts through
   the enemy's next turn, since statuses pulse at the start of their owner's turn); 0 keeps the liquid's usual duration (the game).
+- Edge retort (4c, balance `liquid-roles.md`; design, not in the game): the edge unit a bite
+  takes (the first unit lost; under the Mercury defence the edge-most non-Mercury) leaves its
+  liquid's status on the surviving slime's biter for `rules.edge_retort_pulses` (2: one of its
+  turns), counted as retaliation damage, unless it is the affinity's own liquid (the full
+  retaliation covers that). With another affinity both apply. A Pus edge infects a Living
+  biter for those pulses. Immunities apply as on a strike; a Vampirism biter's Blood heal is
+  not repeated. 0 turns it off. The
+  table's special edge effects (Water putting out a fiery biter, bloodsuckers, Ambrosia on the
+  undead, Fat's slip, Resin's stick, Alkali against acid bites) are not modelled yet.
 - Dominance (affinity): one liquid with at least `rules.dominance_percent` of the basis.
   `rules.dominance_basis = "current"` (the body now: the design's 60 %, the game's 80 %) or
   `"capacity"` (the fallback: a share of the capacity, so a bitten body does not fall into an

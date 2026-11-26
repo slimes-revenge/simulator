@@ -7,6 +7,7 @@ rules.vision_range = 5
 rules.dominance_percent = 60
 rules.dominance_basis = current
 rules.retaliation_pulses = 3
+rules.edge_retort_pulses = 2
 rules.heavy.Lava = 3
 rules.heavy.Mercury = 2
 rules.heavy_min_action_points = 2
@@ -339,17 +340,17 @@ levels.ladder-2-acid.map.river_liquids = Water Acid
 ap policy     build      encounter        win  rounds killed   left  spent bitten status  cause
 1  newcomer   start      bat-1            100    6.18   1.00   2.00   2.00   2.00   0.00  -
 1  newcomer   start      bat-2              0    8.74   1.00   0.00   3.00   3.00   0.00  melee:Bat=50
-1  newcomer   start      bat-3              0    7.54   0.92   0.00   2.92   3.08   0.00  melee:Bat=50
+1  newcomer   start      bat-3              0    7.62   1.00   0.00   2.92   3.08   0.00  melee:Bat=50
 1  newcomer   start      mushroom-1         0    5.00   0.00   0.00   2.00   4.00   0.00  melee:Mushroom=50
 1  newcomer   start      mushroom-2         0    4.00   0.00   0.00   2.00   4.00   0.00  melee:Mushroom=50
 1  newcomer   start      mushroom-3         0    4.00   0.00   0.00   1.00   5.00   0.00  melee:Mushroom=50
 1  newcomer   start      undine-1           0    6.00   0.00   3.00   2.00   1.00   0.00  stalemate=50
 1  newcomer   start      undine-2           0    6.00   0.00   3.00   1.00   2.00   0.00  stalemate=50
 1  newcomer   start      undine-3           0    7.00   0.00   3.00   1.00   2.00   0.00  stalemate=50
-1  newcomer   start      cactus-1         100    5.00   1.00   1.00   3.00   2.00   0.00  -
+1  newcomer   start      cactus-1         100    4.00   1.00   3.00   2.00   1.00   0.00  -
 1  newcomer   start      cactus-2           0    4.00   0.00   0.00   2.00   4.00   0.00  melee:Cactus=50
 1  newcomer   start      cactus-3           0    4.00   0.00   0.00   1.00   5.00   0.00  melee:Cactus=50
-1  newcomer   start      mandragora-1     100    5.00   1.00   1.00   3.00   2.00   0.00  -
+1  newcomer   start      mandragora-1     100    4.00   1.00   3.00   2.00   1.00   0.00  -
 1  newcomer   start      mandragora-2       0    4.00   0.00   0.00   2.00   4.00   0.00  melee:Mandragora=50
 1  newcomer   start      mandragora-3       0    4.00   0.00   0.00   1.00   5.00   0.00  melee:Mandragora=50
 1  newcomer   start      eye-1              0    5.00   0.00   0.00   2.00   4.00   0.00  melee:Eye=50
@@ -465,17 +466,17 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 1  newcomer   mercury    eye-3              0    5.00   1.00   0.00   3.00   7.00   0.00  melee:Eye=50
 1  arranger   start      bat-1            100    6.18   1.00   2.00   2.00   2.00   0.00  -
 1  arranger   start      bat-2              0    8.74   1.00   0.00   3.00   3.00   0.00  melee:Bat=50
-1  arranger   start      bat-3              0    7.54   0.92   0.00   2.92   3.08   0.00  melee:Bat=50
+1  arranger   start      bat-3              0    7.62   1.00   0.00   2.92   3.08   0.00  melee:Bat=50
 1  arranger   start      mushroom-1         0    5.00   0.00   0.00   2.00   4.00   0.00  melee:Mushroom=50
 1  arranger   start      mushroom-2         0    4.00   0.00   0.00   2.00   4.00   0.00  melee:Mushroom=50
 1  arranger   start      mushroom-3         0    4.00   0.00   0.00   1.00   5.00   0.00  melee:Mushroom=50
 1  arranger   start      undine-1           0    5.00   0.00   3.00   2.00   1.00   0.00  stalemate=50
 1  arranger   start      undine-2           0    4.00   0.00   3.00   1.00   2.00   0.00  stalemate=50
 1  arranger   start      undine-3           0    4.00   0.00   3.00   1.00   2.00   0.00  stalemate=50
-1  arranger   start      cactus-1         100    5.00   1.00   1.00   3.00   2.00   0.00  -
+1  arranger   start      cactus-1         100    4.00   1.00   3.00   2.00   1.00   0.00  -
 1  arranger   start      cactus-2           0    4.00   0.00   0.00   2.00   4.00   0.00  melee:Cactus=50
 1  arranger   start      cactus-3           0    4.00   0.00   0.00   1.00   5.00   0.00  melee:Cactus=50
-1  arranger   start      mandragora-1     100    5.00   1.00   1.00   3.00   2.00   0.00  -
+1  arranger   start      mandragora-1     100    4.00   1.00   3.00   2.00   1.00   0.00  -
 1  arranger   start      mandragora-2       0    4.00   0.00   0.00   2.00   4.00   0.00  melee:Mandragora=50
 1  arranger   start      mandragora-3       0    4.00   0.00   0.00   1.00   5.00   0.00  melee:Mandragora=50
 1  arranger   start      eye-1              0    5.00   0.00   0.00   2.00   4.00   0.00  melee:Eye=50
@@ -598,10 +599,10 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 1  kite       start      undine-1           0   12.00   0.00   3.00   2.00   1.00   0.00  stalemate=50
 1  kite       start      undine-2           0    7.00   0.00   3.00   1.00   2.00   0.00  stalemate=50
 1  kite       start      undine-3           0    7.00   0.00   3.00   1.00   2.00   0.00  stalemate=50
-1  kite       start      cactus-1         100   12.00   1.00   1.00   3.00   2.00   0.00  -
+1  kite       start      cactus-1         100   11.00   1.00   3.00   2.00   1.00   0.00  -
 1  kite       start      cactus-2           0    7.00   0.00   0.00   2.00   4.00   0.00  melee:Cactus=50
 1  kite       start      cactus-3           0    7.00   0.00   0.00   2.00   4.00   0.00  melee:Cactus=50
-1  kite       start      mandragora-1     100   12.00   1.00   1.00   3.00   2.00   0.00  -
+1  kite       start      mandragora-1     100   11.00   1.00   3.00   2.00   1.00   0.00  -
 1  kite       start      mandragora-2       0    7.00   0.00   0.00   2.00   4.00   0.00  melee:Mandragora=50
 1  kite       start      mandragora-3       0    7.00   0.00   0.00   2.00   4.00   0.00  melee:Mandragora=50
 1  kite       start      eye-1              0   12.00   0.00   0.00   2.00   4.00   0.00  melee:Eye=50
@@ -718,20 +719,20 @@ ap policy     build      encounter        win  rounds killed   left  spent bitte
 1  reader     start      bat-1              0  200.00   0.00   6.00   0.00   0.00   0.00  timeout=50
 1  reader     start      bat-2              0  200.00   0.00   6.00   0.00   0.00   0.00  timeout=50
 1  reader     start      bat-3              0  200.00   0.00   6.00   0.00   0.00   0.00  timeout=50
-1  reader     start      mushroom-1        74   12.00   0.74   2.22   2.00   1.78   0.00  melee:Mushroom=13
-1  reader     start      mushroom-2         0    8.00   0.46   0.00   1.46   4.54   0.00  melee:Mushroom=50
+1  reader     start      mushroom-1       100   12.00   1.00   2.48   2.00   1.52   0.00  -
+1  reader     start      mushroom-2         0    8.00   0.72   0.00   1.46   4.54   0.00  melee:Mushroom=50
 1  reader     start      mushroom-3         0    7.46   0.46   0.00   1.00   5.00   0.00  melee:Mushroom=50
 1  reader     start      undine-1           0   12.00   0.00   3.00   2.00   1.00   0.00  stalemate=50
 1  reader     start      undine-2           0    7.00   0.00   3.00   1.00   2.00   0.00  stalemate=50
 1  reader     start      undine-3           0    7.00   0.00   3.00   1.00   2.00   0.00  stalemate=50
-1  reader     start      cactus-1         100   12.00   1.00   1.00   3.00   2.00   0.00  -
+1  reader     start      cactus-1         100   11.00   1.00   3.00   2.00   1.00   0.00  -
 1  reader     start      cactus-2           0    7.00   0.00   0.00   2.00   4.00   0.00  melee:Cactus=50
 1  reader     start      cactus-3           0    7.00   0.00   0.00   2.00   4.00   0.00  melee:Cactus=50
-1  reader     start      mandragora-1     100   12.00   1.00   1.00   3.00   2.00   0.00  -
+1  reader     start      mandragora-1     100   11.00   1.00   3.00   2.00   1.00   0.00  -
 1  reader     start      mandragora-2       0    7.00   0.00   0.00   2.00   4.00   0.00  melee:Mandragora=50
 1  reader     start      mandragora-3       0    7.00   0.00   0.00   2.00   4.00   0.00  melee:Mandragora=50
-1  reader     start      eye-1             74   12.00   0.74   2.22   2.00   1.78   0.00  melee:Eye=13
-1  reader     start      eye-2              0    8.00   0.46   0.00   1.46   4.54   0.00  melee:Eye=50
+1  reader     start      eye-1            100   12.00   1.00   2.48   2.00   1.52   0.00  -
+1  reader     start      eye-2              0    8.00   0.72   0.00   1.46   4.54   0.00  melee:Eye=50
 1  reader     start      eye-3              0    7.46   0.46   0.00   1.00   5.00   0.00  melee:Eye=50
 1  reader     water      bat-1              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
 1  reader     water      bat-2              0  200.00   0.00  10.00   0.00   0.00   0.00  timeout=50
@@ -1357,10 +1358,10 @@ ap policy     build      encounter         spent bitten status thorns  grown  sw
 1  newcomer   start      undine-1           2.00   1.00   0.00   0.00   0.00   0.00   -3.00  spent=Poison:1.00,Lava:1.00 bitten=Acid:1.00 status=-
 1  newcomer   start      undine-2           1.00   2.00   0.00   0.00   0.00   0.00   -3.00  spent=Lava:1.00 bitten=Poison:1.00,Acid:1.00 status=-
 1  newcomer   start      undine-3           1.00   2.00   0.00   0.00   0.00   0.00   -3.00  spent=Lava:1.00 bitten=Poison:1.00,Acid:1.00 status=-
-1  newcomer   start      cactus-1           3.00   2.00   0.00   0.00   0.00   0.00   -5.00  spent=Water:1.00,Poison:1.00,Lava:1.00 bitten=Water:1.00,Acid:1.00 status=-
+1  newcomer   start      cactus-1           2.00   1.00   0.00   0.00   0.00   0.00   -3.00  spent=Poison:1.00,Lava:1.00 bitten=Acid:1.00 status=-
 1  newcomer   start      cactus-2           2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
 1  newcomer   start      cactus-3           1.00   5.00   0.00   0.00   0.00   0.00   -6.00  spent=Lava:1.00 bitten=Water:3.00,Poison:1.00,Acid:1.00 status=-
-1  newcomer   start      mandragora-1       3.00   2.00   0.00   0.00   0.00   0.00   -5.00  spent=Water:1.00,Poison:1.00,Lava:1.00 bitten=Water:1.00,Acid:1.00 status=-
+1  newcomer   start      mandragora-1       2.00   1.00   0.00   0.00   0.00   0.00   -3.00  spent=Poison:1.00,Lava:1.00 bitten=Acid:1.00 status=-
 1  newcomer   start      mandragora-2       2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
 1  newcomer   start      mandragora-3       1.00   5.00   0.00   0.00   0.00   0.00   -6.00  spent=Lava:1.00 bitten=Water:3.00,Poison:1.00,Acid:1.00 status=-
 1  newcomer   start      eye-1              2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
@@ -1483,10 +1484,10 @@ ap policy     build      encounter         spent bitten status thorns  grown  sw
 1  arranger   start      undine-1           2.00   1.00   0.00   0.00   0.00   0.00   -3.00  spent=Poison:1.00,Lava:1.00 bitten=Acid:1.00 status=-
 1  arranger   start      undine-2           1.00   2.00   0.00   0.00   0.00   0.00   -3.00  spent=Lava:1.00 bitten=Poison:1.00,Acid:1.00 status=-
 1  arranger   start      undine-3           1.00   2.00   0.00   0.00   0.00   0.00   -3.00  spent=Lava:1.00 bitten=Poison:1.00,Acid:1.00 status=-
-1  arranger   start      cactus-1           3.00   2.00   0.00   0.00   0.00   0.00   -5.00  spent=Water:1.00,Poison:1.00,Lava:1.00 bitten=Water:1.00,Acid:1.00 status=-
+1  arranger   start      cactus-1           2.00   1.00   0.00   0.00   0.00   0.00   -3.00  spent=Poison:1.00,Lava:1.00 bitten=Acid:1.00 status=-
 1  arranger   start      cactus-2           2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
 1  arranger   start      cactus-3           1.00   5.00   0.00   0.00   0.00   0.00   -6.00  spent=Lava:1.00 bitten=Water:3.00,Poison:1.00,Acid:1.00 status=-
-1  arranger   start      mandragora-1       3.00   2.00   0.00   0.00   0.00   0.00   -5.00  spent=Water:1.00,Poison:1.00,Lava:1.00 bitten=Water:1.00,Acid:1.00 status=-
+1  arranger   start      mandragora-1       2.00   1.00   0.00   0.00   0.00   0.00   -3.00  spent=Poison:1.00,Lava:1.00 bitten=Acid:1.00 status=-
 1  arranger   start      mandragora-2       2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
 1  arranger   start      mandragora-3       1.00   5.00   0.00   0.00   0.00   0.00   -6.00  spent=Lava:1.00 bitten=Water:3.00,Poison:1.00,Acid:1.00 status=-
 1  arranger   start      eye-1              2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
@@ -1609,10 +1610,10 @@ ap policy     build      encounter         spent bitten status thorns  grown  sw
 1  kite       start      undine-1           2.00   1.00   0.00   0.00   0.00   0.00   -3.00  spent=Poison:1.00,Lava:1.00 bitten=Acid:1.00 status=-
 1  kite       start      undine-2           1.00   2.00   0.00   0.00   0.00   0.00   -3.00  spent=Lava:1.00 bitten=Poison:1.00,Acid:1.00 status=-
 1  kite       start      undine-3           1.00   2.00   0.00   0.00   0.00   0.00   -3.00  spent=Lava:1.00 bitten=Poison:1.00,Acid:1.00 status=-
-1  kite       start      cactus-1           3.00   2.00   0.00   0.00   0.00   0.00   -5.00  spent=Water:1.00,Poison:1.00,Lava:1.00 bitten=Water:1.00,Acid:1.00 status=-
+1  kite       start      cactus-1           2.00   1.00   0.00   0.00   0.00   0.00   -3.00  spent=Poison:1.00,Lava:1.00 bitten=Acid:1.00 status=-
 1  kite       start      cactus-2           2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
 1  kite       start      cactus-3           2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
-1  kite       start      mandragora-1       3.00   2.00   0.00   0.00   0.00   0.00   -5.00  spent=Water:1.00,Poison:1.00,Lava:1.00 bitten=Water:1.00,Acid:1.00 status=-
+1  kite       start      mandragora-1       2.00   1.00   0.00   0.00   0.00   0.00   -3.00  spent=Poison:1.00,Lava:1.00 bitten=Acid:1.00 status=-
 1  kite       start      mandragora-2       2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
 1  kite       start      mandragora-3       2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
 1  kite       start      eye-1              2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
@@ -1729,19 +1730,19 @@ ap policy     build      encounter         spent bitten status thorns  grown  sw
 1  reader     start      bat-1              0.00   0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
 1  reader     start      bat-2              0.00   0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
 1  reader     start      bat-3              0.00   0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
-1  reader     start      mushroom-1         2.00   1.78   0.00   0.00   0.00   1.00   -3.78  spent=Water:0.26,Poison:0.74,Acid:0.74,Lava:0.26 bitten=Water:0.52,Poison:0.26,Acid:0.26,Lava:0.74 status=-
+1  reader     start      mushroom-1         2.00   1.52   0.00   0.00   0.00   1.00   -3.52  spent=Water:0.26,Poison:0.74,Acid:0.74,Lava:0.26 bitten=Water:0.26,Poison:0.26,Acid:0.26,Lava:0.74 status=-
 1  reader     start      mushroom-2         1.46   4.54   0.00   0.00   0.00   1.00   -6.00  spent=Water:0.46,Poison:0.46,Acid:0.26,Lava:0.28 bitten=Water:2.54,Poison:0.54,Acid:0.74,Lava:0.72 status=-
 1  reader     start      mushroom-3         1.00   5.00   0.00   0.00   0.00   1.00   -6.00  spent=Poison:0.46,Acid:0.26,Lava:0.28 bitten=Water:3.00,Poison:0.54,Acid:0.74,Lava:0.72 status=-
 1  reader     start      undine-1           2.00   1.00   0.00   0.00   0.00   0.00   -3.00  spent=Poison:1.00,Lava:1.00 bitten=Acid:1.00 status=-
 1  reader     start      undine-2           1.00   2.00   0.00   0.00   0.00   0.00   -3.00  spent=Lava:1.00 bitten=Poison:1.00,Acid:1.00 status=-
 1  reader     start      undine-3           1.00   2.00   0.00   0.00   0.00   0.00   -3.00  spent=Lava:1.00 bitten=Poison:1.00,Acid:1.00 status=-
-1  reader     start      cactus-1           3.00   2.00   0.00   0.00   0.00   0.00   -5.00  spent=Water:1.00,Poison:1.00,Lava:1.00 bitten=Water:1.00,Acid:1.00 status=-
+1  reader     start      cactus-1           2.00   1.00   0.00   0.00   0.00   0.00   -3.00  spent=Poison:1.00,Lava:1.00 bitten=Acid:1.00 status=-
 1  reader     start      cactus-2           2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
 1  reader     start      cactus-3           2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
-1  reader     start      mandragora-1       3.00   2.00   0.00   0.00   0.00   0.00   -5.00  spent=Water:1.00,Poison:1.00,Lava:1.00 bitten=Water:1.00,Acid:1.00 status=-
+1  reader     start      mandragora-1       2.00   1.00   0.00   0.00   0.00   0.00   -3.00  spent=Poison:1.00,Lava:1.00 bitten=Acid:1.00 status=-
 1  reader     start      mandragora-2       2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
 1  reader     start      mandragora-3       2.00   4.00   0.00   0.00   0.00   0.00   -6.00  spent=Water:1.00,Lava:1.00 bitten=Water:2.00,Poison:1.00,Acid:1.00 status=-
-1  reader     start      eye-1              2.00   1.78   0.00   0.00   0.00   1.00   -3.78  spent=Water:0.26,Poison:0.74,Acid:0.74,Lava:0.26 bitten=Water:0.52,Poison:0.26,Acid:0.26,Lava:0.74 status=-
+1  reader     start      eye-1              2.00   1.52   0.00   0.00   0.00   1.00   -3.52  spent=Water:0.26,Poison:0.74,Acid:0.74,Lava:0.26 bitten=Water:0.26,Poison:0.26,Acid:0.26,Lava:0.74 status=-
 1  reader     start      eye-2              1.46   4.54   0.00   0.00   0.00   1.00   -6.00  spent=Water:0.46,Poison:0.46,Acid:0.26,Lava:0.28 bitten=Water:2.54,Poison:0.54,Acid:0.74,Lava:0.72 status=-
 1  reader     start      eye-3              1.00   5.00   0.00   0.00   0.00   1.00   -6.00  spent=Poison:0.46,Acid:0.26,Lava:0.28 bitten=Water:3.00,Poison:0.54,Acid:0.74,Lava:0.72 status=-
 1  reader     water      bat-1              0.00   0.00   0.00   0.00   0.00   0.00   +0.00  spent=- bitten=- status=-
@@ -2359,19 +2360,19 @@ ap policy     build      encounter         spent bitten status thorns  grown  sw
 
 [damage]
 ap policy     build      encounter        strike status  retal overkill doomed per_unit  status_by
-1  newcomer   start      bat-1              2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
-1  newcomer   start      bat-2              3.00   1.00   0.00     0.00   0.00     1.33  Burning:1.00
-1  newcomer   start      bat-3              2.92   1.00   0.00     0.00   0.00     1.34  Burning:1.00
+1  newcomer   start      bat-1              2.00   1.00   0.00     0.00   1.00     1.50  Burning:1.00
+1  newcomer   start      bat-2              3.00   1.00   0.00     0.00   1.00     1.33  Burning:1.00
+1  newcomer   start      bat-3              3.00   1.00   0.08     0.00   0.92     1.40  Burning:1.00,Corroding:0.08
 1  newcomer   start      mushroom-1         3.00   1.00   0.00     0.00   0.00     2.00  Burning:1.00
 1  newcomer   start      mushroom-2         2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
 1  newcomer   start      mushroom-3         2.00   1.00   0.00     0.00   0.00     3.00  Burning:1.00
 1  newcomer   start      undine-1           2.00   0.00   0.00     0.00   0.00     1.00  -
 1  newcomer   start      undine-2           1.00   0.00   0.00     0.00   0.00     1.00  -
 1  newcomer   start      undine-3           1.00   0.00   0.00     0.00   0.00     1.00  -
-1  newcomer   start      cactus-1           3.00   2.00   0.00     0.00   1.00     1.67  Burning:1.00,Poisoned:1.00
+1  newcomer   start      cactus-1           2.00   2.00   1.00     0.00   0.00     2.50  Burning:1.00,Corroding:1.00,Poisoned:1.00
 1  newcomer   start      cactus-2           2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
 1  newcomer   start      cactus-3           2.00   1.00   0.00     0.00   0.00     3.00  Burning:1.00
-1  newcomer   start      mandragora-1       3.00   2.00   0.00     0.00   1.00     1.67  Burning:1.00,Poisoned:1.00
+1  newcomer   start      mandragora-1       2.00   2.00   1.00     0.00   0.00     2.50  Burning:1.00,Corroding:1.00,Poisoned:1.00
 1  newcomer   start      mandragora-2       2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
 1  newcomer   start      mandragora-3       2.00   1.00   0.00     0.00   0.00     3.00  Burning:1.00
 1  newcomer   start      eye-1              3.00   1.00   0.00     0.00   0.00     2.00  Burning:1.00
@@ -2485,19 +2486,19 @@ ap policy     build      encounter        strike status  retal overkill doomed p
 1  newcomer   mercury    eye-1              5.00   0.00   0.00     1.00   0.00     1.67  -
 1  newcomer   mercury    eye-2              7.00   0.00   0.00     1.00   0.00     1.75  -
 1  newcomer   mercury    eye-3              5.00   0.00   0.00     1.00   0.00     1.67  -
-1  arranger   start      bat-1              2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
-1  arranger   start      bat-2              3.00   1.00   0.00     0.00   0.00     1.33  Burning:1.00
-1  arranger   start      bat-3              2.92   1.00   0.00     0.00   0.00     1.34  Burning:1.00
+1  arranger   start      bat-1              2.00   1.00   0.00     0.00   1.00     1.50  Burning:1.00
+1  arranger   start      bat-2              3.00   1.00   0.00     0.00   1.00     1.33  Burning:1.00
+1  arranger   start      bat-3              3.00   1.00   0.08     0.00   0.92     1.40  Burning:1.00,Corroding:0.08
 1  arranger   start      mushroom-1         3.00   1.00   0.00     0.00   0.00     2.00  Burning:1.00
 1  arranger   start      mushroom-2         2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
 1  arranger   start      mushroom-3         2.00   1.00   0.00     0.00   0.00     3.00  Burning:1.00
 1  arranger   start      undine-1           2.00   0.00   0.00     0.00   0.00     1.00  -
 1  arranger   start      undine-2           1.00   0.00   0.00     0.00   0.00     1.00  -
 1  arranger   start      undine-3           1.00   0.00   0.00     0.00   0.00     1.00  -
-1  arranger   start      cactus-1           3.00   2.00   0.00     0.00   1.00     1.67  Burning:1.00,Poisoned:1.00
+1  arranger   start      cactus-1           2.00   2.00   1.00     0.00   0.00     2.50  Burning:1.00,Corroding:1.00,Poisoned:1.00
 1  arranger   start      cactus-2           2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
 1  arranger   start      cactus-3           2.00   1.00   0.00     0.00   0.00     3.00  Burning:1.00
-1  arranger   start      mandragora-1       3.00   2.00   0.00     0.00   1.00     1.67  Burning:1.00,Poisoned:1.00
+1  arranger   start      mandragora-1       2.00   2.00   1.00     0.00   0.00     2.50  Burning:1.00,Corroding:1.00,Poisoned:1.00
 1  arranger   start      mandragora-2       2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
 1  arranger   start      mandragora-3       2.00   1.00   0.00     0.00   0.00     3.00  Burning:1.00
 1  arranger   start      eye-1              3.00   1.00   0.00     0.00   0.00     2.00  Burning:1.00
@@ -2620,10 +2621,10 @@ ap policy     build      encounter        strike status  retal overkill doomed p
 1  kite       start      undine-1           2.00   0.00   0.00     0.00   0.00     1.00  -
 1  kite       start      undine-2           1.00   0.00   0.00     0.00   0.00     1.00  -
 1  kite       start      undine-3           1.00   0.00   0.00     0.00   0.00     1.00  -
-1  kite       start      cactus-1           3.00   2.00   0.00     0.00   1.00     1.67  Burning:1.00,Poisoned:1.00
+1  kite       start      cactus-1           2.00   2.00   1.00     0.00   0.00     2.50  Burning:1.00,Corroding:1.00,Poisoned:1.00
 1  kite       start      cactus-2           2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
 1  kite       start      cactus-3           2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
-1  kite       start      mandragora-1       3.00   2.00   0.00     0.00   1.00     1.67  Burning:1.00,Poisoned:1.00
+1  kite       start      mandragora-1       2.00   2.00   1.00     0.00   0.00     2.50  Burning:1.00,Corroding:1.00,Poisoned:1.00
 1  kite       start      mandragora-2       2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
 1  kite       start      mandragora-3       2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
 1  kite       start      eye-1              3.00   1.00   0.00     0.00   0.00     2.00  Burning:1.00
@@ -2740,21 +2741,21 @@ ap policy     build      encounter        strike status  retal overkill doomed p
 1  reader     start      bat-1              0.00   0.00   0.00     0.00   0.00        -  -
 1  reader     start      bat-2              0.00   0.00   0.00     0.00   0.00        -  -
 1  reader     start      bat-3              0.00   0.00   0.00     0.00   0.00        -  -
-1  reader     start      mushroom-1         2.74   1.00   0.00     0.00   0.74     1.87  Burning:0.26,Poisoned:0.74
-1  reader     start      mushroom-2         2.46   1.00   0.00     0.00   0.46     2.37  Burning:0.28,Corroding:0.26,Poisoned:0.46
-1  reader     start      mushroom-3         1.92   1.00   0.00     0.00   0.46     2.92  Burning:0.28,Corroding:0.26,Poisoned:0.46
+1  reader     start      mushroom-1         2.74   1.00   0.52     0.00   1.00     2.13  Burning:0.26,Poisoned:1.26
+1  reader     start      mushroom-2         2.46   1.00   1.26     0.00   0.74     3.23  Burning:0.28,Corroding:0.72,Poisoned:1.26
+1  reader     start      mushroom-3         1.92   1.00   1.00     0.00   0.46     3.92  Burning:0.28,Corroding:0.72,Poisoned:1.00
 1  reader     start      undine-1           2.00   0.00   0.00     0.00   0.00     1.00  -
 1  reader     start      undine-2           1.00   0.00   0.00     0.00   0.00     1.00  -
 1  reader     start      undine-3           1.00   0.00   0.00     0.00   0.00     1.00  -
-1  reader     start      cactus-1           3.00   2.00   0.00     0.00   1.00     1.67  Burning:1.00,Poisoned:1.00
+1  reader     start      cactus-1           2.00   2.00   1.00     0.00   0.00     2.50  Burning:1.00,Corroding:1.00,Poisoned:1.00
 1  reader     start      cactus-2           2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
 1  reader     start      cactus-3           2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
-1  reader     start      mandragora-1       3.00   2.00   0.00     0.00   1.00     1.67  Burning:1.00,Poisoned:1.00
+1  reader     start      mandragora-1       2.00   2.00   1.00     0.00   0.00     2.50  Burning:1.00,Corroding:1.00,Poisoned:1.00
 1  reader     start      mandragora-2       2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
 1  reader     start      mandragora-3       2.00   1.00   0.00     0.00   0.00     1.50  Burning:1.00
-1  reader     start      eye-1              2.74   1.00   0.00     0.00   0.74     1.87  Burning:0.26,Poisoned:0.74
-1  reader     start      eye-2              2.46   1.00   0.00     0.00   0.46     2.37  Burning:0.28,Corroding:0.26,Poisoned:0.46
-1  reader     start      eye-3              1.92   1.00   0.00     0.00   0.46     2.92  Burning:0.28,Corroding:0.26,Poisoned:0.46
+1  reader     start      eye-1              2.74   1.00   0.52     0.00   1.00     2.13  Burning:0.26,Poisoned:1.26
+1  reader     start      eye-2              2.46   1.00   1.26     0.00   0.74     3.23  Burning:0.28,Corroding:0.72,Poisoned:1.26
+1  reader     start      eye-3              1.92   1.00   1.00     0.00   0.46     3.92  Burning:0.28,Corroding:0.72,Poisoned:1.00
 1  reader     water      bat-1              0.00   0.00   0.00     0.00   0.00        -  -
 1  reader     water      bat-2              0.00   0.00   0.00     0.00   0.00        -  -
 1  reader     water      bat-3              0.00   0.00   0.00     0.00   0.00        -  -
@@ -2863,9 +2864,9 @@ ap policy     build      encounter        strike status  retal overkill doomed p
 1  reader     mercury    eye-1              5.00   0.00   0.00     1.00   0.00     1.67  -
 1  reader     mercury    eye-2              7.00   0.00   0.00     1.00   0.00     1.75  -
 1  reader     mercury    eye-3              5.00   0.00   0.00     1.00   0.00     1.67  -
-2  newcomer   start      bat-1              2.00   1.00   0.00     0.00   0.46     1.50  Burning:1.00
-2  newcomer   start      bat-2              4.04   1.28   0.00     0.00   0.76     1.64  Burning:1.00,Poisoned:0.28
-2  newcomer   start      bat-3              4.64   1.18   0.00     0.00   0.54     1.63  Burning:1.00,Poisoned:0.18
+2  newcomer   start      bat-1              2.00   1.00   0.00     0.00   1.00     1.50  Burning:1.00
+2  newcomer   start      bat-2              4.04   1.28   0.00     0.00   1.24     1.64  Burning:1.00,Poisoned:0.28
+2  newcomer   start      bat-3              4.64   1.18   0.00     0.00   1.14     1.63  Burning:1.00,Poisoned:0.18
 2  newcomer   start      mushroom-1         3.00   1.00   0.00     0.00   0.00     1.33  Burning:1.00
 2  newcomer   start      mushroom-2         3.00   1.00   0.00     0.00   0.00     2.00  Burning:1.00
 2  newcomer   start      mushroom-3         3.00   1.00   0.00     0.00   0.00     4.00  Burning:1.00
@@ -2989,9 +2990,9 @@ ap policy     build      encounter        strike status  retal overkill doomed p
 2  newcomer   mercury    eye-1              5.00   0.00   0.00     1.00   0.00     1.67  -
 2  newcomer   mercury    eye-2             10.00   0.00   0.00     2.00   0.00     2.00  -
 2  newcomer   mercury    eye-3              9.00   0.00   0.00     1.00   0.00     2.25  -
-2  arranger   start      bat-1              2.00   1.00   0.00     0.00   0.46     1.50  Burning:1.00
-2  arranger   start      bat-2              4.04   1.28   0.00     0.00   0.76     1.64  Burning:1.00,Poisoned:0.28
-2  arranger   start      bat-3              4.64   1.18   0.00     0.00   0.54     1.63  Burning:1.00,Poisoned:0.18
+2  arranger   start      bat-1              2.00   1.00   0.00     0.00   1.00     1.50  Burning:1.00
+2  arranger   start      bat-2              4.04   1.28   0.00     0.00   1.24     1.64  Burning:1.00,Poisoned:0.28
+2  arranger   start      bat-3              4.64   1.18   0.00     0.00   1.14     1.63  Burning:1.00,Poisoned:0.18
 2  arranger   start      mushroom-1         3.00   1.00   0.00     0.00   0.00     1.33  Burning:1.00
 2  arranger   start      mushroom-2         3.00   1.00   0.00     0.00   0.00     2.00  Burning:1.00
 2  arranger   start      mushroom-3         3.00   1.00   0.00     0.00   0.00     4.00  Burning:1.00
