@@ -92,7 +92,7 @@ fn planner_keeps_the_level_counter_near_the_edge() {
 fn planner_eats_only_counter_units_once_nearly_full() {
     // Corpses of Fat and Water; the body starts 9 of 10 full (Water counters Lava).
     let eaten = |policy: &str| {
-        let mut d = level(policy, &format!("[{}]", vec!["\"Water\""; 9].join(", ")), 1);
+        let mut d = level(policy, &format!("[{}]", ["\"Water\""; 9].join(", ")), 1);
         let m = d.enemies.iter_mut().find(|e| e.name == "Mushroom").unwrap();
         (m.volume, m.hit_points) = (vec![Fat, Water], 2);
         // Bites never land (Water dominates Lava), so the body stays 90 % full.
