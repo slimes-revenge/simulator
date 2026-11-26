@@ -259,8 +259,9 @@ fn no_strike_is_repeated_on_its_own_element() {
 }
 
 #[test]
-fn a_stationary_blocker_it_cannot_hurt_ends_the_run() {
-    // Water Cacti (speed 0) in the passages, a pure Water slime: no endless useless strikes.
+fn a_stationary_blocker_of_its_own_element_is_slipped_past() {
+    // Water Cacti (speed 0) in the passages, a pure Water slime: no endless useless strikes;
+    // neither can hurt the other, so the slime slips past them.
     let text =
         std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/data/design.toml")).unwrap();
     let mut text = text[..text.find("[[levels]]").unwrap()].to_string();
@@ -278,8 +279,9 @@ fn a_stationary_blocker_it_cannot_hurt_ends_the_run() {
         r.stops
     );
     assert!(
-        r.stops.keys().any(|k| k.ends_with(":stalemate")),
+        !r.stops.keys().any(|k| k.ends_with(":stalemate")),
         "{:?}",
         r.stops
     );
+    assert_eq!(r.end, 100.0, "{:?}", r.stops);
 }

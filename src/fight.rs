@@ -1177,27 +1177,32 @@ impl<'a> Fight<'a> {
             let blocker =
                 next.and_then(|c| self.enemies.iter().position(|e| e.alive() && e.cell == c));
             if let Some(i) = blocker.filter(|&i| self.gives_up(i)) {
-                // A blocker it cannot hurt: wait for it to move (or die of its statuses). The
-                // run ends only when stationary given-up enemies close every way to the goal.
-                let stuck = |e: &Creature| {
-                    e.alive()
-                        && e.base_speed == 0
-                        && pending_status_damage(self.d, e) < e.hit_points
-                };
-                let walls: Vec<Cell> = (0..self.enemies.len())
-                    .filter(|&j| stuck(&self.enemies[j]) && self.gives_up(j))
-                    .map(|j| self.enemies[j].cell)
-                    .collect();
-                let way = path::find(
-                    self.board.width,
-                    self.board.height,
-                    self.slime.cell,
-                    &[goal],
-                    |c| self.board.wall(c) || walls.contains(&c),
-                );
-                if way.is_none() {
-                    self.stalemate = true;
-                    return self.note(|f| format!("{} blocks the way for good", f.label(i)));
+                // Its own element is on the edge, so neither bites the other (R2). When a unit
+                // under the edge can hurt it and it stays (aggroed, or stationary), the slime
+                // spits its useless edge away to dig down to that unit; when none can, the two
+                // swap cells (same-element creatures do not fight; one action). A calm walker
+                // with a unit to dig for is waited for: it moves on by itself.
+                let hurts = |u: Liquid| self.d.liquid(u).power > 0 && !self.useless_against(u, i);
+                let v = &self.slime.volume;
+                let under = v[..v.len().saturating_sub(1)].iter().any(|&u| hurts(u));
+                let e = &self.enemies[i];
+                let stays = self.engaging(e) || e.base_speed == 0;
+                if under && stays {
+                    let unit = self.slime.volume.pop().expect("a unit under the edge");
+                    self.units_spent += 1;
+                    *self.tally.spent_by.entry(unit).or_insert(0) += 1;
+                    let d = self.d;
+                    refresh_dominance(d, &mut self.slime, &mut self.next_status_id);
+                    return self
+                        .note(|f| format!("Slime spits {unit:?} away to dig past {}", f.label(i)));
+                }
+                if !under {
+                    let (from, to) = (self.slime.cell, e.cell);
+                    if self.move_slime(to) {
+                        self.enemies[i].cell = from;
+                        self.note(|f| format!("Slime slips past {}: {from:?}->{to:?}", f.label(i)));
+                    }
+                    return;
                 }
                 self.note(|f| format!("Slime waits: {} blocks the way", f.label(i)));
             } else if let Some(i) = blocker.or_else(|| adjacent(self, true)) {
@@ -1330,9 +1335,17 @@ impl<'a> Fight<'a> {
         else {
             return false;
         };
-        // Netted: it cannot step back, so it strikes.
+        // Netted: it cannot step back, so it strikes. Nor does it step back from stationary
+        // enemies only: they cannot follow, and it would step in again next round.
+        let mobile = self.enemies.iter().any(|e| {
+            e.alive()
+                && e.melee_power > 0
+                && e.base_speed > 0
+                && chebyshev(e.cell, self.slime.cell) == 1
+        });
         if (self.last_action || !self.can_strike())
             && self.rooted == 0
+            && mobile
             && let Some(to) = self.kite_step()
         {
             let from = self.slime.cell;
