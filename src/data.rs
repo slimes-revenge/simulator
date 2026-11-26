@@ -49,6 +49,24 @@ pub const ALL_LIQUIDS: [Liquid; 17] = [
     Liquid::Dross,
 ];
 
+impl Liquid {
+    /// `lava` → Lava: the liquid in a `b-<liquid>` policy name.
+    pub fn from_lower(name: &str) -> Option<Liquid> {
+        ALL_LIQUIDS
+            .into_iter()
+            .find(|l| format!("{l:?}").to_lowercase() == name)
+    }
+}
+
+/// D8: `b-auto` or `b-<liquid>` (any liquid but Dross).
+pub fn build_policy(name: &str) -> bool {
+    name == "b-auto"
+        || name
+            .strip_prefix("b-")
+            .and_then(Liquid::from_lower)
+            .is_some_and(|l| l != Liquid::Dross)
+}
+
 #[derive(Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Personality {
     /// Chases and attacks the slime it sees.
@@ -689,7 +707,7 @@ impl Design {
             } else {
                 &["newcomer", "arranger", "kite", "reader", "pus", "mercury"]
             };
-            if !allowed.contains(&level.policy.as_str()) {
+            if !allowed.contains(&level.policy.as_str()) && !build_policy(&level.policy) {
                 return Err(format!(
                     "level {}: policy {:?} is not supported here (only {allowed:?})",
                     level.id, level.policy

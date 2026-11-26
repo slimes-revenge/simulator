@@ -358,7 +358,8 @@ pub fn fight<'a>(
     state.sun_every = spec.sun_every;
     state.hunter = spec.hunter.clone();
     // `kite` and `reader` walk and hold corridors like `lure`; next to enemies they kite.
-    state.lure = ["lure", "kite", "reader", "pus", "mercury"].contains(&level.policy.as_str());
+    state.lure = ["lure", "kite", "reader", "pus", "mercury"].contains(&level.policy.as_str())
+        || crate::data::build_policy(&level.policy);
     f.pus_infects = level.pus_infects;
     f.policy = crate::fight::Policy::from_name(&level.policy, d);
     f.map = Some(state);

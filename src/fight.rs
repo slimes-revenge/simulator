@@ -3,7 +3,7 @@
 //! Each function names the C# method it mirrors (slimes-revenge/SlimesRevenge,
 //! `Assets/Scripts/Runtime`). Rules notes: `docs/rules-model.md`.
 
-use crate::data::{Design, Hunter, Liquid, Personality, Trait};
+use crate::data::{ALL_LIQUIDS, Design, Hunter, Liquid, Personality, Trait};
 use crate::path::{self, Cell, chebyshev};
 use crate::rng::Rng;
 use std::collections::BTreeMap;
@@ -289,8 +289,13 @@ pub enum Policy {
     Pus,
     /// D7: `kite` until Mercury is its affinity; then it goes for the enemies it sees and
     /// strikes with Mercury while spending it keeps the affinity (`mercury_pick`). It keeps
-    /// the body within Mercury / `dominance_percent` (`mercury_full`).
+    /// the body within Mercury / `dominance_percent` (`build_full`).
     Mercury,
+    /// D8 `b-<liquid>` (`Some`) and `b-auto` (`None`, the liquid of its affinity or else its
+    /// most common one, each turn): `kite`; while the liquid is its affinity it brings the
+    /// liquid up against a target it dominates (`build_pick`) and keeps its share
+    /// (`build_full`).
+    Build(Option<Liquid>),
 }
 
 impl Policy {
@@ -303,7 +308,11 @@ impl Policy {
             "reader" => Policy::Reader,
             "pus" => Policy::Pus,
             "mercury" => Policy::Mercury,
-            _ => Policy::Newcomer,
+            "b-auto" => Policy::Build(None),
+            _ => match name.strip_prefix("b-").and_then(Liquid::from_lower) {
+                Some(l) => Policy::Build(Some(l)),
+                None => Policy::Newcomer,
+            },
         }
     }
 }
@@ -716,11 +725,14 @@ impl<'a> Fight<'a> {
             }
             return false;
         }
-        // D7: `mercury` drinks no non-Mercury unit past Mercury / `dominance_percent`.
-        if self.mercury_full() && self.next_drink().is_some_and(|l| l != Liquid::Mercury) {
+        // D7, D8: `mercury` and the builds drink nothing that thins their liquid past its share.
+        if self.next_drink().is_some_and(|l| self.build_full(l)) {
             if let Some(m) = self.map.as_mut().filter(|m| m.exit == cell) {
                 m.river = 0;
-                self.note(|_| "Slime leaves the river: its Mercury would thin".into());
+                self.note(|f| {
+                    let l = f.build_liquid().expect("a build");
+                    format!("Slime leaves the river: its {l:?} would thin")
+                });
             }
             return false;
         }
@@ -821,16 +833,25 @@ impl<'a> Fight<'a> {
                 // An enemy that entered after the snapshot (the hunter) was alive at the open.
                 let was_alive = o.alive_at_open.get(i).copied().unwrap_or(true);
                 if was_alive && !e.alive() {
-                    corpses.extend(e.volume.iter().copied());
+                    let mut corpse = e.volume.clone();
+                    // D8: a Living enemy killed while Poisoned leaves half (rounded up) Pus.
+                    let poisoned = e.statuses.iter().any(|s| s.kind == StatusKind::Poisoned);
+                    if poisoned && e.element.is_some() && e.element == self.d.elements.living {
+                        let half = corpse.len().div_ceil(2);
+                        corpse[..half].fill(Liquid::Pus);
+                    }
+                    corpses.extend(corpse);
                 }
             }
-            // D7: `mercury` eats the Mercury first and leaves what would thin it.
-            if self.policy == Policy::Mercury {
-                corpses.sort_by_key(|&u| u != Liquid::Mercury);
+            // D7, D8: `mercury` and `b-<liquid>` eat their liquid first and leave what would
+            // thin it; `b-auto` eats anything.
+            let picky = self.policy != Policy::Build(None);
+            if let Some(l) = self.build_liquid().filter(|_| picky) {
+                corpses.sort_by_key(|&u| u != l);
             }
             for unit in corpses {
                 ep.corpse += 1;
-                let thins = unit != Liquid::Mercury && self.mercury_full();
+                let thins = picky && self.build_full(unit);
                 if self.slime.volume.len() < self.d.slime.capacity && !thins {
                     self.slime.volume.push(unit);
                     ep.eaten += 1;
@@ -1373,7 +1394,9 @@ impl<'a> Fight<'a> {
         }
         if self.can_strike()
             && !self.swapped
-            && let Some(k) = self.mercury_pick(target)
+            && let Some(k) = self
+                .mercury_pick(target)
+                .or_else(|| self.build_pick(target))
         {
             let unit = self.slime.volume.remove(k);
             self.slime.volume.push(unit);
@@ -1464,19 +1487,8 @@ impl<'a> Fight<'a> {
     /// A unit 1 or 2 under the edge that is not enemy `i`'s element, when bringing it up
     /// makes no reacting neighbours.
     fn unstall_pick(&self, i: usize) -> Option<usize> {
-        let el = &self.d.elements;
         let theirs = self.enemies[i].element;
-        let v = &self.slime.volume;
-        let n = v.len();
-        if n < 2 {
-            return None;
-        }
-        (n.saturating_sub(3)..n - 1).rev().find(|&k| {
-            let mut after = v.clone();
-            let unit = after.remove(k);
-            after.push(unit);
-            el.of(unit) != theirs && self.reacting_pairs(&after) <= self.reacting_pairs(v)
-        })
+        self.bring_up(|unit| self.d.elements.of(unit) != theirs)
     }
 
     /// Policies other than `newcomer`/`strafe` avoid waste; those two waste one strike first.
@@ -1513,10 +1525,43 @@ impl<'a> Fight<'a> {
         true
     }
 
-    /// `kite`, `reader`, `pus`, and `mercury` without its affinity.
+    /// The index (1 or 2 under the edge, nearest first) of a unit `wanted` accepts whose move to
+    /// the edge makes no more reacting neighbours (R3): the one-action bring-up of the stall
+    /// rule, `reader`, `mercury` and the builds.
+    fn bring_up(&self, wanted: impl Fn(Liquid) -> bool) -> Option<usize> {
+        let v = &self.slime.volume;
+        let n = v.len();
+        (n.saturating_sub(3)..n.saturating_sub(1)).rev().find(|&k| {
+            let mut after = v.clone();
+            let unit = after.remove(k);
+            after.push(unit);
+            wanted(unit) && self.reacting_pairs(&after) <= self.reacting_pairs(v)
+        })
+    }
+
+    /// `kite`, `reader`, `pus`, the builds, and `mercury` without its affinity.
     fn kites(&self) -> bool {
-        matches!(self.policy, Policy::Kite | Policy::Reader | Policy::Pus)
-            || (self.policy == Policy::Mercury && !self.hunts())
+        matches!(
+            self.policy,
+            Policy::Kite | Policy::Reader | Policy::Pus | Policy::Build(_)
+        ) || (self.policy == Policy::Mercury && !self.hunts())
+    }
+
+    /// D7, D8: the liquid `mercury` or a build plays: Mercury, its own, or for `b-auto` the
+    /// liquid of its affinity, else its most common one (the first in `ALL_LIQUIDS` on a tie).
+    fn build_liquid(&self) -> Option<Liquid> {
+        match self.policy {
+            Policy::Mercury => Some(Liquid::Mercury),
+            Policy::Build(Some(l)) => Some(l),
+            Policy::Build(None) => self.slime.dominant.or_else(|| {
+                ALL_LIQUIDS
+                    .iter()
+                    .copied()
+                    .filter(|&l| l != Liquid::Dross && self.slime.count(l) > 0)
+                    .max_by_key(|&l| (self.slime.count(l), std::cmp::Reverse(l)))
+            }),
+            _ => None,
+        }
     }
 
     /// D7: `mercury` holding its affinity goes for the enemies instead of kiting.
@@ -1530,11 +1575,36 @@ impl<'a> Fight<'a> {
         self.slime.dominant == Some(Liquid::Mercury) && self.d.rules.mercury_affinity == "invisible"
     }
 
-    /// D7: `mercury` holds Mercury as its affinity and one more non-Mercury unit would take
-    /// the body past Mercury / `dominance_percent`.
-    fn mercury_full(&self) -> bool {
-        let m = self.slime.count(Liquid::Mercury);
-        self.hunts() && (self.slime.volume.len() + 1) * self.d.rules.dominance_percent > m * 100
+    /// D7, D8: the played liquid is the affinity and taking `unit` would take the body past
+    /// its count × 100 / `dominance_percent`.
+    fn build_full(&self, unit: Liquid) -> bool {
+        let Some(l) = self.build_liquid().filter(|&l| l != unit) else {
+            return false;
+        };
+        self.slime.dominant == Some(l)
+            && (self.slime.volume.len() + 1) * self.d.rules.dominance_percent
+                > self.slime.count(l) * 100
+    }
+
+    /// D8: a build holding its liquid as the affinity: the index (1 or 2 under the edge) of a
+    /// unit of it to bring up before a strike on a target it dominates, when the edge is not
+    /// one and the move makes no reacting neighbours.
+    fn build_pick(&self, target: usize) -> Option<usize> {
+        let l = self.build_liquid()?;
+        let el = &self.d.elements;
+        let theirs = self.enemies[target].element?;
+        let v = &self.slime.volume;
+        let n = v.len();
+        let dominates = el.of(l).is_some_and(|a| el.suppresses(a, theirs));
+        if !matches!(self.policy, Policy::Build(_))
+            || self.slime.dominant != Some(l)
+            || !dominates
+            || n < 2
+            || v[n - 1] == l
+        {
+            return None;
+        }
+        self.bring_up(|unit| unit == l)
     }
 
     /// D7 `mercury` with its affinity: the index (1 or 2 under the edge) of the unit to bring up
@@ -1562,12 +1632,7 @@ impl<'a> Fight<'a> {
         if wanted(v[n - 1]) {
             return None;
         }
-        (n.saturating_sub(3)..n - 1).rev().find(|&k| {
-            let mut after = v.clone();
-            let unit = after.remove(k);
-            after.push(unit);
-            wanted(unit) && self.reacting_pairs(&after) <= self.reacting_pairs(v)
-        })
+        self.bring_up(wanted)
     }
 
     /// D7 `mercury` hunting: the nearest living enemy it sees (sight range, walls block) and
@@ -1620,12 +1685,7 @@ impl<'a> Fight<'a> {
         if n < 2 || dominates(v[n - 1]) {
             return None;
         }
-        (n.saturating_sub(3)..n - 1).rev().find(|&k| {
-            let mut after = v.clone();
-            let unit = after.remove(k);
-            after.push(unit);
-            dominates(unit) && self.reacting_pairs(&after) <= self.reacting_pairs(v)
-        })
+        self.bring_up(dominates)
     }
 
     fn reacting_pairs(&self, body: &[Liquid]) -> usize {
@@ -2565,6 +2625,10 @@ impl<'a> Fight<'a> {
                     owner.armor
                 ));
             }
+            // The dead keep the status that killed them (a Poisoned corpse, D8).
+            if !owner.alive() {
+                break;
+            }
             // A pulse may have removed the status (dominance change); tick it where it is now.
             if let Some(now) = owner.statuses.iter().position(|s| s.id == status.id) {
                 let s = &mut owner.statuses[now];
@@ -2574,9 +2638,6 @@ impl<'a> Fight<'a> {
                 if s.remaining == 0 {
                     owner.statuses.remove(now);
                 }
-            }
-            if !owner.alive() {
-                break;
             }
             refresh_dominance(d, owner, ids);
         }
