@@ -143,7 +143,9 @@ For slow enemies (speed 1: a step or a bite per turn). Per slime action:
 3. Enemies adjacent:
    - **On the round's last action:** step to a free neighbour that no living enemy touches. The
      cell with the largest smallest distance to the enemies wins, then the one farther from
-     the nearest room's centre (map levels), then the lowest (x, y). With no such cell, it strikes instead.
+     the nearest room's centre (map levels), then the lowest (x, y). With no such cell, or
+     when every adjacent enemy that bites is stationary (speed 0: it cannot follow, and the
+     slime would step in again), it strikes instead.
    - **Otherwise:** strike the adjacent enemy with the lowest HP (ties: placement order) with
      the edge unit. When the last unit cannot be spent, it steps away as above.
 
@@ -267,16 +269,15 @@ Agreed design rules (balance `sim-reactions-spec.md`, `bestiary-numbers.md`); no
   every policy brings up a unit 1 or 2 under the edge that is not (one action), unless that
   makes reacting neighbours; `newcomer` and `strafe` first waste one strike. With nothing to
   bring up the slime gives up on that enemy: it neither strikes nor waits for it (on maps it
-  walks on to the exit past it). The waste and the giving up are per enemy. A moving enemy it
-  cannot hurt that blocks the way: when it is aggroed (it stays while it fights) and some unit
+  walks on to the exit past it). The waste and the giving up are per enemy. A blocker the slime
+  has given up on (its own element is on the edge, so neither bites the other): when a unit
   under the edge could hurt it (power above 0, not its element) but no bring-up reaches it (too
-  deep, or the move would make reacting neighbours), the slime spits its useless edge unit away
-  (one action, a spent unit) and digs down to it. A blocker that no unit can hurt and that
-  cannot hurt the slime (no bite, or its element is the edge's) is slipped past: same-element
-  creatures do not fight, so the two swap cells (one action; not while netted). Any other
-  blocker is waited for. When stationary given-up enemies (not dying of their statuses) that
-  can hurt the slime close every way to the goal, the run ends as a loss, cause `stalemate`. A matrix fight in which the slime gives up on every living enemy (none dying of
-  its statuses) ends at once the same way. `lure` and `kite` hold for an enemy only while it
+  deep, or the move would make reacting neighbours) and the blocker stays (aggroed, or
+  stationary), the slime spits its useless edge unit away (one action, a spent unit) and digs
+  down to it. When no unit can hurt it, the two swap cells: same-element creatures do not
+  fight (one action; not while netted). A calm walker with a unit to dig for is waited for: it
+  moves on by itself. So a map run never ends in a stalemate. A matrix fight in which the slime gives up on every living enemy (none dying of
+  its statuses) ends at once as a loss, cause `stalemate`. `lure` and `kite` hold for an enemy only while it
   has a way to the slime past walls, stones and given-up enemies. `arranger` never swaps the
   target's own element up. A bring-up never raises the number of reacting pairs.
 

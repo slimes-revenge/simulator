@@ -66,3 +66,29 @@ fn it_digs_when_a_bring_up_would_react_and_never_for_pus() {
     assert!(!log.iter().any(|l| l.contains("dig past")));
     assert!(log.iter().any(|l| l.starts_with("Slime slips past Undine")));
 }
+
+#[test]
+fn a_calm_stationary_blocker_is_dug_past_too() {
+    // A Passive Water Cactus (speed 0) in a passage never aggroes; Blood lies 4 under the
+    // Water edge. It never moves off, so the slime digs instead of waiting for good.
+    let text =
+        std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/data/design.toml")).unwrap();
+    let mut text = text[..text.find("[[levels]]").unwrap()].to_string();
+    text += "[[levels]]\nid = \"b\"\ncapacity = 10\naction_points = 2\npolicy = \"kite\"\n\
+             start = [\"Blood\", \"Blood\", \"Blood\", \"Water\", \"Water\", \"Water\", \"Water\"]\n\
+             map = { rooms = 3, room_side = [5, 5], enemies_per_room = [0, 0], \
+             enemy_kinds = [\"Mushroom\"], corridor = 2, vision = 2, blockers = [\"Cactus\"], \
+             blockers_per_level = 2 }\n";
+    let mut d = Design::parse(&text).unwrap();
+    let c = d.enemies.iter_mut().find(|e| e.name == "Cactus").unwrap();
+    (c.element, c.speed) = (Some(simulator::data::Liquid::Water), 0);
+    c.personality = simulator::data::Personality::Passive;
+    let r = map::run(&d, &d.levels[0]);
+    assert!(
+        !r.stops
+            .keys()
+            .any(|k| k.ends_with(":stalemate") || k.ends_with(":timeout")),
+        "{:?}",
+        r.stops
+    );
+}
