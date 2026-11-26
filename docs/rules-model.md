@@ -296,6 +296,27 @@ Agreed design rules (balance `sim-reactions-spec.md`, `bestiary-numbers.md`); no
   has a way to the slime past walls, stones and given-up enemies. `arranger` never swaps the
   target's own element up. A bring-up never raises the number of reacting pairs.
 
+## `planner` policy (balance: a thoughtful player; run targets are calibrated against it)
+
+`reader` (and so `kite`, careful drinking and eating on maps), plus:
+
+- **No strikes into suppression.** Next to several enemies it strikes first one whose element
+  does not suppress its edge unit's (then the lowest HP). Before a strike on a target that
+  suppresses the edge, it brings up (one action, 1 or 2 under the edge, no more reacting
+  neighbours) a unit that hurts the target (not its element, not Ambrosia on the Living) and
+  that the target does not suppress, one that dominates the target first. The target choice
+  applies where `kite` picks among biting neighbours; a blocker or a non-biting neighbour is
+  struck as the map policies do.
+- **The level's counter near the edge.** The counter liquid is the one in the body whose
+  element suppresses the most living enemies' elements (the first in the `Liquid` order on a
+  tie). Calm on a map, when no unit of it lies within 2 of the edge, it brings the edge-most
+  one up (one action).
+- **Picky eating.** Once the body is `policies.planner_full_percent` (80) of capacity, it eats
+  only corpse units whose element suppresses some living enemy's on the level.
+- Corridor fighting and waiting outside rooms where 2+ calm enemies would see it come from
+  `lure`'s holding, which `kite` and `reader` share on maps; the wait gives up after
+  `policies.lure_patience` actions, as for them (calm enemies may never leave).
+
 ## D1, D3: puddles, Pus burps, Infected (`[pus]`, balance `sim-3d-spec.md`)
 
 Agreed design rules; not in the game.

@@ -294,7 +294,7 @@ Every report is complete on its own.
 | `schemaVersion` | int | `1` |
 | `generatedUtc` | string | When the report was built, `YYYY-MM-DDTHH:MM:SSZ` |
 | `commit` | string | The simulator commit (`GITHUB_SHA` in CI, else `git rev-parse HEAD`, else `unknown`) |
-| `policy` | string | How the simulated slime plays: a `matrix.policies` name (`newcomer`, `arranger`, `kite`, `reader`, `pus`, `mercury`, `b-<liquid>`, `b-auto`) |
+| `policy` | string | How the simulated slime plays: a `matrix.policies` name (`newcomer`, `arranger`, `kite`, `reader`, `planner`, `pus`, `mercury`, `b-<liquid>`, `b-auto`) |
 | `actionsPerRound` | int | Slime actions per round; enemies always act once |
 | `seeds` | int | Fights per cell; seeds `0 .. seeds-1` |
 | `builds[]` | object | `id` (stable key), `name` (label), `units` (liquid → count). Order: `start`, then one pure build per liquid in `matrix.build_liquids` order |

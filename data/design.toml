@@ -226,6 +226,7 @@ policies = ["newcomer", "arranger", "kite", "reader"]  # slime policies the matr
 [policies]
 lure_patience = 10            # actions `lure` waits per room approach while 2+ calm enemies would see it
 arranger_keep = "none"        # the liquid `arranger` keeps deep (a liquid name), or "none"
+planner_full_percent = 80     # `planner` eats only counter units once the body is this full (balance)
 
 # R1/R2 (balance sim-reactions-spec.md, lore forum.md): two circles; each liquid encourages the next.
 [elements]

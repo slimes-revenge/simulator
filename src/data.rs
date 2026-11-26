@@ -437,6 +437,8 @@ pub struct Policies {
     pub lure_patience: u32,
     /// The liquid `arranger` keeps deep, or `none`.
     pub arranger_keep: String,
+    /// `planner` eats only counter units once the body is this full (percent of capacity).
+    pub planner_full_percent: usize,
 }
 
 impl Policies {
@@ -683,6 +685,9 @@ impl Design {
         if design.rules.spit_range != 1 {
             return Err("rules.spit_range: only 1 is modelled".into());
         }
+        if !(1..=100).contains(&design.policies.planner_full_percent) {
+            return Err("policies.planner_full_percent must be 1..=100".into());
+        }
         if design.policies.arranger_keep != "none" && design.policies.keep().is_none() {
             return Err(format!(
                 "policies.arranger_keep must be \"none\" or a liquid, not {:?}",
@@ -691,7 +696,10 @@ impl Design {
         }
         let policies = &design.matrix.policies;
         if let Some(p) = policies.iter().find(|p| {
-            !["newcomer", "arranger", "kite", "reader", "pus", "mercury"].contains(&p.as_str())
+            ![
+                "newcomer", "arranger", "kite", "reader", "planner", "pus", "mercury",
+            ]
+            .contains(&p.as_str())
                 && !build_policy(p)
         }) {
             return Err(format!("matrix.policies: unknown policy {p:?}"));
@@ -741,9 +749,13 @@ impl Design {
                 return Err(format!("level {:?}: {problem}", level.id));
             }
             let allowed: &[&str] = if level.map.is_some() {
-                &["strafe", "lure", "kite", "reader", "pus", "mercury"]
+                &[
+                    "strafe", "lure", "kite", "reader", "planner", "pus", "mercury",
+                ]
             } else {
-                &["newcomer", "arranger", "kite", "reader", "pus", "mercury"]
+                &[
+                    "newcomer", "arranger", "kite", "reader", "planner", "pus", "mercury",
+                ]
             };
             if !allowed.contains(&level.policy.as_str()) && !build_policy(&level.policy) {
                 return Err(format!(
@@ -858,8 +870,10 @@ impl Design {
         for t in &design.ladder.thresholds {
             if t.min.is_some() == t.max.is_some()
                 || !["E", "N", "H"].contains(&t.difficulty.as_str())
-                || !(["strafe", "lure", "kite", "reader", "pus", "mercury"]
-                    .contains(&t.policy.as_str())
+                || !([
+                    "strafe", "lure", "kite", "reader", "planner", "pus", "mercury",
+                ]
+                .contains(&t.policy.as_str())
                     || build_policy(&t.policy))
             {
                 return Err(format!(

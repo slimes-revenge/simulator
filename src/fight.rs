@@ -308,6 +308,11 @@ pub enum Policy {
     /// liquid up against a target it dominates (`build_pick`) and keeps its share
     /// (`build_full`).
     Build(Option<Liquid>),
+    /// A thoughtful player (balance): `reader`, and it never strikes with a unit the target's
+    /// element suppresses while another unit or target will do (`planner_pick`), keeps the
+    /// level's counter liquid within 2 of the edge (`planner_counter`), and once
+    /// `policies.planner_full_percent` full eats only corpse units that counter the level.
+    Planner,
 }
 
 impl Policy {
@@ -318,6 +323,7 @@ impl Policy {
             },
             "kite" => Policy::Kite,
             "reader" => Policy::Reader,
+            "planner" => Policy::Planner,
             "pus" => Policy::Pus,
             "mercury" => Policy::Mercury,
             "b-auto" => Policy::Build(None),
@@ -879,7 +885,7 @@ impl<'a> Fight<'a> {
                             .volume
                             .last()
                             .is_some_and(|&e| self.pair_reacts(e, unit));
-                    if room && !thins && !reacts {
+                    if room && !thins && !reacts && self.planner_eats(unit) {
                         self.slime.volume.push(unit);
                         ep.eaten += 1;
                         false
@@ -1178,6 +1184,12 @@ impl<'a> Fight<'a> {
         if self.hunts() && self.mercury_hunt() {
             return;
         }
+        if !aggro && let Some(k) = self.planner_counter() {
+            let unit = self.slime.volume.remove(k);
+            self.slime.volume.push(unit);
+            self.tally.swaps += 1;
+            return self.note(|_| format!("Slime brings {unit:?} up: the level's counter"));
+        }
         let m = self.map.as_ref().expect("map runs");
         let (lure, exit, waited) = (m.lure, m.exit, m.waited);
         let goal = if lure && aggro {
@@ -1368,7 +1380,14 @@ impl<'a> Fight<'a> {
                     // `pus` never wastes Pus on the Living before `pus_infects` levels.
                     && !(self.policy == Policy::Pus && !self.pus_infects && self.living(i))
             })
-            .min_by_key(|(i, e)| (e.hit_points, *i))
+            // `planner` first strikes a target that does not suppress its edge.
+            .min_by_key(|(i, e)| {
+                (
+                    self.policy == Policy::Planner && self.suppresses_edge(*i),
+                    e.hit_points,
+                    *i,
+                )
+            })
             .map(|(i, _)| i)
         else {
             return false;
@@ -1432,7 +1451,18 @@ impl<'a> Fight<'a> {
         if self.unstall(target) {
             return;
         }
-        if self.policy == Policy::Reader
+        if self.can_strike()
+            && !self.swapped
+            && let Some(k) = self.planner_pick(target)
+        {
+            let unit = self.slime.volume.remove(k);
+            self.slime.volume.push(unit);
+            self.tally.swaps += 1;
+            self.swapped = true;
+            return self
+                .note(|_| format!("Slime brings {unit:?} up: the target suppresses its edge"));
+        }
+        if matches!(self.policy, Policy::Reader | Policy::Planner)
             && self.can_strike()
             && !self.swapped
             && let Some(k) = self.reader_pick(target)
@@ -1594,7 +1624,7 @@ impl<'a> Fight<'a> {
     fn kites(&self) -> bool {
         matches!(
             self.policy,
-            Policy::Kite | Policy::Reader | Policy::Pus | Policy::Build(_)
+            Policy::Kite | Policy::Reader | Policy::Planner | Policy::Pus | Policy::Build(_)
         ) || (self.policy == Policy::Mercury && !self.hunts())
     }
 
@@ -1619,6 +1649,92 @@ impl<'a> Fight<'a> {
             }
             _ => None,
         }
+    }
+
+    /// Enemy `i`'s element suppresses the slime's edge unit's (R2).
+    fn suppresses_edge(&self, i: usize) -> bool {
+        let el = &self.d.elements;
+        let edge = self.slime.volume.last().and_then(|&l| el.of(l));
+        self.enemies[i]
+            .element
+            .zip(edge)
+            .is_some_and(|(a, b)| el.suppresses(a, b))
+    }
+
+    /// `planner`: when `target` suppresses the edge, the unit (1 or 2 under the edge) to bring
+    /// up instead: one that hurts it and that it does not suppress.
+    fn planner_pick(&self, target: usize) -> Option<usize> {
+        if self.policy != Policy::Planner || !self.suppresses_edge(target) {
+            return None;
+        }
+        let el = &self.d.elements;
+        let theirs = self.enemies[target].element?;
+        // Hurts it (not its element, not Ambrosia on the Living) and it does not suppress it;
+        // a unit that dominates it first, as `reader` would.
+        let ok = |u: Liquid| {
+            self.d.liquid(u).power > 0
+                && !self.useless_against(u, target)
+                && !(u == Liquid::Ambrosia && self.living(target))
+                && !el.of(u).is_some_and(|m| el.suppresses(theirs, m))
+        };
+        let dominates = |u: Liquid| el.of(u).is_some_and(|m| el.suppresses(m, theirs));
+        self.bring_up(|u| ok(u) && dominates(u))
+            .or_else(|| self.bring_up(ok))
+    }
+
+    /// The liquid in the body whose element suppresses the most living enemies' elements.
+    fn counter_liquid(&self) -> Option<Liquid> {
+        let el = &self.d.elements;
+        let hits = |l: Liquid| {
+            self.enemies
+                .iter()
+                .filter(|e| e.alive())
+                .filter(|e| {
+                    el.of(l)
+                        .zip(e.element)
+                        .is_some_and(|(a, b)| el.suppresses(a, b))
+                })
+                .count()
+        };
+        ALL_LIQUIDS
+            .iter()
+            .copied()
+            .filter(|&l| self.slime.count(l) > 0 && hits(l) > 0)
+            .max_by_key(|&l| (hits(l), std::cmp::Reverse(l)))
+    }
+
+    /// `planner`, calm: the index of the counter liquid's edge-most unit to bring to the edge
+    /// when none lies within 2 of it (and the move makes no more reacting neighbours).
+    fn planner_counter(&self) -> Option<usize> {
+        if self.policy != Policy::Planner {
+            return None;
+        }
+        let l = self.counter_liquid()?;
+        let v = &self.slime.volume;
+        let n = v.len();
+        if v[n.saturating_sub(3)..].contains(&l) {
+            return None;
+        }
+        let k = v.iter().rposition(|&u| u == l)?;
+        let mut after = v.clone();
+        let unit = after.remove(k);
+        after.push(unit);
+        (self.reacting_pairs(&after) <= self.reacting_pairs(v)).then_some(k)
+    }
+
+    /// `planner`: once `policies.planner_full_percent` full, it eats only units whose element
+    /// suppresses some living enemy's on the level.
+    fn planner_eats(&self, unit: Liquid) -> bool {
+        let full = self.slime.volume.len() * 100
+            >= self.d.slime.capacity * self.d.policies.planner_full_percent;
+        let el = &self.d.elements;
+        self.policy != Policy::Planner
+            || !full
+            || self.enemies.iter().filter(|e| e.alive()).any(|e| {
+                el.of(unit)
+                    .zip(e.element)
+                    .is_some_and(|(a, b)| el.suppresses(a, b))
+            })
     }
 
     /// D7: `mercury` holding its affinity goes for the enemies instead of kiting.

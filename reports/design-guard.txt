@@ -134,6 +134,7 @@ matrix.enemy_rows = 5 4 6
 matrix.policies = newcomer arranger kite reader
 policies.lure_patience = 10
 policies.arranger_keep = none
+policies.planner_full_percent = 80
 elements.circles = ["Water", "Ichor", "Lava", "Mercury", "Aquavita"] ["Vitriol", "Alkali", "Ambrosia", "Acid", "Poison"]
 elements.encouragement_bonus = 1
 elements.suppress = plus1
