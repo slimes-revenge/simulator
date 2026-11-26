@@ -43,6 +43,10 @@ flammable_multiplier = 2   # Flammable.DamageMultiplier, per Flammable status
 instability_speed = -1     # Instability.SpeedModifier
 vampirism_heal = 2         # Vampirism.HealAmount
 regeneration_growth = 1    # Regeneration: +1 Blood per pulse
+cold_fire = 3              # 4a (balance liquid-roles.md): Ichor's Cold fire 1 x 3...
+cold_fire_pulse = 1        # ...1 HP a pulse, not Burning (fire immunity and Flammable do not apply)
+blinded = 3                # Ichor's Blinded: 3 pulses = 2 enemy turns...
+blinded_vision = 2         # ...sight -2, at least 1
 
 # Liquids in this order are the fixed order of breakdowns in the report.
 # power = Substance.Power, corrosion = Substance.Corrosion. What each liquid applies is a rule
@@ -84,10 +88,11 @@ power = 0
 corrosion = 0
 
 # The rest of the 16 liquids (17 with Ectoplasm, later) (lore forum.md; rows: balance liquids.md "Финальный список").
-# Vitriol: Corroding; Alkali: Instability 2; Sulfur: Flammable; Ambrosia heals Living. The rest
-# strike for `power` with no status until their statuses exist (Cold fire, Greased, Rooted, Charmed).
+# Vitriol: Corroding; Alkali: Instability 2; Sulfur: Flammable; Ichor: Cold fire + Blinded; Ambrosia
+# heals Living. The rest strike for `power` with no status until their statuses exist (Greased,
+# Rooted, Charmed).
 [[liquids]]
-name = "Phosphorus"
+name = "Ichor"
 power = 1
 corrosion = 0
 
@@ -126,13 +131,14 @@ corrosion = 0
 name = "Sulfur"
 power = 1
 corrosion = 0
+pulses = 2                    # 4a: Flammable 2 x 2 (liquid-roles.md); its affinity sets every target struck on fire
 
 [[liquids]]
 name = "Aphrodisiac"
 power = 1
 corrosion = 0
 
-# D4: dead cargo a stop leaves behind (spent Phosphorus, Fat).
+# D4: dead cargo a stop leaves behind (spent Ichor, Fat).
 [[liquids]]
 name = "Dross"
 power = 0
@@ -223,7 +229,7 @@ arranger_keep = "none"        # the liquid `arranger` keeps deep (a liquid name)
 # R1/R2 (balance sim-reactions-spec.md, lore forum.md): two circles; each liquid encourages the next.
 [elements]
 circles = [
-  ["Water", "Phosphorus", "Lava", "Mercury", "Aquavita"],
+  ["Water", "Ichor", "Lava", "Mercury", "Aquavita"],
   ["Vitriol", "Alkali", "Ambrosia", "Acid", "Poison"],
 ]
 encouragement_bonus = 1       # once per slime turn: the unit under the edge encourages the edge
@@ -235,7 +241,7 @@ living = "Alkali"             # Living creatures: Ambrosia heals them 1 instead 
 # An enemy without `element`: its corpse's main liquid (circle liquids are their own element).
 corpse = { Blood = "Alkali", Fat = "Alkali", Pus = "Poison", Sulfur = "Acid", Resin = "Ambrosia" }
 # Statuses that do not take on enemies of these elements (the strike still hurts).
-status_immune = { Poisoned = ["Mercury", "Water", "Phosphorus", "Poison", "Lava"], Burning = ["Lava", "Water", "Mercury"], Corroding = ["Water", "Lava", "Acid", "Vitriol"], Instability = ["Ambrosia"] }
+status_immune = { Poisoned = ["Mercury", "Water", "Ichor", "Poison", "Lava"], Burning = ["Lava", "Water", "Mercury"], Corroding = ["Water", "Lava", "Acid", "Vitriol"], Instability = ["Ambrosia"], ColdFire = ["Water", "Ichor"], Blinded = ["Ichor"] }
 # Statuses that take twice on enemies of these elements.
 status_double = { Corroding = ["Mercury"] }
 
@@ -283,7 +289,7 @@ thresholds = [
 stops = [
   { after = 4, resets = [{ from = "Blood", to = "Pus" }, { from = "Poison", to = "Water" }] },
   { after = 8, resets = [{ from = "Water", to = "Poison", max_percent = 50 }, { from = "Aquavita" }] },
-  { after = 12, resets = [{ from = "Phosphorus", to = "Dross" }, { from = "Alkali", to = "Water" }] },
+  { after = 12, resets = [{ from = "Ichor", to = "Dross" }, { from = "Alkali", to = "Water" }] },
   { after = 16, resets = [{ from = "Fat", to = "Dross" }, { from = "Sulfur" }] },
 ]
 

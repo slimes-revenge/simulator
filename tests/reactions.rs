@@ -54,8 +54,8 @@ fn a_reaction_can_kill_unless_the_rule_is_off() {
 #[test]
 fn an_encouraged_edge_strikes_one_harder_once_per_turn() {
     use Liquid::*;
-    // Water encourages Phosphorus, Aquavita encourages Water (circle I); Lava does not
-    // encourage Phosphorus. The second encouraged strike of the turn gets no bonus.
+    // Water encourages Ichor, Aquavita encourages Water (circle I); Lava does not
+    // encourage Ichor. The second encouraged strike of the turn gets no bonus.
     let strike = |body: Vec<Liquid>| {
         // An Alkali Mushroom: no element relation with circle I, so only encouragement counts.
         let mut d = Design::bundled();
@@ -72,7 +72,7 @@ fn an_encouraged_edge_strikes_one_harder_once_per_turn() {
     let log = strike(
         vec![Water; 7]
             .into_iter()
-            .chain([Aquavita, Water, Phosphorus])
+            .chain([Aquavita, Water, Ichor])
             .collect(),
     );
     let hits: Vec<&String> = log
@@ -81,7 +81,7 @@ fn an_encouraged_edge_strikes_one_harder_once_per_turn() {
         .collect();
     assert!(hits[0].contains("HP 5->3"), "{hits:?}");
     assert!(hits[1].contains("HP 3->2"), "once per turn: {hits:?}");
-    let log = strike(vec![Lava, Phosphorus]);
+    let log = strike(vec![Lava, Ichor]);
     let hit = log.iter().find(|l| l.starts_with("Slime strikes")).unwrap();
     assert!(hit.contains("HP 5->4"), "{hit}");
 }

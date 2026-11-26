@@ -14,9 +14,9 @@ pub enum Liquid {
     Mercury,
     /// An infected Blood unit (`Infects`): no power, no effect, spat off the edge.
     Pus,
-    // The rest of the 16 liquids (17 with Ectoplasm, later) (lore `forum.md`): strike rows come from the balance session;
-    // until then a strike hits for its `power` with no status.
-    Phosphorus,
+    // The rest of the 16 liquids (17 with Ectoplasm, later; lore `forum.md`, balance
+    // `liquid-roles.md`): a strike without a modelled status hits for its `power` alone.
+    Ichor,
     Aquavita,
     Vitriol,
     Alkali,
@@ -25,7 +25,7 @@ pub enum Liquid {
     Resin,
     Sulfur,
     Aphrodisiac,
-    /// Dead cargo a stop leaves behind (spent Phosphorus, Fat): no power, no effect, a cell.
+    /// Dead cargo a stop leaves behind (spent Ichor, Fat): no power, no effect, a cell.
     Dross,
 }
 
@@ -37,7 +37,7 @@ pub const ALL_LIQUIDS: [Liquid; 17] = [
     Liquid::Lava,
     Liquid::Mercury,
     Liquid::Pus,
-    Liquid::Phosphorus,
+    Liquid::Ichor,
     Liquid::Aquavita,
     Liquid::Vitriol,
     Liquid::Alkali,
@@ -372,6 +372,12 @@ pub struct StatusData {
     pub instability_speed: i32,
     pub vampirism_heal: i32,
     pub regeneration_growth: usize,
+    /// 4a, Ichor's strike: Cold fire for `cold_fire` pulses of `cold_fire_pulse` HP; Blinded
+    /// for `blinded` pulses, sight −`blinded_vision` (at least 1).
+    pub cold_fire: i32,
+    pub cold_fire_pulse: i32,
+    pub blinded: i32,
+    pub blinded_vision: i32,
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -634,6 +640,8 @@ impl Design {
             "Flammable",
             "Regeneration",
             "Infected",
+            "ColdFire",
+            "Blinded",
         ];
         if !["plus1", "double"].contains(&el.suppress.as_str())
             || el.suppressed_hit_percent > 100

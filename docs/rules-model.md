@@ -77,9 +77,10 @@ truth for how the game behaves today; the simulator mirrors it by hand. Numbers 
 | Mercury | Nothing (power 2 in the design; the game's is 1) |
 | Vitriol | Corroding that strips at least 1 armor per pulse |
 | Alkali | Instability for its `pulses` |
-| Sulfur | Flammable (`statuses.flammable`) |
+| Sulfur | Flammable for its `pulses` (2); with a Sulfur affinity every strike also leaves Lava's Burning (4a) |
+| Ichor (was Phosphorus) | Cold fire (`statuses.cold_fire` pulses of `cold_fire_pulse` HP; not Burning, so fire immunity and Flammable do not apply; Water and Ichor are immune) and Blinded (`statuses.blinded` pulses, sight −`blinded_vision`, at least 1; Ichor is immune) (4a) |
 | Ambrosia | Heals a Living target 1 instead of hurting it (R2) |
-| Pus, Phosphorus, Aquavita, Fat, Resin, Aphrodisiac | Nothing yet: a hit for the liquid's `power`; their rows come from the balance session |
+| Pus, Aquavita, Fat, Resin, Aphrodisiac | Nothing yet: a hit for the liquid's `power`; their rows come from the balance session |
 
 **Heavy liquids** (`rules.heavy`, design): each listed liquid the slime holds at least its count
 of (Lava 3, Mercury 2) takes 1 action point off every round, checked at the round's start. The
@@ -233,7 +234,7 @@ Agreed design rules (balance `sim-reactions-spec.md`); not in the game yet.
   A reaction that empties the body there is a loss (cause `reaction`).
 - **Encouragement:** once per slime turn, a strike or spit with the edge unit hits
   `elements.encouragement_bonus` harder when the unit under it encourages it (the next liquid
-  in an `elements.circles` circle: Water → Phosphorus → Lava → Mercury → Aquavita → Water;
+  in an `elements.circles` circle: Water → Ichor → Lava → Mercury → Aquavita → Water;
   Vitriol → Alkali → Ambrosia → Acid → Poison → Vitriol).
 
 ## R2: elements in combat (`[elements]`, `hit`, `enemy_melee`)
@@ -244,7 +245,7 @@ Agreed design rules (balance `sim-reactions-spec.md`, `bestiary-numbers.md`); no
   element is its `element`, else its corpse's most common liquid (the first on a tie), as its
   own element or through `elements.corpse` (Blood, Fat → Alkali; Pus → Poison;
   Sulfur → Acid; Resin → Ambrosia). A ⊣ B (A suppresses B): B is two places after A in a
-  circle (Water ⊣ Lava ⊣ Aquavita ⊣ Phosphorus ⊣ Mercury ⊣ Water; Vitriol ⊣ Ambrosia ⊣ Poison ⊣
+  circle (Water ⊣ Lava ⊣ Aquavita ⊣ Ichor ⊣ Mercury ⊣ Water; Vitriol ⊣ Ambrosia ⊣ Poison ⊣
   Alkali ⊣ Acid ⊣ Vitriol).
 - **The slime's hit** (strike or spit; its element is the edge unit's):
   - dominates the target: +1 damage (`suppress = "plus1"`; `"double"`: ×2), counted `elem_plus`;

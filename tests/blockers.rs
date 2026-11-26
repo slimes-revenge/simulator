@@ -49,9 +49,9 @@ fn a_slime_slips_past_a_blocker_when_neither_can_hurt_the_other() {
 
 #[test]
 fn it_digs_when_a_bring_up_would_react_and_never_for_pus() {
-    // Phosphorus under the Water edge can hurt the Undine, but bringing it up would put Water
+    // Ichor under the Water edge can hurt the Undine, but bringing it up would put Water
     // next to Lava: the slime spits the Water away instead of giving up.
-    let (r, log) = play("[\"Lava\", \"Phosphorus\", \"Water\"]", 9);
+    let (r, log) = play("[\"Lava\", \"Ichor\", \"Water\"]", 9);
     assert_ne!(r.cause.as_deref(), Some("stalemate"), "{log:?}");
     assert!(
         log.iter()
