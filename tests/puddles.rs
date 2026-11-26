@@ -137,21 +137,35 @@ fn a_stop_resets_the_body_and_refills_its_empty_cells_with_water() {
     let d = Design::bundled();
     let stop = |after: u32| -> &Stop { d.ladder.stops.iter().find(|s| s.after == after).unwrap() };
     assert_eq!(
-        ladder::at_stop(&[Blood, Poison, Water], stop(4), 5, None),
+        ladder::at_stop(&[Blood, Poison, Water], stop(4), 5, None, false),
         vec![Water, Water, Pus, Water, Water]
     );
     // At most half the body's Water turns to Poison, edge-most first; Aquavita leaves.
     assert_eq!(
-        ladder::at_stop(&[Water, Water, Aquavita, Water, Water], stop(8), 5, None),
+        ladder::at_stop(
+            &[Water, Water, Aquavita, Water, Water],
+            stop(8),
+            5,
+            None,
+            false
+        ),
         vec![Water, Water, Water, Poison, Poison]
     );
     // After 16: Fat turns to Dross and Sulfur leaves; the empty cells fill with Water at the centre.
     assert_eq!(
-        ladder::at_stop(&[Fat, Sulfur, Lava, Sulfur], stop(16), 5, None),
+        ladder::at_stop(&[Fat, Sulfur, Lava, Sulfur], stop(16), 5, None, false),
         vec![Water, Water, Water, Dross, Lava]
     );
     // Pus is never pushed out: a full Pus body stays full Pus.
-    assert_eq!(ladder::at_stop(&[Pus; 6], stop(4), 6, None), vec![Pus; 6]);
+    assert_eq!(
+        ladder::at_stop(&[Pus; 6], stop(4), 6, None, false),
+        vec![Pus; 6]
+    );
+    // Every policy but `pus` spits its Pus and Dross out first: Water takes their place.
+    assert_eq!(
+        ladder::at_stop(&[Blood, Dross, Lava, Pus], stop(4), 5, None, true),
+        vec![Water, Water, Water, Water, Lava]
+    );
 }
 
 #[test]
