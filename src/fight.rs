@@ -308,10 +308,10 @@ pub enum Policy {
     /// liquid up against a target it dominates (`build_pick`) and keeps its share
     /// (`build_full`).
     Build(Option<Liquid>),
-    /// A thoughtful player (balance): `reader`, and it never strikes with a unit the target's
-    /// element suppresses while another unit or target will do (`planner_pick`), keeps the
-    /// level's counter liquid within 2 of the edge (`planner_counter`), and once
-    /// `policies.planner_full_percent` full eats only corpse units that counter the level.
+    /// A thoughtful player (balance, v2): `reader`, and it never strikes with a unit the target's
+    /// element suppresses while another unit or target will do (`planner_pick`, only when the
+    /// strike fits in the same round), and between fights keeps the level's counter liquid
+    /// within 2 of the edge (`planner_counter`).
     Planner,
 }
 
@@ -885,7 +885,7 @@ impl<'a> Fight<'a> {
                             .volume
                             .last()
                             .is_some_and(|&e| self.pair_reacts(e, unit));
-                    if room && !thins && !reacts && self.planner_eats(unit) {
+                    if room && !thins && !reacts {
                         self.slime.volume.push(unit);
                         ep.eaten += 1;
                         false
@@ -1662,9 +1662,10 @@ impl<'a> Fight<'a> {
     }
 
     /// `planner`: when `target` suppresses the edge, the unit (1 or 2 under the edge) to bring
-    /// up instead: one that hurts it and that it does not suppress.
+    /// up instead: one that hurts it and that it does not suppress. Not on the round's last
+    /// action: the strike must follow in the same round, not after a bite.
     fn planner_pick(&self, target: usize) -> Option<usize> {
-        if self.policy != Policy::Planner || !self.suppresses_edge(target) {
+        if self.policy != Policy::Planner || self.last_action || !self.suppresses_edge(target) {
             return None;
         }
         let el = &self.d.elements;
@@ -1703,10 +1704,15 @@ impl<'a> Fight<'a> {
             .max_by_key(|&l| (hits(l), std::cmp::Reverse(l)))
     }
 
-    /// `planner`, calm: the index of the counter liquid's edge-most unit to bring to the edge
-    /// when none lies within 2 of it (and the move makes no more reacting neighbours).
+    /// `planner`, between fights (no enemy aggroed, none that sees the slime): the index of the
+    /// counter liquid's edge-most unit to bring to the edge when none lies within 2 of it (and
+    /// the move makes no more reacting neighbours).
     fn planner_counter(&self) -> Option<usize> {
-        if self.policy != Policy::Planner {
+        let watched = (0..self.enemies.len()).any(|i| {
+            let e = &self.enemies[i];
+            e.alive() && (e.aggroed || self.can_see(i))
+        });
+        if self.policy != Policy::Planner || watched {
             return None;
         }
         let l = self.counter_liquid()?;
@@ -1720,21 +1726,6 @@ impl<'a> Fight<'a> {
         let unit = after.remove(k);
         after.push(unit);
         (self.reacting_pairs(&after) <= self.reacting_pairs(v)).then_some(k)
-    }
-
-    /// `planner`: once `policies.planner_full_percent` full, it eats only units whose element
-    /// suppresses some living enemy's on the level.
-    fn planner_eats(&self, unit: Liquid) -> bool {
-        let full = self.slime.volume.len() * 100
-            >= self.d.slime.capacity * self.d.policies.planner_full_percent;
-        let el = &self.d.elements;
-        self.policy != Policy::Planner
-            || !full
-            || self.enemies.iter().filter(|e| e.alive()).any(|e| {
-                el.of(unit)
-                    .zip(e.element)
-                    .is_some_and(|(a, b)| el.suppresses(a, b))
-            })
     }
 
     /// D7: `mercury` holding its affinity goes for the enemies instead of kiting.

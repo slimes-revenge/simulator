@@ -1,6 +1,6 @@
 //! The `planner` policy (balance: a thoughtful player; coordinator approved): `reader`, plus
-//! no strikes with a unit the target suppresses while another will do, the level's counter
-//! kept near the edge, and picky eating once the body is nearly full.
+//! no strikes with a unit the target suppresses while another will do, and the level's counter
+//! kept near the edge between fights (v2).
 
 use Liquid::*;
 use simulator::data::{Design, Liquid};
@@ -16,7 +16,17 @@ fn with_element(d: &mut Design, enemy: &str, element: Liquid) {
 }
 
 fn log(d: &Design, body: Vec<Liquid>, enemies: &[(&str, (i32, i32))], rounds: u32) -> Vec<String> {
-    let mut f = Fight::new(d, 0, 1, body, (0, 5), enemies);
+    log_ap(d, body, enemies, rounds, 2)
+}
+
+fn log_ap(
+    d: &Design,
+    body: Vec<Liquid>,
+    enemies: &[(&str, (i32, i32))],
+    rounds: u32,
+    ap: u32,
+) -> Vec<String> {
+    let mut f = Fight::new(d, 0, ap, body, (0, 5), enemies);
     f.policy = Policy::Planner;
     f.max_rounds = rounds;
     f.run_traced().1
@@ -37,6 +47,20 @@ fn planner_brings_up_a_unit_the_target_does_not_suppress() {
     assert!(
         l.iter()
             .any(|x| x == "Slime brings Water up: the target suppresses its edge"),
+        "{l:?}"
+    );
+    // At 1 action every action is the round's last: no bring-up, the strike would come after
+    // a bite (v2).
+    let l = log_ap(
+        &d,
+        vec![Fat, Fat, Water, Alkali],
+        &[("Mushroom", (2, 5))],
+        2,
+        1,
+    );
+    assert!(
+        !l.iter()
+            .any(|x| x.ends_with("the target suppresses its edge")),
         "{l:?}"
     );
 }
@@ -89,36 +113,24 @@ fn planner_keeps_the_level_counter_near_the_edge() {
 }
 
 #[test]
-fn planner_eats_only_counter_units_once_nearly_full() {
-    // Corpses of Fat and Water; the body starts 9 of 10 full (Water counters Lava).
-    let eaten = |policy: &str| {
-        let mut d = level(policy, &format!("[{}]", ["\"Water\""; 9].join(", ")), 1);
-        let m = d.enemies.iter_mut().find(|e| e.name == "Mushroom").unwrap();
-        (m.volume, m.hit_points) = (vec![Fat, Water], 2);
-        // Bites never land (Water dominates Lava), so the body stays 90 % full.
-        d.elements.suppressed_hit_percent = 0;
-        let l = &d.levels[0];
-        (0..10)
-            .map(|s| {
-                let (_, st) = map::play(&d, l, l.map.as_ref().unwrap(), &map::start_body(l), s);
-                st.body.iter().filter(|&&u| u == Fat).count()
-            })
-            .sum::<usize>()
-    };
-    assert!(eaten("kite") > 0, "kite eats the Fat");
-    assert_eq!(eaten("planner"), 0, "planner leaves it");
-}
-
-#[test]
-fn planner_full_percent_is_validated() {
-    let text =
-        std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/data/design.toml")).unwrap();
-    let bad = text.replacen("planner_full_percent = 80", "planner_full_percent = 0", 1);
-    assert_ne!(bad, text);
+fn planner_brings_its_counter_up_only_between_fights() {
+    // The same body with every Mushroom aggroed from the start: no counter bring-up while one
+    // chases the slime.
+    let d = level(
+        "planner",
+        "[\"Water\", \"Fat\", \"Fat\", \"Fat\", \"Fat\", \"Fat\"]",
+        1,
+    );
+    let l = &d.levels[0];
+    let mut f = map::fight(&d, l, l.map.as_ref().unwrap(), &map::start_body(l), 0);
+    for e in &mut f.enemies {
+        e.aggroed = true;
+    }
+    f.max_rounds = 1;
+    let log = f.run_traced().1;
     assert!(
-        Design::parse(&bad)
-            .unwrap_err()
-            .contains("planner_full_percent")
+        !log.iter().any(|x| x.ends_with("the level's counter")),
+        "{log:?}"
     );
 }
 
