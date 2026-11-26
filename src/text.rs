@@ -378,7 +378,7 @@ pub fn render_ladder(rows: &[LadderRow], summary: &[SummaryRow]) -> String {
     };
     let _ = writeln!(
         out,
-        "{:<5} {:<10} {:<8} {:<24} {:>5} {:>3} {:>6} {:>13} {:>9} {:>8} {:>8} {:>11} {:>10} {:>9} {:>10} {:>6} {:>9} {:>9} {:>7} {:>7}  stops",
+        "{:<5} {:<10} {:<8} {:<24} {:>5} {:>3} {:>6} {:>13} {:>9} {:>8} {:>8} {:>11} {:>10} {:>9} {:>10} {:>6} {:>9} {:>9} {:>7} {:>7} {:>7}  stops",
         "mode",
         "difficulty",
         "policy",
@@ -398,7 +398,8 @@ pub fn render_ladder(rows: &[LadderRow], summary: &[SummaryRow]) -> String {
         "elem_plus",
         "elem_miss",
         "puddles",
-        "pus_aff"
+        "pus_aff",
+        "spawned"
     );
     for r in rows {
         let m = &r.result;
@@ -407,7 +408,7 @@ pub fn render_ladder(rows: &[LadderRow], summary: &[SummaryRow]) -> String {
             .map_or("-".to_string(), |v| format!("{v:+.2}"));
         let _ = writeln!(
             out,
-            "{:<5} {:<10} {:<8} {:<24} {:>5} {:>3.0} {:>6.2} {:>13} {:>9.2} {:>8.2} {:>8} {:>11} {:>10} {:>9.2} {:>10.2} {:>6.2} {:>9.2} {:>9.2} {:>7.2} {:>7.0}  {}",
+            "{:<5} {:<10} {:<8} {:<24} {:>5} {:>3.0} {:>6.2} {:>13} {:>9.2} {:>8.2} {:>8} {:>11} {:>10} {:>9.2} {:>10.2} {:>6.2} {:>9.2} {:>9.2} {:>7.2} {:>7.0} {:>7.2}  {}",
             r.mode,
             r.place.difficulty,
             r.policy,
@@ -428,6 +429,7 @@ pub fn render_ladder(rows: &[LadderRow], summary: &[SummaryRow]) -> String {
             m.elem_miss,
             m.puddles,
             m.pus_aff,
+            m.spawned,
             stops_field(&m.stops)
         );
     }

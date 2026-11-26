@@ -499,6 +499,19 @@ pub struct MapSpec {
     /// Kinds camped in the second-to-last room (the squad), one enemy each.
     #[serde(default)]
     pub camp: Vec<String>,
+    /// Roaming singles from a spawner (Oleg; game `docs/design/level-generator.md`).
+    pub spawner: Option<Spawner>,
+}
+
+#[derive(Deserialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct Spawner {
+    /// It releases one enemy of a random kind from this list...
+    pub kinds: Vec<String>,
+    /// ...after every this many slime rounds...
+    pub every: u32,
+    /// ...while fewer than this many of its enemies are alive.
+    pub max_alive: usize,
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -740,6 +753,10 @@ impl Design {
                     Some("map.camp needs at least 2 rooms".into())
                 } else if m.river_liquids.is_empty() != (m.river == 0) {
                     Some("map.river and map.river_liquids go together".into())
+                } else if m.spawner.as_ref().is_some_and(|s| {
+                    s.kinds.is_empty() || s.every == 0 || s.max_alive == 0 || m.rooms < 3
+                }) {
+                    Some("map.spawner needs kinds, every >= 1, max_alive >= 1 and 3+ rooms".into())
                 } else if m.surface_rooms > m.rooms || (m.surface_rooms == 0) != (m.sun_every == 0)
                 {
                     Some("map.surface_rooms (<= rooms) and map.sun_every go together".into())
@@ -749,6 +766,7 @@ impl Design {
                         .chain(&m.blockers)
                         .chain(&m.camp)
                         .chain(m.hunter.as_ref().map(|h| &h.kind))
+                        .chain(m.spawner.iter().flat_map(|s| &s.kinds))
                         .find(|k| !design.enemies.iter().any(|e| &e.name == *k))
                         .map(|k| format!("no enemy named {k}"))
                 };
