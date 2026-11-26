@@ -587,8 +587,10 @@ fn slices_split_the_reference_fight_by_source() {
 
 #[test]
 fn overkill_counts_damage_beyond_the_hp_left() {
-    // Two Sulfur strikes make the Mushroom doubly Flammable: the next Lava strike means 4 HP.
-    let d = design();
+    // Two Sulfur strikes make the Mushroom doubly Flammable: under the game's multiplicative
+    // stacking the next Lava strike means 4 HP on 3 left.
+    let mut d = design();
+    d.statuses.flammable_stacking = "multiplicative".into();
     let mut f = Fight::new(
         &d,
         0,
@@ -603,6 +605,28 @@ fn overkill_counts_damage_beyond_the_hp_left() {
     assert_eq!(f.enemies[0].hit_points, 0);
     let r = f.run();
     assert_eq!((r.tally.strike_dmg, r.tally.overkill), (5, 1));
+}
+
+#[test]
+fn flammable_stacks_additively_by_default() {
+    // Two Flammable copies: fire x(1 + 2) = 3 (Oleg В9), not x4.
+    let d = design();
+    assert_eq!(d.statuses.flammable_stacking, "additive");
+    let mut f = Fight::new(
+        &d,
+        0,
+        1,
+        vec![Liquid::Sulfur, Liquid::Sulfur, Liquid::Lava, Liquid::Water],
+        (1, 5),
+        &[("Mushroom", (2, 5))],
+    );
+    f.slime_strike(0, Liquid::Sulfur);
+    f.slime_strike(0, Liquid::Sulfur);
+    assert_eq!(f.enemies[0].hit_points, 3);
+    f.slime_strike(0, Liquid::Lava);
+    assert_eq!(f.enemies[0].hit_points, 0);
+    let r = f.run();
+    assert_eq!((r.tally.strike_dmg, r.tally.overkill), (5, 0));
 }
 
 #[test]
@@ -1111,4 +1135,21 @@ fn a_thorns_death_stops_a_stage_level() {
     let l = simulator::level::run(&d, &d.levels[0]);
     assert_eq!((l.end, l.rows[0].after, l.rows[0].eaten), (0.0, 0.0, 0.0));
     assert_eq!(l.stops.keys().collect::<Vec<_>>(), ["stage1:thorns:Cactus"]);
+}
+
+#[test]
+fn flammable_stacking_is_validated() {
+    let text =
+        std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/data/design.toml")).unwrap();
+    let bad = text.replacen(
+        "flammable_stacking = \"additive\"",
+        "flammable_stacking = \"sum\"",
+        1,
+    );
+    assert_ne!(bad, text);
+    assert!(
+        Design::parse(&bad)
+            .unwrap_err()
+            .contains("flammable_stacking")
+    );
 }

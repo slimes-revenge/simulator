@@ -2805,8 +2805,7 @@ fn pending_status_damage(d: &Design, c: &Creature) -> i32 {
                             f.kind == StatusKind::Flammable && f.remaining > k + i32::from(j < at)
                         })
                         .count() as u32;
-                    total +=
-                        d.statuses.burning_pulse * d.statuses.flammable_multiplier.pow(flammable);
+                    total += d.statuses.burning_pulse * flammable_factor(d, flammable);
                 }
             }
             StatusKind::Poisoned => total += pulses * d.statuses.poisoned_pulse,
@@ -2826,18 +2825,30 @@ fn pending_status_damage(d: &Design, c: &Creature) -> i32 {
     total
 }
 
-/// `Creature.ModifyIncomingHarm`: ×multiplier per Flammable in the queue. (The game's Oil
+/// `Creature.ModifyIncomingHarm`: fire on a target with Flammable statuses. (The game's Oil
 /// dominance, Forever Flammable, went with Oil: Oleg removed Oil and Tar.)
-fn modify_incoming_harm(d: &Design, c: &Creature, mut amount: i32) -> i32 {
+fn modify_incoming_harm(d: &Design, c: &Creature, amount: i32) -> i32 {
     if amount <= 0 {
         return amount;
     }
-    for s in &c.statuses {
-        if s.kind == StatusKind::Flammable {
-            amount *= d.statuses.flammable_multiplier;
-        }
+    let n = c
+        .statuses
+        .iter()
+        .filter(|s| s.kind == StatusKind::Flammable)
+        .count();
+    amount * flammable_factor(d, n as u32)
+}
+
+/// Fire damage factor for `n` Flammable statuses: `additive` (Oleg's В9, the design):
+/// 1 + n × (multiplier − 1), ×3 for two at multiplier 2; `multiplicative` (the game, fallback):
+/// multiplier^n, ×4 for two.
+fn flammable_factor(d: &Design, n: u32) -> i32 {
+    let m = d.statuses.flammable_multiplier;
+    if d.statuses.flammable_stacking == "multiplicative" {
+        m.pow(n)
+    } else {
+        1 + n as i32 * (m - 1)
     }
-    amount
 }
 
 /// `Substance.Apply`: what a liquid leaves on whoever it touches (strike, retaliation, puddle),
