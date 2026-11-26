@@ -10,7 +10,7 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
 ## Input: a `[[levels]]` entry with `map`
 
 `id`, `capacity`, `start` (default: full Water) and `action_points` work as for stage levels
-([level-economy.md](level-economy.md)). `policy` is `strafe`, `lure`, `kite`, `reader`, `pus`, `mercury`, `b-<liquid>` or `b-auto` (the last four in [rules-model.md](rules-model.md), D5–D8). A level has either `stages` or
+([level-economy.md](level-economy.md)). `policy` is `strafe`, `lure`, `kite`, `reader`, `planner`, `pus`, `mercury`, `b-<liquid>` or `b-auto` (the last four in [rules-model.md](rules-model.md), D5–D8). A level has either `stages` or
 `map`, never both.
 
 | `map` key | Meaning |

@@ -61,8 +61,10 @@ fn main() -> ExitCode {
                 5
             }
             ("--policy", Some(p))
-                if (["newcomer", "arranger", "kite", "reader", "pus", "mercury"]
-                    .contains(&p.as_str())
+                if ([
+                    "newcomer", "arranger", "kite", "reader", "planner", "pus", "mercury",
+                ]
+                .contains(&p.as_str())
                     || simulator::data::build_policy(&p)) =>
             {
                 trace_policy = p;
