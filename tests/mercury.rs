@@ -175,11 +175,14 @@ fn a_stop_refills_a_mercury_body_only_up_to_its_share() {
     let stop = d.ladder.stops.iter().find(|s| s.after == 4).unwrap();
     let three = [Mercury; 3];
     assert_eq!(
-        ladder::at_stop(&three, stop, 10, Some(60)),
+        ladder::at_stop(&three, stop, 10, Some(60), false),
         vec![Water, Water, Mercury, Mercury, Mercury]
     );
-    assert_eq!(ladder::at_stop(&three, stop, 10, None).len(), 10);
-    assert_eq!(ladder::at_stop(&[Water; 3], stop, 10, Some(60)).len(), 10);
+    assert_eq!(ladder::at_stop(&three, stop, 10, None, false).len(), 10);
+    assert_eq!(
+        ladder::at_stop(&[Water; 3], stop, 10, Some(60), false).len(),
+        10
+    );
 }
 
 #[test]
@@ -223,7 +226,7 @@ fn without_the_affinity_mercury_does_not_cap_the_body() {
     assert_eq!(state.body.len(), 9);
     let stop = d.ladder.stops.iter().find(|s| s.after == 4).unwrap();
     assert_eq!(
-        ladder::at_stop(&[Water, Water, Mercury], stop, 10, Some(60)).len(),
+        ladder::at_stop(&[Water, Water, Mercury], stop, 10, Some(60), false).len(),
         10
     );
 }

@@ -83,13 +83,14 @@ pub fn run(d: &Design) -> (Vec<LadderRow>, Vec<SummaryRow>) {
                 let spec = level.map.as_ref().expect("checked in parse");
                 let ld = map::level_design(d, level);
                 let mercury = (level.policy == "mercury").then_some(d.rules.dominance_percent);
+                let spit = level.policy != "pus";
                 let start: Bodies = match parent(&rows, i) {
                     Some(j) => match d.ladder.stops.iter().find(|s| s.after == rows[j].1.level) {
                         Some(stop) => bodies[j]
                             .iter()
                             .map(|b| {
                                 b.as_ref()
-                                    .map(|b| at_stop(b, stop, level.capacity, mercury))
+                                    .map(|b| at_stop(b, stop, level.capacity, mercury, spit))
                             })
                             .collect(),
                         None => bodies[j].clone(),
@@ -145,12 +146,15 @@ pub fn run(d: &Design) -> (Vec<LadderRow>, Vec<SummaryRow>) {
 /// edge-most first, at most `max_percent` of the body; then the empty cells up to `capacity`
 /// fill with Water. Units are never pushed out, so Pus held as a bad affinity stays.
 /// `mercury_percent` (D7, the `mercury` policy): a body whose affinity is Mercury (that share of
-/// it) refills only up to Mercury × 100 / that percent.
+/// it) refills only up to Mercury × 100 / that percent. `spit` (every policy but `pus`): after
+/// the resets the slime spits out all its Pus and Dross, at no cost (the smith's house,
+/// balance `resets.md`), so the refill replaces them with Water.
 pub fn at_stop(
     body: &[Liquid],
     stop: &Stop,
     capacity: usize,
     mercury_percent: Option<usize>,
+    spit: bool,
 ) -> Vec<Liquid> {
     let mut b = body.to_vec();
     for r in &stop.resets {
@@ -167,6 +171,9 @@ pub fn at_stop(
                 }
             }
         }
+    }
+    if spit {
+        b.retain(|&l| l != Liquid::Pus && l != Liquid::Dross);
     }
     let m = b.iter().filter(|&&l| l == Liquid::Mercury).count();
     let cap = match mercury_percent {
