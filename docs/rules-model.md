@@ -331,6 +331,29 @@ Agreed design rules; not in the game.
 - At 1 action a round the brought-up unit is bitten before it strikes (the defence takes
   non-Mercury first), so against a Mercury enemy the slime strikes only at 2 actions or more.
 
+## D8: build policies (`b-<liquid>`, `b-auto`) and the Poisoned corpse (balance `sim-3d-spec.md`, `builds.md`)
+
+Agreed design rules; not in the game.
+
+- **`b-<liquid>`** (any liquid but Dross, lower case: `b-lava`, `b-acid`, …; matrix and maps):
+  `kite` (careful drinking on maps). While the liquid is its affinity:
+  1. before a strike on a target the liquid dominates (R2), it brings a unit of it from 1 or 2
+     under the edge up (one action, like `reader`); against a target of its own element the
+     stall rule brings another unit up or gives the target up;
+  2. it keeps the share: it drinks nothing that would take the body past the liquid's
+     count × 100 / `dominance_percent` (at the exit it leaves the rest of the river), and eats
+     a corpse's units of the liquid first, leaving what would thin it.
+  Without the affinity it is plain `kite`. Stops refill it like any other row.
+- **`b-auto`**: each turn plays `b-<liquid>` for the liquid of its affinity, or, with none,
+  its most common liquid (the first in the `Liquid` order on a tie), never Dross; it eats every
+  corpse.
+- `mercury` shares the share rule: one cap, `build_full`.
+- Puddles of the liquid are not gathered: only Pus burps make puddles today.
+- **The Poisoned corpse** (map runs, every policy): a Living enemy (`elements.living`) that
+  dies with a Poisoned status leaves half its corpse (rounded up, the first units) as Pus and the
+  rest as its own liquid. The dead keep the status that killed them, so a killing Poisoned pulse
+  counts. Stage levels (`stages`) eat the enemy's listed corpse and do not apply it.
+
 ## Where the docs and the code disagree
 
 Found while building the model (game `dev` at 44018ffe, 2026-11-25). The simulator follows the code.

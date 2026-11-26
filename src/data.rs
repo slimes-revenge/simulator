@@ -49,6 +49,24 @@ pub const ALL_LIQUIDS: [Liquid; 17] = [
     Liquid::Dross,
 ];
 
+impl Liquid {
+    /// `lava` → Lava: the liquid in a `b-<liquid>` policy name.
+    pub fn from_lower(name: &str) -> Option<Liquid> {
+        ALL_LIQUIDS
+            .into_iter()
+            .find(|l| format!("{l:?}").to_lowercase() == name)
+    }
+}
+
+/// D8: `b-auto` or `b-<liquid>` (any liquid but Dross).
+pub fn build_policy(name: &str) -> bool {
+    name == "b-auto"
+        || name
+            .strip_prefix("b-")
+            .and_then(Liquid::from_lower)
+            .is_some_and(|l| l != Liquid::Dross)
+}
+
 #[derive(Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Personality {
     /// Chases and attacks the slime it sees.
@@ -637,6 +655,7 @@ impl Design {
         let policies = &design.matrix.policies;
         if let Some(p) = policies.iter().find(|p| {
             !["newcomer", "arranger", "kite", "reader", "pus", "mercury"].contains(&p.as_str())
+                && !build_policy(p)
         }) {
             return Err(format!("matrix.policies: unknown policy {p:?}"));
         }
@@ -689,7 +708,7 @@ impl Design {
             } else {
                 &["newcomer", "arranger", "kite", "reader", "pus", "mercury"]
             };
-            if !allowed.contains(&level.policy.as_str()) {
+            if !allowed.contains(&level.policy.as_str()) && !build_policy(&level.policy) {
                 return Err(format!(
                     "level {}: policy {:?} is not supported here (only {allowed:?})",
                     level.id, level.policy
@@ -797,8 +816,9 @@ impl Design {
         for t in &design.ladder.thresholds {
             if t.min.is_some() == t.max.is_some()
                 || !["E", "N", "H"].contains(&t.difficulty.as_str())
-                || !["strafe", "lure", "kite", "reader", "pus", "mercury"]
+                || !(["strafe", "lure", "kite", "reader", "pus", "mercury"]
                     .contains(&t.policy.as_str())
+                    || build_policy(&t.policy))
             {
                 return Err(format!(
                     "ladder.thresholds {} {}: difficulty E, N or H, a map policy, exactly one of min, max",
