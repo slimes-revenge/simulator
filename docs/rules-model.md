@@ -275,6 +275,9 @@ Agreed design rules (balance `sim-reactions-spec.md`, `bestiary-numbers.md`); no
 - **Careful map policies** (`lure`, `kite`, `reader`; not `strafe`, the newcomer of maps): an
   edge unit that reacts with the unit under it is spat away (one action); a unit they would
   drink onto an edge it reacts with is poured away instead (one action, the source loses it).
+  Eating a corpse (balance, after the sweeps): a unit that would react with the edge it lands on
+  is left; once another corpse unit covers that edge, it is tried again; what is still left at
+  the end counts as wasted. (Also `pus`, `mercury` and the builds.)
 - **`arranger`** skips a swap that would make reacting neighbours.
 - `newcomer` and `strafe` do none of this: their reactions are the measured mistakes.
 - **No repeated useless strikes (R2 stalls).** When the edge is the target's own element,

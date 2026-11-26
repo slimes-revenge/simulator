@@ -862,16 +862,36 @@ impl<'a> Fight<'a> {
             if let Some(l) = self.build_liquid().filter(|_| picky) {
                 corpses.sort_by_key(|&u| u != l);
             }
-            for unit in corpses {
-                ep.corpse += 1;
-                let thins = picky && self.build_full(unit);
-                if self.slime.volume.len() < self.d.slime.capacity && !thins {
-                    self.slime.volume.push(unit);
-                    ep.eaten += 1;
-                } else {
-                    ep.wasted += 1;
+            // Careful map policies (`lure`, `kite`, `reader`, …; not `strafe`) leave a unit that
+            // would react with the edge it lands on, and come back to it once another unit
+            // covers that edge (balance, like careful drinking).
+            let careful = self.map.as_ref().is_some_and(|m| m.lure);
+            ep.corpse += corpses.len();
+            let mut left = corpses;
+            loop {
+                let before = left.len();
+                left.retain(|&unit| {
+                    let room = self.slime.volume.len() < self.d.slime.capacity;
+                    let thins = picky && self.build_full(unit);
+                    let reacts = careful
+                        && self
+                            .slime
+                            .volume
+                            .last()
+                            .is_some_and(|&e| self.pair_reacts(e, unit));
+                    if room && !thins && !reacts {
+                        self.slime.volume.push(unit);
+                        ep.eaten += 1;
+                        false
+                    } else {
+                        true
+                    }
+                });
+                if left.len() == before {
+                    break;
                 }
             }
+            ep.wasted += left.len();
             let d = self.d;
             refresh_dominance(d, &mut self.slime, &mut self.next_status_id);
         }
