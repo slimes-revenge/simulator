@@ -28,6 +28,7 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
 | `surface_rooms`, `sun_every` | Optional: the middle rooms under the sky, and how often the sun dries there (slime rounds; 1 day, 2 night); go together |
 | `hunter` | Optional `{ kind, enter_round, scent_every = 1 }`: the G17 hunter |
 | `camp` | Optional: kinds camped in the second-to-last room (the squad), one enemy each |
+| `spawner` | Optional: `{ kinds, every, max_alive }`, roaming singles (needs 3+ rooms) |
 | — | A level may also carry `pus_infects = true` (Pus hits infect, D3) and `ladder = { level, difficulty, branch }` ([ladder.md](ladder.md)) |
 
 ## The map (`map::generate`, deterministic per seed)
@@ -48,6 +49,14 @@ The spec was agreed with the balance session. Code: `src/map.rs` (generator, lev
   exit, farther than `vision` from the start like room enemies. Its home room is that room.
 - **Surface rooms** are the `surface_rooms` rooms in the middle of the chain (from index
   `(rooms − surface_rooms) / 2`).
+- **The spawner** (Oleg: enemies roam as singles from spawners; game
+  `docs/design/level-generator.md`) stands on a random free cell of a random middle room: the
+  chain has no side rooms, so "off the path" is a middle room. After every `every` slime rounds
+  (in the round's enemy phase, after the hunter's entry) it releases one enemy of a random kind
+  from `kinds`, while fewer than `max_alive` of its enemies are alive and its cell is free. A
+  released enemy has no home room: calm, it wanders the whole map; it aggroes on sight like
+  any enemy of its kind. It comes on top of the placed enemies; its corpse is eaten like theirs.
+  `[ladder]` counts the releases in `spawned`.
 - `--trace-map LEVEL SEED` prints the map (`#` wall, `S` start, `X` exit, `~` drip, an enemy by
   its first letter) and the turn-by-turn log of that seed.
 

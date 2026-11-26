@@ -228,6 +228,9 @@ pub struct MapState {
     /// D6: puddles on the level when the run ended; Pus held as a bad affinity then.
     pub puddles_left: usize,
     pub pus_affinity: bool,
+    /// The spawner's cell and rule, and the indices in `enemies` of what it released.
+    pub spawner: Option<(Cell, crate::data::Spawner)>,
+    pub spawned: Vec<usize>,
 }
 
 /// One fight on a map: from the first enemy aggroed on the slime until none is.
@@ -621,6 +624,7 @@ impl<'a> Fight<'a> {
                 return self.result(false, round);
             }
             self.enter_hunter(round);
+            self.spawn(round);
             for i in 0..self.enemies.len() {
                 if !self.enemies[i].alive() {
                     continue;
@@ -1981,6 +1985,35 @@ impl<'a> Fight<'a> {
         m.homes.push(None);
         m.hunter_at = Some(self.enemies.len() - 1);
         self.note(|f| format!("{} enters at {cell:?}", f.label(f.enemies.len() - 1)));
+    }
+
+    /// The spawner (map runs): after every `every` slime rounds, while fewer than `max_alive`
+    /// of its enemies live and its cell is free, it releases one of a random listed kind. It
+    /// roams the whole map (no home room) and aggroes on sight like any enemy of its kind.
+    fn spawn(&mut self, round: u32) {
+        let Some(m) = &self.map else { return };
+        let Some((cell, s)) = m.spawner.clone() else {
+            return;
+        };
+        let alive = m
+            .spawned
+            .iter()
+            .filter(|&&i| self.enemies[i].alive())
+            .count();
+        if !round.is_multiple_of(s.every)
+            || alive >= s.max_alive
+            || self.occupied().contains(&cell)
+            || self.slime.cell == cell
+        {
+            return;
+        }
+        let kind = s.kinds[self.rng.pick(s.kinds.len())].clone();
+        self.enemies.push(enemy_creature(self.d, &kind, cell));
+        let i = self.enemies.len() - 1;
+        let m = self.map.as_mut().expect("checked");
+        m.homes.push(None);
+        m.spawned.push(i);
+        self.note(|f| format!("{} comes out of the spawner at {cell:?}", f.label(i)));
     }
 
     /// D5 `pus` on a map, with the bad affinity held. `false` hands the action to `kite`.

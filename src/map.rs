@@ -21,6 +21,8 @@ pub struct Map {
     pub enemies: Vec<(String, Cell, Option<usize>)>,
     /// Water drip cells, in corridors and doorways free of blockers.
     pub drips: Vec<Cell>,
+    /// The spawner's cell, in a middle room.
+    pub spawner: Option<Cell>,
 }
 
 fn between(rng: &mut Rng, (min, max): (i32, i32)) -> i32 {
@@ -128,6 +130,15 @@ pub fn generate(m: &MapSpec, seed: u64) -> Map {
         }
         drips.push(passages.remove(rng.pick(passages.len())));
     }
+    // The spawner: a free cell of a random middle room (the chain has no side rooms).
+    let spawner = m.spawner.as_ref().and_then(|_| {
+        let ((x0, y0), (x1, y1)) = rooms[1 + rng.pick(rooms.len() - 2)];
+        let free: Vec<Cell> = (y0..=y1)
+            .flat_map(|y| (x0..=x1).map(move |x| (x, y)))
+            .filter(|&c| enemies.iter().all(|e| e.1 != c))
+            .collect();
+        (!free.is_empty()).then(|| free[rng.pick(free.len())])
+    });
     Map {
         board: Board {
             width,
@@ -139,6 +150,7 @@ pub fn generate(m: &MapSpec, seed: u64) -> Map {
         exit,
         enemies,
         drips,
+        spawner,
     }
 }
 
@@ -180,6 +192,8 @@ pub struct MapLevelResult {
     /// as a bad affinity.
     pub puddles: f64,
     pub pus_aff: f64,
+    /// Enemies the spawner released, average per played seed.
+    pub spawned: f64,
     /// Where runs ended without the exit: `room<k>:<cause>` → seeds.
     pub stops: BTreeMap<String, u64>,
 }
@@ -221,10 +235,11 @@ pub fn summarize(level: &Level, runs: &[(FightResult, MapState)], of: u64) -> Ma
     let mut out_sum = 0;
     let mut hunter = [0u64; 3];
     let mut react = [0usize; 5];
-    let (mut puddles, mut pus_aff) = (0usize, 0u64);
+    let (mut puddles, mut pus_aff, mut spawned) = (0usize, 0u64, 0usize);
     let (mut hunter_eps, mut hunter_sum) = (0u64, 0i64);
     for (result, state) in runs {
         puddles += state.puddles_left;
+        spawned += state.spawned.len();
         pus_aff += u64::from(state.pus_affinity);
         let t = &result.tally;
         let counts = [
@@ -303,6 +318,7 @@ pub fn summarize(level: &Level, runs: &[(FightResult, MapState)], of: u64) -> Ma
         elem_miss: round2(react[4] as f64 / n),
         puddles: round2(puddles as f64 / n),
         pus_aff: pct(pus_aff, runs.len() as u64),
+        spawned: round2(spawned as f64 / n),
         stops,
     }
 }
@@ -357,6 +373,7 @@ pub fn fight<'a>(
     state.surface = surface;
     state.sun_every = spec.sun_every;
     state.hunter = spec.hunter.clone();
+    state.spawner = map.spawner.zip(spec.spawner.clone());
     // `kite` and `reader` walk and hold corridors like `lure`; next to enemies they kite.
     state.lure = ["lure", "kite", "reader", "pus", "mercury"].contains(&level.policy.as_str())
         || crate::data::build_policy(&level.policy);
