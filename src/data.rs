@@ -655,6 +655,7 @@ impl Design {
         let policies = &design.matrix.policies;
         if let Some(p) = policies.iter().find(|p| {
             !["newcomer", "arranger", "kite", "reader", "pus", "mercury"].contains(&p.as_str())
+                && !build_policy(p)
         }) {
             return Err(format!("matrix.policies: unknown policy {p:?}"));
         }
@@ -815,8 +816,9 @@ impl Design {
         for t in &design.ladder.thresholds {
             if t.min.is_some() == t.max.is_some()
                 || !["E", "N", "H"].contains(&t.difficulty.as_str())
-                || !["strafe", "lure", "kite", "reader", "pus", "mercury"]
+                || !(["strafe", "lure", "kite", "reader", "pus", "mercury"]
                     .contains(&t.policy.as_str())
+                    || build_policy(&t.policy))
             {
                 return Err(format!(
                     "ladder.thresholds {} {}: difficulty E, N or H, a map policy, exactly one of min, max",

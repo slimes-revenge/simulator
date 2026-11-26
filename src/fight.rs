@@ -1548,18 +1548,24 @@ impl<'a> Fight<'a> {
     }
 
     /// D7, D8: the liquid `mercury` or a build plays: Mercury, its own, or for `b-auto` the
-    /// liquid of its affinity, else its most common one (the first in `ALL_LIQUIDS` on a tie).
+    /// liquid of its affinity, else its most common one (the first in `ALL_LIQUIDS` on a tie);
+    /// never Dross.
     fn build_liquid(&self) -> Option<Liquid> {
         match self.policy {
             Policy::Mercury => Some(Liquid::Mercury),
             Policy::Build(Some(l)) => Some(l),
-            Policy::Build(None) => self.slime.dominant.or_else(|| {
-                ALL_LIQUIDS
-                    .iter()
-                    .copied()
-                    .filter(|&l| l != Liquid::Dross && self.slime.count(l) > 0)
-                    .max_by_key(|&l| (self.slime.count(l), std::cmp::Reverse(l)))
-            }),
+            Policy::Build(None) => {
+                self.slime
+                    .dominant
+                    .filter(|&l| l != Liquid::Dross)
+                    .or_else(|| {
+                        ALL_LIQUIDS
+                            .iter()
+                            .copied()
+                            .filter(|&l| l != Liquid::Dross && self.slime.count(l) > 0)
+                            .max_by_key(|&l| (self.slime.count(l), std::cmp::Reverse(l)))
+                    })
+            }
             _ => None,
         }
     }

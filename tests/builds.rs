@@ -45,6 +45,20 @@ fn build_policies_are_named_by_their_liquid() {
     assert!(with("b-auto").is_ok());
     assert!(with("b-dross").is_err());
     assert!(with("b-oil").is_err());
+    // The matrix and the ladder thresholds take them too.
+    let matrix = text.replacen(
+        "policies = [\"newcomer\", \"arranger\", \"kite\", \"reader\"]",
+        "policies = [\"newcomer\", \"b-lava\", \"b-auto\"]",
+        1,
+    );
+    assert!(Design::parse(&matrix).is_ok());
+    let threshold = text.replacen(
+        "policy = \"kite\", min = 70",
+        "policy = \"b-acid\", min = 70",
+        1,
+    );
+    assert_ne!(threshold, text);
+    assert!(Design::parse(&threshold).is_ok());
 }
 
 #[test]
@@ -115,4 +129,53 @@ fn a_living_enemy_killed_while_poisoned_leaves_pus() {
     let water = "[\"Water\", \"Water\", \"Water\", \"Water\", \"Water\", \"Water\"]";
     let d = level("kite", water, 1);
     assert!((0..10).all(|s| !won(&d, s).1.contains(&Pus)));
+}
+
+#[test]
+fn a_killing_last_poisoned_pulse_still_leaves_pus() {
+    // Poisoned lasts 1 pulse (also from Retaliation); armor 2 stops the Poison strike (2 with
+    // R2's +1), so the Mushroom (1 HP) dies of the pulse that also ends its Poisoned status.
+    let poison = "[\"Poison\", \"Poison\", \"Poison\", \"Poison\", \"Poison\", \"Poison\"]";
+    let mut d = level("kite", poison, 1);
+    (d.statuses.poisoned, d.rules.retaliation_pulses) = (1, 1);
+    // No suppressed misses: a miss would kill the Mushroom without Poison.
+    d.elements.suppressed_hit_percent = 100;
+    let m = d.enemies.iter_mut().find(|e| e.name == "Mushroom").unwrap();
+    (m.hit_points, m.armor) = (1, 2);
+    let l = &d.levels[0];
+    // Every corpse is Pus, so no Water (the Mushrooms' liquid) ever enters the body.
+    let bodies: Vec<Vec<Liquid>> = (0..10)
+        .map(|s| {
+            map::play(&d, l, l.map.as_ref().unwrap(), &map::start_body(l), s)
+                .1
+                .body
+        })
+        .collect();
+    assert!(bodies.iter().any(|b| b.contains(&Pus)));
+    assert!(bodies.iter().all(|b| !b.contains(&Water)), "{bodies:?}");
+}
+
+#[test]
+fn a_build_eats_its_liquid_first_and_keeps_its_share() {
+    // Mushrooms of 3 Fat and 1 Lava; a 3-Lava `b-lava` slime eats the Lava first and leaves
+    // the Fat that would take it under 60 %. `b-auto` eats everything.
+    let three = "[\"Lava\", \"Lava\", \"Lava\"]";
+    let play = |policy: &str| {
+        let mut d = level(policy, three, 1);
+        let m = d.enemies.iter_mut().find(|e| e.name == "Mushroom").unwrap();
+        (m.volume, m.hit_points) = (vec![Fat, Fat, Fat, Lava], 2);
+        let l = &d.levels[0];
+        let mut wasted = 0;
+        let mut kept = true;
+        for s in 0..20 {
+            let (r, state) = map::play(&d, l, l.map.as_ref().unwrap(), &map::start_body(l), s);
+            wasted += state.episodes.iter().map(|e| e.wasted).sum::<usize>();
+            let n = state.body.iter().filter(|&&u| u == Lava).count();
+            kept &= !r.won || n * 100 >= state.body.len() * 60;
+        }
+        (wasted, kept)
+    };
+    let (wasted, kept) = play("b-lava");
+    assert!(wasted > 0 && kept);
+    assert_eq!(play("b-auto").0, 0, "b-auto eats every corpse");
 }

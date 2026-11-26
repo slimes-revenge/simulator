@@ -345,7 +345,8 @@ Agreed design rules; not in the game.
      a corpse's units of the liquid first, leaving what would thin it.
   Without the affinity it is plain `kite`. Stops refill it like any other row.
 - **`b-auto`**: each turn plays `b-<liquid>` for the liquid of its affinity, or, with none,
-  its most common liquid (the first in the `Liquid` order on a tie); it eats every corpse.
+  its most common liquid (the first in the `Liquid` order on a tie), never Dross; it eats every
+  corpse.
 - `mercury` shares the share rule: one cap, `build_full`.
 - Puddles of the liquid are not gathered: only Pus burps make puddles today.
 - **The Poisoned corpse** (map runs, every policy): a Living enemy (`elements.living`) that
