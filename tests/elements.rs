@@ -233,7 +233,7 @@ fn an_enemy_can_be_immune_on_its_own() {
 #[test]
 fn no_strike_is_repeated_on_its_own_element() {
     use Liquid::*;
-    // Kite: an Fat unit lies 1 under the Water edge facing a Water Mushroom: bring it up.
+    // Kite: a Fat unit lies 1 under the Water edge facing a Water Mushroom: bring it up.
     let d = design(Water);
     let (log, _, _) = round(&d, with_edge(&[Fat, Water]), Policy::Kite, 0);
     assert!(!log.iter().any(|l| l.contains("shrugs off")), "{log:?}");

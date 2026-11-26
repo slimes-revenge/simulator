@@ -647,7 +647,7 @@ fn level_net_counts_the_whole_corpse() {
 }
 
 // S13: the body is ordered edge → centre; strikes, bites and status losses take the edge unit,
-// new units land on the edge. The starting mix (Water, Water, Sulfur, Poison, Acid, Lava) has Lava
+// new units land on the edge. The starting mix (Water, Water, Water, Poison, Acid, Lava) has Lava
 // on the edge: the newcomer strikes Lava first, the bite then pops Acid, the next strike is
 // Poison.
 #[test]

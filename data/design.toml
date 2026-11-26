@@ -81,7 +81,7 @@ name = "Pus"
 power = 0
 corrosion = 0
 
-# The rest of the 17 liquids (lore forum.md; rows: balance liquids.md "Финальный список").
+# The rest of the 16 liquids (17 with Ectoplasm, later) (lore forum.md; rows: balance liquids.md "Финальный список").
 # Vitriol: Corroding; Alkali: Instability 2; Sulfur: Flammable; Ambrosia heals Living. The rest
 # strike for `power` with no status until their statuses exist (Cold fire, Greased, Rooted, Charmed).
 [[liquids]]

@@ -14,7 +14,7 @@ pub enum Liquid {
     Mercury,
     /// An infected Blood unit (`Infects`): no power, no effect, spat off the edge.
     Pus,
-    // The rest of the 17 liquids (lore `forum.md`): strike rows come from the balance session;
+    // The rest of the 16 liquids (17 with Ectoplasm, later) (lore `forum.md`): strike rows come from the balance session;
     // until then a strike hits for its `power` with no status.
     Phosphorus,
     Aquavita,

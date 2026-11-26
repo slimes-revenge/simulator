@@ -72,7 +72,7 @@ All averages are over every seed and printed with exactly 2 decimals. Body ledge
 Balance slices, agreed with the balance session. One line per cell, with the same key columns
 and order as `[cells]`: `ap policy build encounter`. All values are averages over all seeds,
 with 2 decimals. A breakdown is written `Name:2.00,Name:1.00`, or `-` when empty. Liquids
-follow their fixed order (the `Liquid` order in `src/data.rs`: Water, Poison, Acid, Blood, Lava, Mercury, Pus, then the 8 newer ones and Dross); statuses are
+follow their fixed order (the `Liquid` order in `src/data.rs`: Water, Poison, Acid, Blood, Lava, Mercury, Pus, then the 9 newer ones and Dross); statuses are
 alphabetical. A column appears only once its mechanic exists in the model, so no column is a placeholder for a mechanic that is not built yet. Some columns can still be zero everywhere in today's data, for example `status` while no enemy applies statuses to the slime.
 
 ```
