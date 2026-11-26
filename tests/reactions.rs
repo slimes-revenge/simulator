@@ -92,7 +92,7 @@ fn units_that_meet_at_the_exit_react_before_leaving() {
     let text =
         std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/data/design.toml")).unwrap();
     let mut text = text[..text.find("[[levels]]").unwrap()].to_string();
-    text += "[[levels]]\nid = \"x\"\ncapacity = 3\nstart = [\"Oil\", \"Water\"]\naction_points = 1\n\
+    text += "[[levels]]\nid = \"x\"\ncapacity = 3\nstart = [\"Fat\", \"Water\"]\naction_points = 1\n\
              policy = \"strafe\"\nmap = { rooms = 2, room_side = [5, 5], enemies_per_room = [0, 0], \
              enemy_kinds = [\"Mushroom\"], corridor = 1, vision = 2, river = 1, \
              river_liquids = [\"Lava\"] }\n";
@@ -107,7 +107,7 @@ fn units_that_meet_at_the_exit_react_before_leaving() {
         0,
     );
     assert!(r.won);
-    assert_eq!(state.body, vec![Liquid::Oil]);
+    assert_eq!(state.body, vec![Liquid::Fat]);
     assert_eq!(r.tally.react_loss, 2);
 }
 
@@ -129,8 +129,8 @@ fn reaction_data_is_validated() {
 fn resin_burns_off_lava_leaving_amber_and_the_chain_goes_on() {
     use Liquid::*;
     // Resin + Lava (edge) -> Lava, amber; then Water + Lava -> nothing, a stone.
-    let (r, body, _) = round(&Design::bundled(), vec![Oil, Water, Lava, Resin]);
-    assert_eq!(body, vec![Oil]);
+    let (r, body, _) = round(&Design::bundled(), vec![Fat, Water, Lava, Resin]);
+    assert_eq!(body, vec![Fat]);
     let t = &r.tally;
     assert_eq!((t.reactions, t.react_loss, t.stones), (2, 3, 2));
 }

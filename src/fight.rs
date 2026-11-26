@@ -2497,21 +2497,16 @@ fn pending_status_damage(d: &Design, c: &Creature) -> i32 {
     total
 }
 
-/// `Creature.ModifyIncomingHarm`: ×multiplier per Flammable in the queue, then the Oil
-/// dominance's Forever Flammable unless a Flammable is already queued.
+/// `Creature.ModifyIncomingHarm`: ×multiplier per Flammable in the queue. (The game's Oil
+/// dominance, Forever Flammable, went with Oil: Oleg removed Oil and Tar.)
 fn modify_incoming_harm(d: &Design, c: &Creature, mut amount: i32) -> i32 {
     if amount <= 0 {
         return amount;
     }
-    let mut queued = false;
     for s in &c.statuses {
         if s.kind == StatusKind::Flammable {
             amount *= d.statuses.flammable_multiplier;
-            queued = true;
         }
-    }
-    if c.dominant == Some(Liquid::Oil) && !queued {
-        amount *= d.statuses.flammable_multiplier;
     }
     amount
 }
@@ -2549,10 +2544,6 @@ fn apply_liquid(d: &Design, target: &mut Creature, liquid: Liquid, from: Source,
     };
     match liquid {
         Liquid::Water => add(StatusKind::Wet, s.wet),
-        Liquid::Oil => {
-            add(StatusKind::Instability, s.instability);
-            add(StatusKind::Flammable, s.flammable);
-        }
         Liquid::Poison => add(StatusKind::Poisoned, s.poisoned),
         Liquid::Acid => {
             let corrosion = d.liquid(Liquid::Acid).corrosion;
@@ -2575,7 +2566,6 @@ fn apply_liquid(d: &Design, target: &mut Creature, liquid: Liquid, from: Source,
         | Liquid::Ambrosia
         | Liquid::Fat
         | Liquid::Resin
-        | Liquid::Tar
         | Liquid::Aphrodisiac
         | Liquid::Dross => {}
     }

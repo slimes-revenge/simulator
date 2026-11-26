@@ -74,10 +74,10 @@ fn a_pus_puddle_infects_the_living_who_step_in_and_weakens_their_bite() {
         log.iter().any(|l| l.contains("too sick to bite")),
         "{log:?}"
     );
-    // The Water Undine is not Living: no Infected (an Oil body, so the slime does not stall).
+    // The Water Undine is not Living: no Infected (a Fat body, so the slime does not stall).
     let log = play(
         &d,
-        vec![Liquid::Oil; 10],
+        vec![Liquid::Fat; 10],
         &[("Undine", (3, 5))],
         &[((2, 5), Liquid::Pus)],
         1,
@@ -144,6 +144,11 @@ fn a_stop_resets_the_body_and_refills_its_empty_cells_with_water() {
     assert_eq!(
         ladder::at_stop(&[Water, Water, Aquavita, Water, Water], stop(8), 5),
         vec![Water, Water, Water, Poison, Poison]
+    );
+    // After 16: Fat turns to Dross and Sulfur leaves; the empty cells fill with Water at the centre.
+    assert_eq!(
+        ladder::at_stop(&[Fat, Sulfur, Lava, Sulfur], stop(16), 5),
+        vec![Water, Water, Water, Dross, Lava]
     );
     // Pus is never pushed out: a full Pus body stays full Pus.
     assert_eq!(ladder::at_stop(&[Pus; 6], stop(4), 6), vec![Pus; 6]);

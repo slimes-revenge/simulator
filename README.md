@@ -33,7 +33,7 @@ cargo test
 
 ## What v1 plays
 
-- **Builds:** the starting mix (2 Water, Oil, Poison, Acid, Lava) and 10 units of each liquid.
+- **Builds:** the starting mix (3 Water, Poison, Acid, Lava) and 10 units of each liquid.
 - **Encounters:** 1, 2 and 3 of each live enemy (Bat, Mushroom, Undine, Cactus, Mandragora,
   Eye), in a column 5 cells east of the slime at (1, 5).
 - **Policies:** newcomer — walk to the nearest enemy, strike with the unit on the body's edge,

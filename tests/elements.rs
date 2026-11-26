@@ -40,7 +40,7 @@ fn strike(log: &[String]) -> &str {
 }
 
 fn with_edge(edge: &[Liquid]) -> Vec<Liquid> {
-    let mut body = vec![Liquid::Oil; 10 - edge.len()];
+    let mut body = vec![Liquid::Fat; 10 - edge.len()];
     body.extend(edge);
     body
 }
@@ -100,7 +100,7 @@ fn a_dominating_enemy_bites_one_harder() {
     // Mercury ⊣ Water: the bite pops 2.
     let (_, r, _) = round(
         &design(Liquid::Mercury),
-        with_edge(&[Liquid::Oil, Liquid::Water]),
+        with_edge(&[Liquid::Fat, Liquid::Water]),
         Policy::Kite,
         0,
     );
@@ -154,9 +154,9 @@ fn ambrosia_heals_the_living_instead_of_hurting() {
 
 #[test]
 fn reader_brings_a_dominating_unit_to_the_edge() {
-    // A Lava Mushroom; Water (⊣ Lava) lies under the Oil edge (after round 1's bite).
+    // A Lava Mushroom; Water (⊣ Lava) lies under the Fat edge (after round 1's bite).
     let d = design(Liquid::Lava);
-    let body = with_edge(&[Liquid::Water, Liquid::Oil, Liquid::Oil]);
+    let body = with_edge(&[Liquid::Water, Liquid::Fat, Liquid::Fat]);
     let mut f = Fight::new(&d, 0, 2, body.clone(), (0, 5), &[("Mushroom", (1, 5))]);
     f.policy = Policy::Reader;
     f.max_rounds = 3;
@@ -198,7 +198,7 @@ fn exit_design(policy: &str, start: &str, river: &str) -> Design {
 fn careful_policies_pour_away_what_would_react_and_strafe_does_not() {
     use simulator::map;
     let play = |policy: &str| {
-        let d = exit_design(policy, "[\"Oil\", \"Water\"]", "[\"Lava\"]");
+        let d = exit_design(policy, "[\"Fat\", \"Water\"]", "[\"Lava\"]");
         let level = &d.levels[0];
         let (r, state) = map::play(
             &d,
@@ -210,32 +210,32 @@ fn careful_policies_pour_away_what_would_react_and_strafe_does_not() {
         (r.won, state.body, r.tally.reactions)
     };
     // lure pours both Lava units away; strafe drinks them and they react with the Water.
-    assert_eq!(play("lure"), (true, vec![Liquid::Oil, Liquid::Water], 0));
+    assert_eq!(play("lure"), (true, vec![Liquid::Fat, Liquid::Water], 0));
     let (won, _, reactions) = play("strafe");
     assert!(won && reactions >= 1);
 }
 
 #[test]
 fn an_enemy_can_be_immune_on_its_own() {
-    // A Lava Mushroom takes Instability from Oil, unless it lists it as its own immunity.
+    // A Lava Mushroom takes Instability from Alkali, unless it lists it as its own immunity.
     let mut d = design(Liquid::Lava);
-    let (log, _, _) = round(&d, with_edge(&[Liquid::Oil]), Policy::Newcomer, 0);
+    let (log, _, _) = round(&d, with_edge(&[Liquid::Alkali]), Policy::Newcomer, 0);
     assert!(strike(&log).contains("Instability"), "{log:?}");
     d.enemies
         .iter_mut()
         .find(|e| e.name == "Mushroom")
         .unwrap()
         .status_immune = vec!["Instability".into()];
-    let (log, _, _) = round(&d, with_edge(&[Liquid::Oil]), Policy::Newcomer, 0);
+    let (log, _, _) = round(&d, with_edge(&[Liquid::Alkali]), Policy::Newcomer, 0);
     assert!(!strike(&log).contains("Instability"), "{log:?}");
 }
 
 #[test]
 fn no_strike_is_repeated_on_its_own_element() {
     use Liquid::*;
-    // Kite: an Oil unit lies 1 under the Water edge facing a Water Mushroom: bring it up.
+    // Kite: a Fat unit lies 1 under the Water edge facing a Water Mushroom: bring it up.
     let d = design(Water);
-    let (log, _, _) = round(&d, with_edge(&[Oil, Water]), Policy::Kite, 0);
+    let (log, _, _) = round(&d, with_edge(&[Fat, Water]), Policy::Kite, 0);
     assert!(!log.iter().any(|l| l.contains("shrugs off")), "{log:?}");
     // A pure Water body has nothing to bring up: the matrix fight ends as a stalemate at once,
     // the newcomer after one wasted strike.

@@ -72,13 +72,13 @@ All averages are over every seed and printed with exactly 2 decimals. Body ledge
 Balance slices, agreed with the balance session. One line per cell, with the same key columns
 and order as `[cells]`: `ap policy build encounter`. All values are averages over all seeds,
 with 2 decimals. A breakdown is written `Name:2.00,Name:1.00`, or `-` when empty. Liquids
-follow their fixed order (the `Liquid` order in `src/data.rs`: Water, Oil, Poison, Acid, Blood, Lava, Mercury, Pus, then the 10 newer ones); statuses are
+follow their fixed order (the `Liquid` order in `src/data.rs`: Water, Poison, Acid, Blood, Lava, Mercury, Pus, then the 9 newer ones and Dross); statuses are
 alphabetical. A column appears only once its mechanic exists in the model, so no column is a placeholder for a mechanic that is not built yet. Some columns can still be zero everywhere in today's data, for example `status` while no enemy applies statuses to the slime.
 
 ```
 [economy]
 ap policy     build      encounter         spent bitten status thorns  grown  swaps     net  by
-1  newcomer   start      bat-3              3.00   2.92   0.00   0.00   0.00   0.00   -5.92  spent=Water:0.08,Oil:0.92,Poison:1.00,Lava:1.00 bitten=Water:1.84,Oil:0.08,Acid:1.00 status=-
+1  newcomer   start      bat-3              3.00   2.92   0.00   0.00   0.00   0.00   -5.92  spent=Water:1.00,Poison:1.00,Lava:1.00 bitten=Water:1.92,Acid:1.00 status=-
 
 [damage]
 ap policy     build      encounter        strike status  retal overkill doomed per_unit  status_by
@@ -259,7 +259,7 @@ Every report is complete on its own.
     "actionsPerRound": 1,
     "seeds": 50,
     "builds": [
-      { "id": "start", "name": "Starting mix", "units": { "Water": 2, "Oil": 1, "Poison": 1, "Acid": 1, "Lava": 1 } },
+      { "id": "start", "name": "Starting mix", "units": { "Water": 3, "Poison": 1, "Acid": 1, "Lava": 1 } },
       { "id": "lava", "name": "10 Lava", "units": { "Lava": 10 } }
     ],
     "encounters": [

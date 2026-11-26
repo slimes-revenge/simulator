@@ -7,7 +7,6 @@ use std::path::Path;
 #[derive(Deserialize, Serialize, Clone, Copy, PartialEq, Eq, Hash, Debug, PartialOrd, Ord)]
 pub enum Liquid {
     Water,
-    Oil,
     Poison,
     Acid,
     Blood,
@@ -15,7 +14,7 @@ pub enum Liquid {
     Mercury,
     /// An infected Blood unit (`Infects`): no power, no effect, spat off the edge.
     Pus,
-    // The rest of the 18 liquids (lore `forum.md`): strike rows come from the balance session;
+    // The rest of the 16 liquids (17 with Ectoplasm, later) (lore `forum.md`): strike rows come from the balance session;
     // until then a strike hits for its `power` with no status.
     Phosphorus,
     Aquavita,
@@ -25,15 +24,13 @@ pub enum Liquid {
     Fat,
     Resin,
     Sulfur,
-    Tar,
     Aphrodisiac,
     /// Dead cargo a stop leaves behind (spent Phosphorus, Fat): no power, no effect, a cell.
     Dross,
 }
 
-pub const ALL_LIQUIDS: [Liquid; 19] = [
+pub const ALL_LIQUIDS: [Liquid; 17] = [
     Liquid::Water,
-    Liquid::Oil,
     Liquid::Poison,
     Liquid::Acid,
     Liquid::Blood,
@@ -48,7 +45,6 @@ pub const ALL_LIQUIDS: [Liquid; 19] = [
     Liquid::Fat,
     Liquid::Resin,
     Liquid::Sulfur,
-    Liquid::Tar,
     Liquid::Aphrodisiac,
     Liquid::Dross,
 ];

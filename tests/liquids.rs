@@ -87,9 +87,10 @@ fn heavy_liquids_cost_action_points() {
 }
 
 #[test]
-fn all_18_liquids_and_dross_are_listed_and_mercury_hits_for_2() {
+fn the_16_liquids_and_dross_are_listed_and_mercury_hits_for_2() {
     let d = Design::bundled();
-    assert_eq!(ALL_LIQUIDS.len(), 19, "18 liquids and Dross");
+    // 17 liquids without Oil and Tar; Ectoplasm comes later.
+    assert_eq!(ALL_LIQUIDS.len(), 17, "16 liquids and Dross");
     assert_eq!(d.liquid(Liquid::Mercury).power, 2);
     assert_eq!(d.liquid(Liquid::Aquavita).power, 1);
 }
@@ -105,7 +106,13 @@ fn liquid_rules_are_validated() {
     assert!(
         bad("heavy_min_action_points = 2", "heavy_min_action_points = 0").contains("heavy_min")
     );
-    assert!(bad("build_liquids = [\"Water\",", "build_liquids = [\"Oil\",").contains("each once"));
+    assert!(
+        bad(
+            "build_liquids = [\"Water\",",
+            "build_liquids = [\"Poison\","
+        )
+        .contains("each once")
+    );
     assert!(
         bad(
             "dominance_basis = \"current\"",
