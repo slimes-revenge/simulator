@@ -546,6 +546,9 @@ impl Design {
                 design.matrix.enemy_rows.len()
             ));
         }
+        if !(1..=100).contains(&design.rules.dominance_percent) {
+            return Err("rules.dominance_percent must be 1..=100".into());
+        }
         if !["defence", "invisible"].contains(&design.rules.mercury_affinity.as_str()) {
             return Err("rules.mercury_affinity must be \"defence\" or \"invisible\"".into());
         }

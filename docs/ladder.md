@@ -47,8 +47,8 @@ through the stop before the next level: each reset turns its `from` units into `
 them when `to` is absent), edge-most first, at most `max_percent` of the body's units; then the
 empty cells up to the next row's capacity fill with Water at the centre (the carried units move
 toward the edge, the edge unit stays the edge). No unit is ever pushed out, so Pus
-held as a bad affinity stays (balance `sim-3d-spec.md` D4). A `mercury` row holding Mercury
-refills only up to Mercury × 100 / `rules.dominance_percent` (D7).
+held as a bad affinity stays (balance `sim-3d-spec.md` D4). A `mercury` row whose affinity is
+Mercury refills only up to Mercury × 100 / `rules.dominance_percent` (D7).
 
 ## Summary
 

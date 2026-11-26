@@ -1530,13 +1530,11 @@ impl<'a> Fight<'a> {
         self.slime.dominant == Some(Liquid::Mercury) && self.d.rules.mercury_affinity == "invisible"
     }
 
-    /// D7: `mercury` holds Mercury and one more non-Mercury unit would take the body past
-    /// Mercury / `dominance_percent`.
+    /// D7: `mercury` holds Mercury as its affinity and one more non-Mercury unit would take
+    /// the body past Mercury / `dominance_percent`.
     fn mercury_full(&self) -> bool {
         let m = self.slime.count(Liquid::Mercury);
-        self.policy == Policy::Mercury
-            && m > 0
-            && (self.slime.volume.len() + 1) * self.d.rules.dominance_percent > m * 100
+        self.hunts() && (self.slime.volume.len() + 1) * self.d.rules.dominance_percent > m * 100
     }
 
     /// D7 `mercury` with its affinity: the index (1 or 2 under the edge) of the unit to bring up
@@ -1597,6 +1595,8 @@ impl<'a> Fight<'a> {
             self.strike_or_wait(i);
             return true;
         }
+        // A pending bring-up belongs to the strike next to it: walking off drops it.
+        self.swapped = false;
         let from = self.slime.cell;
         match self.walk_toward(from, self.enemies[i].cell, 1) {
             Some(to) => {

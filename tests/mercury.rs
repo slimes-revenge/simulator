@@ -203,3 +203,65 @@ fn mercury_rules_are_validated() {
     );
     assert!(Design::parse(&ok).is_ok());
 }
+
+#[test]
+fn without_the_affinity_mercury_does_not_cap_the_body() {
+    // 1 Mercury of 3: no affinity, so it drinks and is refilled like `kite`.
+    let d = exit_design(
+        "mercury",
+        "[\"Water\", \"Water\", \"Mercury\"]",
+        "[\"Water\"]",
+    );
+    let level = &d.levels[0];
+    let (_, state) = map::play(
+        &d,
+        level,
+        level.map.as_ref().unwrap(),
+        &map::start_body(level),
+        0,
+    );
+    assert_eq!(state.body.len(), 9);
+    let stop = d.ladder.stops.iter().find(|s| s.after == 4).unwrap();
+    assert_eq!(
+        ladder::at_stop(&[Water, Water, Mercury], stop, 10, Some(60)).len(),
+        10
+    );
+}
+
+#[test]
+fn the_mercury_policy_eats_corpses_without_losing_its_affinity() {
+    // Mushrooms of 3 Water and 1 Mercury; a 3-Mercury slime eats the Mercury first and leaves
+    // the Water that would take it under 60 %.
+    let text =
+        std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/data/design.toml")).unwrap();
+    let mut text = text[..text.find("[[levels]]").unwrap()].to_string();
+    text += "[[levels]]\nid = \"x\"\ncapacity = 10\nstart = [\"Mercury\", \"Mercury\", \"Mercury\"]\n\
+             action_points = 2\npolicy = \"mercury\"\n\
+             map = { rooms = 3, room_side = [5, 5], enemies_per_room = [1, 1], \
+             enemy_kinds = [\"Mushroom\"], corridor = 1, vision = 3 }\n";
+    let mut d = Design::parse(&text).unwrap();
+    let m = d.enemies.iter_mut().find(|e| e.name == "Mushroom").unwrap();
+    m.volume = vec![Water, Water, Water, Mercury];
+    m.hit_points = 2;
+    let level = &d.levels[0];
+    let mut wasted = 0;
+    for seed in 0..20 {
+        let (r, state) = map::play(
+            &d,
+            level,
+            level.map.as_ref().unwrap(),
+            &map::start_body(level),
+            seed,
+        );
+        wasted += state.episodes.iter().map(|e| e.wasted).sum::<usize>();
+        if r.won {
+            let n = state.body.iter().filter(|&&l| l == Mercury).count();
+            assert!(
+                n * 100 >= state.body.len() * 60,
+                "seed {seed}: {:?}",
+                state.body
+            );
+        }
+    }
+    assert!(wasted > 0, "some Water is left");
+}

@@ -144,8 +144,8 @@ pub fn run(d: &Design) -> (Vec<LadderRow>, Vec<SummaryRow>) {
 /// D4: a stop between maps. Each reset turns its `from` units into `to` (or drops them),
 /// edge-most first, at most `max_percent` of the body; then the empty cells up to `capacity`
 /// fill with Water. Units are never pushed out, so Pus held as a bad affinity stays.
-/// `mercury_percent` (D7, the `mercury` policy): a body holding Mercury refills only up to
-/// Mercury × 100 / that percent.
+/// `mercury_percent` (D7, the `mercury` policy): a body whose affinity is Mercury (that share of
+/// it) refills only up to Mercury × 100 / that percent.
 pub fn at_stop(
     body: &[Liquid],
     stop: &Stop,
@@ -170,7 +170,7 @@ pub fn at_stop(
     }
     let m = b.iter().filter(|&&l| l == Liquid::Mercury).count();
     let cap = match mercury_percent {
-        Some(p) if m > 0 => capacity.min(m * 100 / p),
+        Some(p) if m > 0 && m * 100 >= b.len() * p => capacity.min(m * 100 / p),
         _ => capacity,
     };
     while b.len() < cap {

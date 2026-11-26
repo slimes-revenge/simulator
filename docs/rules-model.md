@@ -324,7 +324,7 @@ Agreed design rules; not in the game.
   3. before a strike (one action, like `reader`): it brings Mercury from 1 or 2 under the edge
      up when spending one keeps the affinity and the target is not of Mercury's element, else
      a non-Mercury unit; the stall rule brings a non-Mercury unit up against Mercury enemies;
-  4. while it holds Mercury it keeps the body within Mercury × 100 / `dominance_percent`: it
+  4. while Mercury is its affinity it keeps the body within Mercury × 100 / `dominance_percent`: it
      drinks no non-Mercury unit past that (at the exit it leaves the rest of the river), eats
      a corpse's Mercury first and leaves what would thin it, and a stop refills it only up to
      that (`ladder::at_stop`).
