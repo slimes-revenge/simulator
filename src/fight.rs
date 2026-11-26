@@ -1177,6 +1177,37 @@ impl<'a> Fight<'a> {
             let blocker =
                 next.and_then(|c| self.enemies.iter().position(|e| e.alive() && e.cell == c));
             if let Some(i) = blocker.filter(|&i| self.gives_up(i)) {
+                // An aggroed blocker stays while it fights. When a deeper unit can hurt it, the
+                // slime spits its useless edge away to dig down to it; when none can and the
+                // blocker cannot hurt the slime either, nothing will ever change.
+                if self.engaging(&self.enemies[i]) {
+                    let v = &self.slime.volume;
+                    let deeper = v[..v.len().saturating_sub(3)]
+                        .iter()
+                        .any(|&u| !self.useless_against(u, i));
+                    if deeper && v.len() > 1 {
+                        let unit = self.slime.volume.pop().expect("more than one unit");
+                        self.units_spent += 1;
+                        *self.tally.spent_by.entry(unit).or_insert(0) += 1;
+                        let d = self.d;
+                        refresh_dominance(d, &mut self.slime, &mut self.next_status_id);
+                        return self.note(|f| {
+                            format!("Slime spits {unit:?} away to dig past {}", f.label(i))
+                        });
+                    }
+                    let theirs = self.enemies[i].element;
+                    let edge = self
+                        .slime
+                        .volume
+                        .last()
+                        .and_then(|&l| self.d.elements.of(l));
+                    if !deeper && theirs.is_some() && theirs == edge {
+                        self.stalemate = true;
+                        return self.note(|f| {
+                            format!("{} and the slime cannot hurt each other", f.label(i))
+                        });
+                    }
+                }
                 // A blocker it cannot hurt: wait for it to move (or die of its statuses). The
                 // run ends only when stationary given-up enemies close every way to the goal.
                 let stuck = |e: &Creature| {

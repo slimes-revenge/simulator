@@ -268,7 +268,11 @@ Agreed design rules (balance `sim-reactions-spec.md`, `bestiary-numbers.md`); no
   makes reacting neighbours; `newcomer` and `strafe` first waste one strike. With nothing to
   bring up the slime gives up on that enemy: it neither strikes nor waits for it (on maps it
   walks on to the exit past it). The waste and the giving up are per enemy. A moving enemy it
-  cannot hurt that blocks the way is waited for; when stationary given-up enemies (not dying
+  cannot hurt that blocks the way: when it is aggroed (it stays while it fights), the slime
+  spits its useless edge unit away (one action, a spent unit) while a unit deeper than 2 under
+  the edge could hurt it, digging down to that unit; when no unit in the body can and the
+  blocker cannot hurt the slime either (its element is the edge's), the run ends at once as
+  `stalemate`; otherwise it is waited for. When stationary given-up enemies (not dying
   of their statuses) close every way to the goal, the run ends as a loss, cause `stalemate`. A matrix fight in which the slime gives up on every living enemy (none dying of
   its statuses) ends at once the same way. `lure` and `kite` hold for an enemy only while it
   has a way to the slime past walls, stones and given-up enemies. `arranger` never swaps the
