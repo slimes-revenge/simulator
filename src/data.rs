@@ -591,6 +591,9 @@ impl Design {
         if !(1..=100).contains(&design.rules.dominance_percent) {
             return Err("rules.dominance_percent must be 1..=100".into());
         }
+        if design.statuses.flammable_multiplier < 1 {
+            return Err("statuses.flammable_multiplier must be >= 1".into());
+        }
         if !["additive", "multiplicative"].contains(&design.statuses.flammable_stacking.as_str()) {
             return Err(
                 "statuses.flammable_stacking must be \"additive\" or \"multiplicative\"".into(),
