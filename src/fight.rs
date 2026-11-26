@@ -2789,12 +2789,25 @@ fn heal(c: &mut Creature, amount: i32) {
 fn pending_status_damage(d: &Design, c: &Creature) -> i32 {
     let mut armor = c.armor;
     let mut total = 0;
-    for s in &c.statuses {
+    for (at, s) in c.statuses.iter().enumerate() {
         // Forever statuses never pulse damage in the model (only Regeneration, on the slime).
         let pulses = s.remaining.max(0);
         match s.kind {
             StatusKind::Burning => {
-                total += pulses * modify_incoming_harm(d, c, d.statuses.burning_pulse);
+                // Its k-th pulse is multiplied by the Flammable statuses still running then: one
+                // queued before it has already ticked that turn.
+                for k in 0..pulses {
+                    let flammable = c
+                        .statuses
+                        .iter()
+                        .enumerate()
+                        .filter(|&(j, f)| {
+                            f.kind == StatusKind::Flammable && f.remaining > k + i32::from(j < at)
+                        })
+                        .count() as u32;
+                    total +=
+                        d.statuses.burning_pulse * d.statuses.flammable_multiplier.pow(flammable);
+                }
             }
             StatusKind::Poisoned => total += pulses * d.statuses.poisoned_pulse,
             StatusKind::ColdFire => total += pulses * d.statuses.cold_fire_pulse,
@@ -2879,7 +2892,7 @@ fn apply_liquid(d: &Design, target: &mut Creature, liquid: Liquid, from: Source,
             add(StatusKind::ColdFire, s.cold_fire);
             add(StatusKind::Blinded, s.blinded);
         }
-        // No status in the model yet (Cold fire, Greased, Rooted, Charmed, Infected), or none.
+        // No status in the model yet (Greased, Rooted, Charmed; Pus infects in `infect`), or none.
         Liquid::Blood
         | Liquid::Mercury
         | Liquid::Pus
@@ -3030,5 +3043,33 @@ mod tests {
         );
         f.enemies[0].vision = Some(2);
         assert_eq!(f.sight(&f.enemies[0]), 1);
+    }
+
+    #[test]
+    fn doomed_counts_burning_pulses_only_while_flammable_lasts() {
+        let d = Design::bundled();
+        let mut f = Fight::new(
+            &d,
+            0,
+            1,
+            vec![Liquid::Water],
+            (0, 5),
+            &[("Mushroom", (1, 5))],
+        );
+        let status = |kind, remaining, id| Status {
+            kind,
+            source: Source::Strike,
+            remaining,
+            id,
+        };
+        // Sulfur's Flammable (2) queued before Lava's Burning (3): pulses deal 2, 1, 1.
+        f.enemies[0].statuses = vec![
+            status(StatusKind::Flammable, 2, 1),
+            status(StatusKind::Burning, 3, 2),
+        ];
+        assert_eq!(pending_status_damage(&d, &f.enemies[0]), 4);
+        // Queued after it, the Flammable still counts on the Burning's first two pulses.
+        f.enemies[0].statuses.reverse();
+        assert_eq!(pending_status_damage(&d, &f.enemies[0]), 5);
     }
 }

@@ -88,8 +88,9 @@ power = 0
 corrosion = 0
 
 # The rest of the 16 liquids (17 with Ectoplasm, later) (lore forum.md; rows: balance liquids.md "Финальный список").
-# Vitriol: Corroding; Alkali: Instability 2; Sulfur: Flammable; Ambrosia heals Living. The rest
-# strike for `power` with no status until their statuses exist (Cold fire, Greased, Rooted, Charmed).
+# Vitriol: Corroding; Alkali: Instability 2; Sulfur: Flammable; Ichor: Cold fire + Blinded; Ambrosia
+# heals Living. The rest strike for `power` with no status until their statuses exist (Greased,
+# Rooted, Charmed).
 [[liquids]]
 name = "Ichor"
 power = 1
