@@ -32,6 +32,7 @@ statuses.burning_pulse = 1
 statuses.poisoned_pulse = 1
 statuses.corroding_pulse = 1
 statuses.flammable_multiplier = 2
+statuses.flammable_stacking = additive
 statuses.instability_speed = -1
 statuses.vampirism_heal = 2
 statuses.regeneration_growth = 1

@@ -40,6 +40,7 @@ burning_pulse = 1          # Burning.PulsePower (before Flammable)
 poisoned_pulse = 1         # Poisoned.PulsePower
 corroding_pulse = 1        # Corroding.PulsePower (when no armor is left)
 flammable_multiplier = 2   # Flammable.DamageMultiplier, per Flammable status
+flammable_stacking = "additive"  # design (Oleg В9): fire x(1 + copies); "multiplicative" = the game (x2 per copy), fallback
 instability_speed = -1     # Instability.SpeedModifier
 vampirism_heal = 2         # Vampirism.HealAmount
 regeneration_growth = 1    # Regeneration: +1 Blood per pulse

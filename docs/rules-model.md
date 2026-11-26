@@ -94,7 +94,9 @@ The matrix builds a pure body only of `matrix.build_liquids`.
 - FIFO queue, each status pulses once at the start of its owner's turn, then loses one turn;
   it expires at 0. Damage over time ignores armor.
 - **Statuses stack.** `StatusQueue.Add` does not merge kinds: three Lava strikes are three
-  Burnings, each pulsing. Each Flammable doubles again (two Sulfur strikes: ×4).
+  Burnings, each pulsing. Flammable copies stack by `statuses.flammable_stacking`: `additive`
+  (the design, Oleg's В9): fire ×(1 + n × (`flammable_multiplier` − 1)), two Sulfur strikes ×3;
+  `multiplicative` (the game, fallback): ×`flammable_multiplier` per copy, two ×4.
 - Wet cancels Burning and Corroding, Burning cancels Wet: the existing status is removed and the
   incoming one is not added.
 - Vampirism (innate): heals on receiving Blood and when its bite pops a Blood unit off the slime
@@ -382,7 +384,8 @@ Found while building the model (game `dev` at 44018ffe, 2026-11-25). The simulat
    `Creature.Personality` default, which no doc mentions.
 3. Status stacking: the docs describe Burning, Poisoned, Corroding as one 3-turn effect and
    Flammable as ×2; in code every strike adds another copy (`StatusQueue.Add` never merges),
-   so damage over time stacks and Flammable multiplies (×4, ×8).
+   so damage over time stacks and Flammable multiplies (×4, ×8). The design stacks Flammable
+   additively (×3 for two); the model does that by default (`statuses.flammable_stacking`).
 4. Mercury: `substances.md` says its dominance makes the slime Invisible, but no doc says what
    that does in a fight: non-aggroed enemies cannot see, chase or bite it (`IsDetectedBy`), so
    a pure Mercury slime always gets the first strike.

@@ -369,6 +369,8 @@ pub struct StatusData {
     pub poisoned_pulse: i32,
     pub corroding_pulse: i32,
     pub flammable_multiplier: i32,
+    /// How Flammable statuses stack: `additive` (the design) or `multiplicative` (the game).
+    pub flammable_stacking: String,
     pub instability_speed: i32,
     pub vampirism_heal: i32,
     pub regeneration_growth: usize,
@@ -588,6 +590,14 @@ impl Design {
         }
         if !(1..=100).contains(&design.rules.dominance_percent) {
             return Err("rules.dominance_percent must be 1..=100".into());
+        }
+        if design.statuses.flammable_multiplier < 1 {
+            return Err("statuses.flammable_multiplier must be >= 1".into());
+        }
+        if !["additive", "multiplicative"].contains(&design.statuses.flammable_stacking.as_str()) {
+            return Err(
+                "statuses.flammable_stacking must be \"additive\" or \"multiplicative\"".into(),
+            );
         }
         if !["defence", "invisible"].contains(&design.rules.mercury_affinity.as_str()) {
             return Err("rules.mercury_affinity must be \"defence\" or \"invisible\"".into());
