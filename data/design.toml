@@ -9,6 +9,7 @@ vision_range = 5          # Creature.visionRange (Chebyshev, no walls)
 dominance_percent = 60        # affinity threshold (balance liquids.md); the game uses 80 of the volume
 dominance_basis = "current"   # share of the body now (design, Oleg 2026-11-26; the game too); "capacity" = fallback
 retaliation_pulses = 3        # Retaliation statuses last 3 pulses, a full status like a strike (design, Oleg 2026-11-26; fallback 2); 0 = the liquid's own duration (the game)
+edge_retort_pulses = 2        # 4c (balance liquid-roles.md): no affinity — the bitten edge unit's status on the biter, 1 turn; 0 = off (fallback)
 heavy = { Lava = 3, Mercury = 2 }  # holding this many costs 1 action point each (design)
 heavy_min_action_points = 2   # heaviness never takes the slime below this
 reaction_can_kill = true      # R1: a reaction chain may empty the body (balance sim-reactions-spec.md)

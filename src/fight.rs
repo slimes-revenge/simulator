@@ -48,6 +48,8 @@ pub enum Source {
     Body,
     /// A puddle an enemy stepped into (D1).
     Puddle,
+    /// 4c: the edge unit a bite took, on the biter (no affinity to retaliate with).
+    Edge,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -2429,6 +2431,8 @@ impl<'a> Fight<'a> {
         }
         let enemy = &mut self.enemies[i];
         if self.slime.alive() {
+            // The affinity retaliates in full; without one, the edge unit the bite took leaves
+            // its status on the biter for `rules.edge_retort_pulses` (4c).
             if let Some(liquid) = retort {
                 apply_liquid(
                     d,
@@ -2437,6 +2441,8 @@ impl<'a> Fight<'a> {
                     Source::Retaliation,
                     &mut self.next_status_id,
                 );
+            } else if let Some(liquid) = tip.filter(|_| d.rules.edge_retort_pulses > 0) {
+                apply_liquid(d, enemy, liquid, Source::Edge, &mut self.next_status_id);
             }
             enemy.aggroed = true;
             enemy.pursuit = Some(self.slime.cell);
@@ -2662,7 +2668,7 @@ impl<'a> Fight<'a> {
                 let applied = (hp - owner.hit_points) as usize;
                 let t = &mut self.tally;
                 match status.source {
-                    Source::Retaliation => t.retaliation_dmg += applied,
+                    Source::Retaliation | Source::Edge => t.retaliation_dmg += applied,
                     Source::Strike | Source::Body | Source::Puddle => t.status_dmg += applied,
                 }
                 *t.status_dmg_by.entry(status.kind.name()).or_insert(0) += applied;
@@ -2798,6 +2804,8 @@ fn apply_liquid(d: &Design, target: &mut Creature, liquid: Liquid, from: Source,
         }
         let duration = if from == Source::Retaliation && pulses > 0 {
             pulses
+        } else if from == Source::Edge {
+            d.rules.edge_retort_pulses
         } else {
             own.unwrap_or(duration)
         };
@@ -2837,7 +2845,8 @@ fn apply_liquid(d: &Design, target: &mut Creature, liquid: Liquid, from: Source,
         | Liquid::Aphrodisiac
         | Liquid::Dross => {}
     }
-    if liquid == Liquid::Blood && target.vampirism {
+    // The edge retort's Blood is the tip the bite drank: Vampirism already healed on it.
+    if liquid == Liquid::Blood && target.vampirism && from != Source::Edge {
         heal(target, s.vampirism_heal);
     }
 }
